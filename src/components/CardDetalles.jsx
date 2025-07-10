@@ -44,7 +44,7 @@ export default function CardResum() {
     console.log('check desde card', event)
   }
 
-  const [formadePago, setFormadePago] = useState('efectivo')
+  const formadePago = usePresupuestoDetails((state) => state.formadePago)
 
   const handleFormadePago = (event) => {
     setFormadePago(event)
