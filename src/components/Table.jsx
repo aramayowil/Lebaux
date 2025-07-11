@@ -53,7 +53,6 @@ const INITIAL_VISIBLE_COLUMNS = [
 ]
 
 export default function TableHeroUI() {
-  // const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
   const users = JSON.parse(localStorage.getItem('aberturas')) || []
 
   const [actualizarTabla, setActualizarTabla] = useState(false)
@@ -93,7 +92,7 @@ export default function TableHeroUI() {
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((user) =>
-        user.nombre.toLowerCase().includes(filterValue.toLowerCase())
+        user.tipoAbertura.toLowerCase().includes(filterValue.toLowerCase())
       )
     }
     if (
@@ -143,7 +142,7 @@ export default function TableHeroUI() {
             <p className="text-bold text-sm capitalize text-default-400">
               {user.linea}
             </p>
-            <p className="text-bold text-md capitalize">{user.abertura}</p>
+            <p className="text-bold text-md capitalize">{user.tipoAbertura}</p>
           </div>
         )
       case 'descripcion':

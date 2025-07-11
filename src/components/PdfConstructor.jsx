@@ -7,6 +7,9 @@ import {
   StyleSheet,
   Image,
 } from '@react-pdf/renderer'
+import usePresupuestoDetails from '../stores/usePresupuestoDetailsStore'
+import useClientStore from '../stores/useClienteDetailsStore'
+import { user } from '@heroui/theme'
 
 const styles = StyleSheet.create({
   page: {
@@ -30,15 +33,39 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 })
-function PDF({ descuento }) {
+const formatoDecimal = (valor) => {
+  return valor.toLocaleString('es-ES', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+function obtenerFechaHoy() {
+  const hoy = new Date()
+  const dia = String(hoy.getDate()).padStart(2, '0')
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0') // ¡Recordá que enero es 0!
+  const año = hoy.getFullYear()
+
+  return `${dia}/${mes}/${año}`
+}
+
+function capitalizar(texto) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
+
+function PDF() {
   const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
-  console.log('aberturas:', aberturas)
+
+  const details = usePresupuestoDetails((state) => state.Details)
+  const updateDetails = usePresupuestoDetails((state) => state.updateDetails)
+
+  const clientName = useClientStore((state) => state.clientName)
+
   return (
     <Document>
       <Page wrap="true" size="A4" style={styles.page}>
         <View style={styles.section}>
           <Image
-            src="../../public/img/LEBAUX-LOGO.png"
+            src="./img/LEBAUX-LOGO.png"
             style={{ width: 190, height: 55 }}
           />
 
@@ -48,7 +75,7 @@ function PDF({ descuento }) {
         </View>
         <View style={styles.textEncabezado}>
           <View style={{ marginLeft: 16 }}>
-            <Text>Sres. ARAMAYO WILBER DAVID</Text>
+            <Text>Sres. {clientName.toUpperCase()}</Text>
           </View>
           <View
             style={{
@@ -62,7 +89,7 @@ function PDF({ descuento }) {
             <Text>LEBAUX SRL</Text>
             <Text>Av. Alem 1930 (4000)</Text>
             <Text>San Miguel de Tucumán, Tucumán</Text>
-            <Text>Fecha: 10/07/2025</Text>
+            <Text>Fecha: {obtenerFechaHoy()}</Text>
           </View>
         </View>
         <View
@@ -136,12 +163,13 @@ function PDF({ descuento }) {
                 }}
               >
                 <View style={{ textAlign: 'left' }}>
+                  <Text>{capitalizar(abertura.linea)}</Text>
                   <Text>{abertura.descripcion}</Text>
                   <Text>
-                    {abertura.medidas.base} x {abertura.medidas.altura} cm
+                    {abertura.medidas.base} x {abertura.medidas.altura}
                   </Text>
                   <Text>Cantidad: {abertura.cantidad}</Text>
-                  <Text>Color: {abertura.color}</Text>
+                  <Text>Color: {capitalizar(abertura.color)}</Text>
                   <Text>Vidrio: {abertura.vidrio}</Text>
                 </View>
 
@@ -157,10 +185,10 @@ function PDF({ descuento }) {
                   }}
                 >
                   <Text style={{ textAlign: 'center' }}>
-                    ${abertura.precio}
+                    ${formatoDecimal(abertura.precio)}
                   </Text>
                   <Text style={{ textAlign: 'center' }}>
-                    ${abertura.cantidad * abertura.precio}
+                    ${formatoDecimal(abertura.precio * abertura.cantidad)}
                   </Text>
                 </View>
               </View>
@@ -170,23 +198,48 @@ function PDF({ descuento }) {
           <View
             style={{
               display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
+              flexDirection: 'column',
+              justifyContent: 'left',
+              alignItems: 'left',
               marginTop: 16,
               padding: 16,
               fontSize: 12,
               gap: 2,
               textAlign: 'right',
+              width: '100%',
             }}
           >
-            <Text style={{ color: '000', backgroundColor: '#fdc97d' }}>
-              <Text>IMPORTE TOTAL: $ </Text>
-              <Text style={{ marginLeft: 20 }}>
-                {aberturas
-                  .map((item) => item.precio * item.cantidad)
-                  .reduce((acc, curr) => acc + curr, 0) - 46038}
+            <Text style={{ color: '000' }}>
+              <Text style={{ backgroundColor: '#fdc97d' }}>
+                IMPORTE TOTAL: $ {formatoDecimal(details.importeFinal)}
               </Text>
             </Text>
+            {details.formaPago === 'cuotas' && (
+              <Text style={{ color: '000', fontSize: 10 }}>1 de 6 coutas</Text>
+            )}
+            <Text style={{ color: '000', fontSize: 10 }}>
+              Compra: $ {formatoDecimal(details.importe)}
+            </Text>
+            {details.formaPago === 'efectivo' ? (
+              <Text style={{ color: '000', fontSize: 10 }}>
+                Descuento: $ {formatoDecimal(details.descuento)}
+              </Text>
+            ) : details.formaPago === 'transferencia' ? (
+              <Text style={{ color: '000', fontSize: 10 }}>
+                Recargo: $ {formatoDecimal(details.recargo)}
+              </Text>
+            ) : (
+              <Text style={{ color: '000', fontSize: 10 }}>
+                Descuento: $ {formatoDecimal(details.descuento)}
+              </Text>
+            )}
+            {details.saldoPendiente > 0 ? (
+              <Text style={{ color: '000', fontSize: 10 }}>
+                A cuenta: $ {formatoDecimal(details.saldoPendiente)}
+              </Text>
+            ) : (
+              <Text style={{ color: '000', fontSize: 10 }}></Text>
+            )}
           </View>
           <View style={{ marginTop: 42, padding: 16, fontSize: 11, gap: 8 }}>
             <Text>

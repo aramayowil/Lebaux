@@ -9,6 +9,8 @@ import {
 } from '@heroui/react'
 import { SlOptionsVertical } from 'react-icons/sl'
 import { Tooltip } from '@heroui/tooltip'
+import useClientStore from '../../stores/useClienteDetailsStore'
+import usePresupuestoDetails from '../../stores/usePresupuestoDetailsStore'
 
 export const AddNoteIcon = (props) => {
   return (
@@ -121,6 +123,9 @@ export const DeleteDocumentIcon = (props) => {
 }
 
 export default function DropdownOptions() {
+  // const resetDetails = usePresupuestoDetails((state) => state.resetDetails)
+  const resetClient = useClientStore((state) => state.resetClientName)
+
   const iconClasses =
     'text-xl text-default-500 pointer-events-none flex-shrink-0'
 
@@ -176,6 +181,7 @@ export default function DropdownOptions() {
             startContent={
               <DeleteDocumentIcon className={cn(iconClasses, 'text-danger')} />
             }
+            onPress={resetClient}
           >
             Eliminar todo
           </DropdownItem>

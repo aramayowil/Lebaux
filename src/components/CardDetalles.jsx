@@ -9,6 +9,7 @@ import {
   NumberInput,
 } from '@heroui/react'
 import React, { useEffect, useState } from 'react'
+import { pdf } from '@react-pdf/renderer'
 import { Button } from '@heroui/button'
 import { FaRegCheckCircle } from 'react-icons/fa'
 import usePresupuestoDetails from '../stores/usePresupuestoDetailsStore'
@@ -16,6 +17,7 @@ import RadioButtom from './RadioButtom'
 import PdfLuncher from './UI/PdfLuncher'
 import CheckSaldoACuenta from './CheckSaldoACuenta'
 import { IoMdInformationCircleOutline } from 'react-icons/io'
+import PDF from './PdfConstructor'
 
 const formatoDecimal = (valor) => {
   return valor.toLocaleString('es-ES', {
@@ -23,15 +25,23 @@ const formatoDecimal = (valor) => {
     maximumFractionDigits: 2,
   })
 }
+const clientName = useClientStore((state) => state.clientName)
+
+const generarPDF = async () => {
+  const blob = await pdf(<PDF />).toBlob()
+  const url = URL.createObjectURL(blob)
+
+  const enlace = document.createElement('a')
+  enlace.href = url
+  enlace.download = `presupuesto.pdf`
+  document.body.appendChild(enlace)
+  enlace.click()
+  document.body.removeChild(enlace)
+}
 
 export default function CardResum() {
   const details = usePresupuestoDetails((state) => state.Details)
   const updateDetails = usePresupuestoDetails((state) => state.updateDetails)
-
-  const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
-  const importeAberturas = aberturas
-    .map((item) => item.precio)
-    .reduce((acc, curr) => acc + curr, 0)
 
   const [isCheckSaldo, setIsCheckSaldo] = useState(false)
 
@@ -40,17 +50,17 @@ export default function CardResum() {
   }
 
   const calcularImporteFinal = () => {
-    let importeTotal = importeAberturas
+    let importeTotal = details.importe
     const nroCouta = 6
 
     if (details.formaPago === 'efectivo') {
-      importeTotal -= importeAberturas * 0.1 // Descuento del 10%
-      updateDetails({ recargo: 0, descuento: importeAberturas * 0.1 })
+      importeTotal -= details.importe * 0.1 // Descuento del 10%
+      updateDetails({ recargo: 0, descuento: details.importe * 0.1 })
     } else if (details.formaPago === 'transferencia') {
-      importeTotal += importeAberturas * 0.05 // Recargo del 5%
-      updateDetails({ recargo: importeAberturas * 0.05, descuento: 0 })
+      importeTotal += details.importe * 0.05 // Recargo del 5%
+      updateDetails({ recargo: details.importe * 0.05, descuento: 0 })
     } else {
-      importeTotal = importeAberturas / nroCouta // Precio en coutas
+      importeTotal = details.importe / nroCouta // Precio en coutas
       updateDetails({ recargo: 0, descuento: 0 })
     }
 
@@ -63,6 +73,11 @@ export default function CardResum() {
 
   useEffect(() => {
     calcularImporteFinal()
+
+    const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
+    const importeAberturas = aberturas
+      .map((item) => item.precio)
+      .reduce((acc, curr) => acc + curr, 0)
     updateDetails({ importe: importeAberturas })
   }, [details.formaPago, details.importe, details.saldoPendiente, isCheckSaldo])
 
@@ -127,10 +142,10 @@ export default function CardResum() {
               color="warning"
               startContent={<FaRegCheckCircle size={18} />}
               className="mt-1 mx-auto w-full"
+              onPress={generarPDF}
             >
               Finalizar presupuesto
             </Button>
-            {/* <PdfLuncher /> */}
           </div>
         </CardFooter>
       </Card>
