@@ -8,66 +8,63 @@ import {
   Image,
   NumberInput,
 } from '@heroui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '@heroui/button'
 import { FaRegCheckCircle } from 'react-icons/fa'
 import usePresupuestoDetails from '../stores/usePresupuestoDetailsStore'
-
 import RadioButtom from './RadioButtom'
 import PdfLuncher from './UI/PdfLuncher'
 import CheckSaldoACuenta from './CheckSaldoACuenta'
-
 import { IoMdInformationCircleOutline } from 'react-icons/io'
 
+const formatoDecimal = (valor) => {
+  return valor.toLocaleString('es-ES', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
 export default function CardResum() {
+  const details = usePresupuestoDetails((state) => state.Details)
+  const updateDetails = usePresupuestoDetails((state) => state.updateDetails)
+
   const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
   const importeAberturas = aberturas
     .map((item) => item.precio)
     .reduce((acc, curr) => acc + curr, 0)
 
-  const formatoDecimal = (valor) => {
-    return valor.toLocaleString('es-ES', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })
-  }
-
-  const [inputSaldo, setInputSaldo] = useState(0)
   const [isCheckSaldo, setIsCheckSaldo] = useState(false)
-
-  const handleSaldo = (event) => {
-    Number.isNaN(event) ? setInputSaldo(0) : setInputSaldo(event)
-  }
 
   const handleCheck = (event) => {
     setIsCheckSaldo(event)
-    console.log('check desde card', event)
-  }
-
-  const formadePago = usePresupuestoDetails((state) => state.formadePago)
-
-  const handleFormadePago = (event) => {
-    setFormadePago(event)
   }
 
   const calcularImporteFinal = () => {
-    let importeFinal = importeAberturas
+    let importeTotal = importeAberturas
     const nroCouta = 6
 
-    if (formadePago === 'efectivo') {
-      importeFinal -= importeAberturas * 0.1 // Descuento del 10%
-    } else if (formadePago === 'transferencia') {
-      importeFinal += importeAberturas * 0.05 // Recargo del 5%
+    if (details.formaPago === 'efectivo') {
+      importeTotal -= importeAberturas * 0.1 // Descuento del 10%
+      updateDetails({ recargo: 0, descuento: importeAberturas * 0.1 })
+    } else if (details.formaPago === 'transferencia') {
+      importeTotal += importeAberturas * 0.05 // Recargo del 5%
+      updateDetails({ recargo: importeAberturas * 0.05, descuento: 0 })
     } else {
-      importeFinal = importeAberturas / nroCouta // Precio en coutas
+      importeTotal = importeAberturas / nroCouta // Precio en coutas
+      updateDetails({ recargo: 0, descuento: 0 })
     }
 
     if (isCheckSaldo) {
-      return formatoDecimal(importeFinal + inputSaldo)
+      updateDetails({ importeFinal: importeTotal + details.saldoPendiente })
     } else {
-      return formatoDecimal(importeFinal)
+      updateDetails({ importeFinal: importeTotal })
     }
   }
+
+  useEffect(() => {
+    calcularImporteFinal()
+    updateDetails({ importe: importeAberturas })
+  }, [details.formaPago, details.importe, details.saldoPendiente, isCheckSaldo])
 
   return (
     <div>
@@ -87,39 +84,39 @@ export default function CardResum() {
         </CardHeader>
         <Divider />
         <CardBody className="flex flex-col justify-center p-4">
-          <RadioButtom formadePago={handleFormadePago} />
+          <RadioButtom />
           <Divider className="mt-4" />
-          <CheckSaldoACuenta saldo={handleSaldo} check={handleCheck} />
+          <CheckSaldoACuenta check={handleCheck} />
         </CardBody>
         <Divider />
         <CardFooter>
           <div className="flex flex-col w-full items-star justify-center">
             <p className="text-default-500 text-sm">Importe total</p>
             <p className="text-2xl font-bold">
-              ARS$ {formatoDecimal(calcularImporteFinal())}
+              ARS$ {formatoDecimal(details.importeFinal)}
             </p>
-            {formadePago === 'cuotas' && (
+            {details.formaPago === 'cuotas' && (
               <p className="text-default-500 text-sm">Cuota 1 de 6</p>
             )}
             <p className="text-default-500 text-sm mt-4">
-              Compra: $ {formatoDecimal(importeAberturas)}
+              Compra: $ {formatoDecimal(details.importe)}
             </p>
-            {formadePago === 'efectivo' ? (
+            {details.formaPago === 'efectivo' ? (
               <p className="text-default-500 text-sm">
-                Descuento: $ {formatoDecimal(importeAberturas * 0.1)}
+                Descuento: $ {formatoDecimal(details.descuento)}
               </p>
-            ) : formadePago === 'transferencia' ? (
+            ) : details.formaPago === 'transferencia' ? (
               <p className="text-default-500 text-sm">
-                Recargo: $ {formatoDecimal(importeAberturas * 0.05)}
+                Recargo: $ {formatoDecimal(details.recargo)}
               </p>
             ) : (
               <p className="text-default-500 text-sm">
-                Descuento: $ {formatoDecimal(0)}
+                Descuento: $ {formatoDecimal(details.descuento)}
               </p>
             )}
             {isCheckSaldo ? (
               <p className="text-default-500 text-sm mb-4">
-                A cuenta: $ {formatoDecimal(inputSaldo)}
+                A cuenta: $ {formatoDecimal(details.saldoPendiente)}
               </p>
             ) : (
               <p className="text-default-500 text-sm mb-4">A cuenta: $ -</p>

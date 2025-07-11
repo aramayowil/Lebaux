@@ -1,4 +1,6 @@
 import { RadioGroup, Radio, useRadio, VisuallyHidden, cn } from '@heroui/react'
+import usePresupuestoDetails from '../stores/usePresupuestoDetailsStore'
+import { use } from 'react'
 
 export const CustomRadio = (props) => {
   const { children, ...otherProps } = props
@@ -19,15 +21,18 @@ export const CustomRadio = (props) => {
   )
 }
 
-export default function RadioButtom({ formadePago }) {
+export default function RadioButtom() {
+  const details = usePresupuestoDetails((state) => state.Details)
+  const updateDetails = usePresupuestoDetails((state) => state.updateDetails)
+
   return (
     <RadioGroup
       size="sm"
       color="warning"
       description="Selecciona una forma de pago."
       label="Formas de pago"
-      defaultValue={'efectivo'}
-      onValueChange={(event) => formadePago(event)}
+      value={details.formaPago}
+      onValueChange={(e) => updateDetails({ formaPago: e })}
     >
       <CustomRadio description="Descuento del 10%." value="efectivo">
         Efectivo
