@@ -124,7 +124,11 @@ export const DeleteDocumentIcon = (props) => {
 
 export default function DropdownOptions() {
   // const resetDetails = usePresupuestoDetails((state) => state.resetDetails)
-  const resetClient = useClientStore((state) => state.resetClientName)
+
+  const reset = () => {
+    localStorage.setItem('aberturas', JSON.stringify([]))
+    useClientStore((state) => state.resetClientName)
+  }
 
   const iconClasses =
     'text-xl text-default-500 pointer-events-none flex-shrink-0'
@@ -181,7 +185,7 @@ export default function DropdownOptions() {
             startContent={
               <DeleteDocumentIcon className={cn(iconClasses, 'text-danger')} />
             }
-            onPress={resetClient}
+            onPress={reset}
           >
             Eliminar todo
           </DropdownItem>
