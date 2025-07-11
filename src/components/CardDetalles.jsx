@@ -25,7 +25,6 @@ const formatoDecimal = (valor) => {
     maximumFractionDigits: 2,
   })
 }
-const clientName = useClientStore((state) => state.clientName)
 
 const generarPDF = async () => {
   const blob = await pdf(<PDF />).toBlob()
