@@ -10,6 +10,7 @@ import {
 import usePresupuestoDetails from '../stores/usePresupuestoDetailsStore'
 import useClientStore from '../stores/useClienteDetailsStore'
 import { user } from '@heroui/theme'
+import AberturaConDimensiones from './UI/Abertura'
 
 const styles = StyleSheet.create({
   page: {
@@ -130,7 +131,7 @@ function PDF() {
                   alignContent: 'center',
                   padding: 8,
                   fontSize: 11,
-                  maxHeight: 150,
+                  maxHeight: 200,
                 }}
               >
                 <Text
@@ -142,11 +143,15 @@ function PDF() {
                 >
                   {abertura.codigo}
                 </Text>
+                {/* <AberturaConDimensiones /> */}
                 <Image
                   src={abertura.img}
                   style={{
+                    width: `${abertura.medidas.base / 10}`,
+                    height: `${abertura.medidas.altura / 10}`,
+                    maxHeight: 170,
+                    maxWidth: '100%',
                     margin: '0 auto',
-                    padding: 4,
                   }}
                 />
               </View>
