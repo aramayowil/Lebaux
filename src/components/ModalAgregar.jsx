@@ -24,7 +24,7 @@ import { MdAttachMoney } from 'react-icons/md'
 import Abertura from '../class/Abertura.class'
 import { Tabs, Tab } from '@heroui/tabs'
 import TabsAbertura from './UI/TabsAbertura.jsx'
-import lineaModena from '../data.js' // Import the data from the data.js file
+import { lineaModena, lineaHerrero } from '../data.js' // Import the data from the data.js file
 
 export const PlusIcon = ({ size = 24, width, height, ...props }) => {
   return (

@@ -7,7 +7,7 @@ import { RxHeight } from 'react-icons/rx'
 import { IoColorPalette } from 'react-icons/io5'
 import { Checkbox } from '@heroui/checkbox'
 import { MdAttachMoney } from 'react-icons/md'
-import lineaModena from '../../data'
+import { lineaModena, lineaHerrero } from '../../data'
 import Abertura from '../../class/Abertura.class'
 
 export const PlusIcon = ({ size = 24, width, height, ...props }) => {
@@ -66,7 +66,8 @@ function BodyModal({ abertura }) {
   const [selectLinea, setSelectLinea] = useState('modena')
 
   const handleValueLinea = (event) => {
-    setSelectLinea(event.target.value)
+    console.log(event)
+    setSelectLinea(event)
   }
   const [selectAbertura, setSelectAbertura] = useState('')
 
@@ -164,11 +165,11 @@ function BodyModal({ abertura }) {
           className="max-w-xs "
           label="Línea"
           variant="bordered"
-          defaultSelectedKeys={['modena']}
-          isDisabled
+          value={selectLinea}
+          onSelectionChange={handleValueLinea}
         >
-          <SelectItem>Herrero</SelectItem>
-          <SelectItem key={'modena'}>Modena</SelectItem>
+          {/* <SelectItem key={'herrero'}>Herrero</SelectItem>
+          <SelectItem key={'modena'}>Modena</SelectItem> */}
         </Select>
         <Select
           className="max-w-xs "
