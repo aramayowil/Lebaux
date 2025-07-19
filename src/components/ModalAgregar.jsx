@@ -6,10 +6,13 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  input,
+  Form,
 } from '@heroui/react'
 import { Card, CardHeader, CardBody, CardFooter } from '@heroui/card'
-import { RiStickyNoteAddLine } from 'react-icons/ri'
+import {
+  RiCheckboxMultipleBlankFill,
+  RiStickyNoteAddLine,
+} from 'react-icons/ri'
 import BodyModal from './UI/BodyModal'
 import React, { useState, useEffect, useRef, use } from 'react'
 import { Select, SelectSection, SelectItem } from '@heroui/select'
@@ -24,7 +27,9 @@ import { MdAttachMoney } from 'react-icons/md'
 import Abertura from '../class/Abertura.class'
 import { Tabs, Tab } from '@heroui/tabs'
 import TabsAbertura from './UI/TabsAbertura.jsx'
-import { lineaModena, lineaHerrero } from '../data.js' // Import the data from the data.js file
+import { HiMiniXMark } from 'react-icons/hi2'
+import { RiCheckboxMultipleBlankLine } from 'react-icons/ri'
+import { lineaModena, lineaHerrero, linea } from '../data.js' // Import the data from the data.js file
 
 export const PlusIcon = ({ size = 24, width, height, ...props }) => {
   return (
@@ -54,10 +59,11 @@ export const PlusIcon = ({ size = 24, width, height, ...props }) => {
 
 export default function ModalAgregar({ recargar }) {
   const dataModena = lineaModena
+  const dataHerrero = lineaHerrero
   const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
 
-  const onlySelectedAbertura = () => {
-    return dataModena.find((item) => item.id === selectAbertura)
+  const ArraySelectedAbertura = () => {
+    return linea[selectLinea].find((item) => item.id === selectAbertura)
   }
 
   const agregar = () => {
@@ -107,11 +113,17 @@ export default function ModalAgregar({ recargar }) {
     setImgSrc(src)
   }
 
+  const [touchedLinea, setTouchedLinea] = React.useState(false)
+
   const [selectLinea, setSelectLinea] = useState('modena')
 
   const handleValueLinea = (event) => {
+    setSelectAbertura('')
+    setTouchedAbertura(false)
     setSelectLinea(event.target.value)
   }
+
+  const [touchedAbertura, setTouchedAbertura] = React.useState(false)
   const [selectAbertura, setSelectAbertura] = useState('')
 
   const handleValueAbertura = (event) => {
@@ -132,7 +144,11 @@ export default function ModalAgregar({ recargar }) {
   const [inputCantidad, setInputCantidad] = useState(1)
 
   const handleValueCantidad = (event) => {
-    setInputCantidad(event)
+    if (typeof event === 'number') {
+      setInputCantidad(parseInt(event))
+    } else {
+      setInputCantidad(parseInt(event.target.value))
+    }
   }
 
   const [inputPrecio, setInputPrecio] = useState(NaN)
@@ -197,12 +213,32 @@ export default function ModalAgregar({ recargar }) {
       : setIsDisabledBody(false)
   }
 
+  const [submitted, setSubmitted] = React.useState(null)
+
+  const onSubmit = (e) => {
+    console.log('Submitting form...')
+    e.preventDefault()
+
+    const data = Object.fromEntries(new FormData(e.currentTarget))
+
+    setSubmitted(data)
+    console.log('Form submitted:', data)
+  }
+
+  const errorMessage = (input) => {
+    return (
+      <ul className="text-red-500">
+        {input < 1 && <li key="error1">El valor no puede ser 0.</li>}
+        {Number.isNaN(input) && (
+          <li key="error2">Este campo es obligatorio.</li>
+        )}
+      </ul>
+    )
+  }
+
   useEffect(() => {
     handleDisabledBody()
-    setInputCodigo(
-      dataModena.find((item) => item.id === selectAbertura)?.prefijo
-    )
-  }, [selectAbertura, selectLinea])
+  }, [selectAbertura])
 
   return (
     <>
@@ -217,241 +253,330 @@ export default function ModalAgregar({ recargar }) {
       </Button>
 
       <Modal
-        backdrop="opaque"
+        backdrop="blur"
         isOpen={isOpen}
         placement="auto"
+        scrollBehavior="inside"
         onOpenChange={cerrarModalyLimpiar}
-        radius="lg"
+        radius="md"
         classNames={{
           body: 'py-4',
-          backdrop: 'bg-[#18181a]/50 backdrop-opacity-40',
-          base: 'border-[#18181a] bg-[#18181a] dark:bg-[#18181a] text-[#ecedee]',
+          backdrop: 'bg-[#18181a]/5 backdrop-opacity-100',
+          base: 'border-[#d1d1d1] bg-[#0e0e0f] dark:bg-[#18181a] text-[#ecedee]',
           header: 'border-b-[1px] border-[#18181a]',
           footer: 'border-t-[1px] border-[#18181a]',
           closeButton: 'hover:bg-white/5 active:bg-white/10',
         }}
+        // animaciones
+        motionProps={{
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              transition: {
+                duration: 0.3,
+                ease: 'easeOut',
+              },
+            },
+            exit: {
+              y: -20,
+              opacity: 0,
+              transition: {
+                duration: 0.2,
+                ease: 'easeIn',
+              },
+            },
+          },
+        }}
       >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex justify-start items-center gap-2 text-[#c98922]">
-                <div>
-                  <RiStickyNoteAddLine size={22} />
-                </div>
-                <div>Agregar abertura</div>
-              </ModalHeader>
-              <ModalBody className="dark">
-                <div className="grid grid-cols-6 gap-4">
-                  <Select
-                    className="max-w-xs col-span-3"
-                    label="Línea"
-                    variant="bordered"
-                    defaultSelectedKeys={['modena']}
-                    value={selectLinea}
-                    onChange={handleValueLinea}
-                  >
-                    <SelectItem key={'herrero'}>Herrero</SelectItem>
-                    <SelectItem key={'modena'}>Modena</SelectItem>
-                  </Select>
-                  <Select
-                    className="max-w-xs col-span-3"
-                    label="Tipo de abertura"
-                    variant="bordered"
-                    value={selectAbertura}
-                    onChange={handleValueAbertura}
-                  >
-                    {lineaModena.map((item) => {
-                      return (
-                        <SelectItem key={item.id} name="hola">
-                          {item.abertura}
-                        </SelectItem>
-                      )
-                    })}
-                  </Select>
-                  <div className="col-span-6 grid justify-stretch">
-                    {selectAbertura !== '' && (
-                      <TabsAbertura
-                        selectedAbertura={onlySelectedAbertura()}
-                        getDescripcion={handleValueDescripcion}
-                        getImg={handleImg}
+        <Form onSubmit={onSubmit}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex justify-start items-center gap-2 text-[#c98922]">
+                  <div>
+                    <RiStickyNoteAddLine size={22} />
+                  </div>
+                  <div>Agregar abertura</div>
+                </ModalHeader>
+                <ModalBody className="dark">
+                  <div className="grid grid-cols-6 gap-2 w-full">
+                    <Select
+                      className="max-w-xs col-span-3"
+                      label="Línea"
+                      variant="bordered"
+                      selectedKeys={[selectLinea]}
+                      onChange={handleValueLinea}
+                      errorMessage={
+                        selectLinea !== '' || !touchedLinea
+                          ? ''
+                          : 'Debe seleccionar una línea'
+                      }
+                      isInvalid={
+                        selectLinea !== '' || !touchedLinea ? false : true
+                      }
+                      onClose={() => setTouchedLinea(true)}
+                    >
+                      <SelectItem key={'modena'}>Modena</SelectItem>
+                      <SelectItem key={'herrero'}>Herrero</SelectItem>
+                    </Select>
+
+                    <Select
+                      className="max-w-xs col-span-3"
+                      label="Tipo de abertura"
+                      variant="bordered"
+                      selectedKeys={[selectAbertura]}
+                      onChange={handleValueAbertura}
+                      isDisabled={selectLinea === ''}
+                      errorMessage={
+                        selectAbertura !== '' || !touchedAbertura
+                          ? ''
+                          : 'Debe seleccionar una abertura'
+                      }
+                      isInvalid={
+                        selectAbertura !== '' || !touchedAbertura ? false : true
+                      }
+                      onClose={() => setTouchedAbertura(true)}
+                    >
+                      {linea[selectLinea]?.map((item) => {
+                        return (
+                          <SelectItem key={item.id}>{item.abertura}</SelectItem>
+                        )
+                      })}
+                    </Select>
+
+                    <div className="col-span-6 grid justify-stretch">
+                      {selectAbertura !== '' && (
+                        <TabsAbertura
+                          selectedAbertura={ArraySelectedAbertura()}
+                          getDescripcion={handleValueDescripcion}
+                          getCodigo={handleValueCodigo}
+                          getImg={handleImg}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <Divider className="mb-2 max-w-md" />
+
+                  <div className="dark grid grid-cols-6 gap-4">
+                    <Input
+                      label="Nombre"
+                      type="text"
+                      className="col-span-2"
+                      placeholder="Ingrese codígo"
+                      variant="bordered"
+                      isDisabled={isDisabledBody}
+                      value={inputCodigo}
+                      onValueChange={handleValueCodigo}
+                    />
+                    <Input
+                      label="Descripción"
+                      type="text"
+                      className="col-span-4"
+                      placeholder="Añada una descripción"
+                      variant="bordered"
+                      isDisabled={isDisabledBody}
+                      value={inputDescripcion}
+                      onValueChange={handleValueDescripcion}
+                    />
+                    <NumberInput
+                      label="Cantidad"
+                      minValue={0}
+                      isWheelDisabled
+                      isRequired
+                      className="col-span-3"
+                      placeholder="Ingrese cantidad"
+                      variant="bordered"
+                      startContent={<HiMiniXMark size={20} />}
+                      isDisabled={isDisabledBody}
+                      value={inputCantidad}
+                      onChange={handleValueCantidad}
+                      isInvalid={
+                        inputCantidad > 0 && inputCantidad ? false : true
+                      }
+                      errorMessage={errorMessage(inputCantidad)}
+                    />
+                    <NumberInput
+                      label="Precio"
+                      isRequired
+                      minValue={1}
+                      className="col-span-3"
+                      placeholder="Ingrese el precio"
+                      variant="bordered"
+                      startContent={
+                        <MdAttachMoney size={20} style={{ margin: '0 auto' }} />
+                      }
+                      value={inputPrecio}
+                      isDisabled={isDisabledBody}
+                      onValueChange={handleValuePrecio}
+                    />
+
+                    <Divider className=" max-w-md col-span-6" />
+
+                    <NumberInput
+                      label="Ancho"
+                      isRequired
+                      minValue={1}
+                      className="col-span-3"
+                      placeholder="Ancho"
+                      variant="bordered"
+                      isDisabled={isDisabledBody}
+                      startContent={
+                        <RxWidth size={20} style={{ margin: '0 auto' }} />
+                      }
+                      endContent={
+                        <span className="text-sm text-default-400">cm</span>
+                      }
+                      value={inputAncho}
+                      onValueChange={handleValueAncho}
+                    />
+                    <NumberInput
+                      isRequired
+                      label="Altura"
+                      minValue={1}
+                      className="col-span-3"
+                      placeholder="Altura"
+                      variant="bordered"
+                      isDisabled={isDisabledBody}
+                      startContent={
+                        <RxHeight size={20} style={{ margin: '0 auto' }} />
+                      }
+                      endContent={
+                        <span className="text-sm text-default-400">cm</span>
+                      }
+                      value={inputAltura}
+                      onValueChange={handleValueAltura}
+                    />
+                    <Select
+                      label="Color"
+                      isRequired
+                      variant="bordered"
+                      className="col-span-3"
+                      placeholder="Color"
+                      defaultSelectedKeys={['blanco']}
+                      startContent={
+                        <IoColorPalette
+                          size={20}
+                          style={{ margin: '0 auto' }}
+                        />
+                      }
+                      value={selectColor}
+                      isDisabled={isDisabledBody}
+                      onChange={handleValueColor}
+                    >
+                      <SelectItem key={'blanco'}>Blanco</SelectItem>
+                      <SelectItem key={'negro'}>Negro</SelectItem>
+                    </Select>
+
+                    <Select
+                      label="Vidrio"
+                      isRequired
+                      variant="bordered"
+                      className="col-span-3"
+                      placeholder="Tipo de vidrio"
+                      defaultSelectedKeys={['float4mm']}
+                      startContent={<RiCheckboxMultipleBlankFill />}
+                      value={selectVidrio}
+                      isDisabled={isDisabledBody}
+                      onChange={handleValueVidrio}
+                    >
+                      <SelectItem key={'float4mm'}>Float 4MM</SelectItem>
+                      <SelectItem key={'3+3lam'}>Laminado 3+3</SelectItem>
+                      <SelectItem key={'dvh3+3/9/4'}>DVH 3+3/9/4</SelectItem>
+                      <SelectItem key={'dvh4/9/4'}>DVH 4/9/4</SelectItem>
+                    </Select>
+
+                    <Divider className="max-w-md col-span-6" />
+
+                    <Checkbox
+                      size="md"
+                      color="warning"
+                      checked={checkedMosquitero}
+                      onChange={handleCheckMosquitero}
+                      isDisabled={isDisabledBody}
+                      className="col-span-4"
+                    >
+                      Mosquitero
+                    </Checkbox>
+                    {checkedMosquitero && (
+                      <NumberInput
+                        label="Precio Mosquitero"
+                        minValue={1}
+                        isRequired
+                        value={inputMosquitero}
+                        onValueChange={handleValueMosquitero}
+                        className="col-span-4"
+                        placeholder="Ingrese el precio"
+                        variant="bordered"
+                        startContent={
+                          <MdAttachMoney
+                            size={20}
+                            style={{ margin: '0 auto' }}
+                          />
+                        }
+                        isDisabled={isDisabledBody}
+                      />
+                    )}
+                    <Checkbox
+                      size="md"
+                      color="warning"
+                      checked={checkedPremarco}
+                      onChange={handleCheckPremarco}
+                      isDisabled={isDisabledBody}
+                      className="col-span-4"
+                    >
+                      Premarco y Tapajuntas
+                    </Checkbox>
+                    {checkedPremarco && (
+                      <NumberInput
+                        value={inputPremarco}
+                        onValueChange={handleValuePremarco}
+                        isRequired
+                        label="Precio Premarco"
+                        minValue={0}
+                        className="col-span-4"
+                        placeholder="Ingrese el precio"
+                        variant="bordered"
+                        isDisabled={isDisabledBody}
+                        startContent={
+                          <MdAttachMoney
+                            size={20}
+                            style={{ margin: '0 auto' }}
+                          />
+                        }
                       />
                     )}
                   </div>
-                </div>
-                <Divider className="dark my-2 max-w-md" />
-
-                <div className="dark grid grid-cols-6 gap-4">
-                  <Input
-                    label="Nombre"
-                    type="text"
-                    className="col-span-2"
-                    placeholder="Codígo de abertura"
-                    variant="bordered"
-                    isDisabled={isDisabledBody}
-                    value={inputCodigo}
-                    onValueChange={handleValueCodigo}
-                  />
-                  <Input
-                    label="Descripción"
-                    type="text"
-                    className="col-span-4"
-                    placeholder="Añada una descripción"
-                    variant="bordered"
-                    isDisabled={isDisabledBody}
-                    value={inputDescripcion}
-                    onValueChange={handleValueDescripcion}
-                  />
-                  <NumberInput
-                    label="Cantidad"
-                    minValue={0}
-                    className="col-span-2"
-                    placeholder="Ingrese cantidad"
-                    variant="bordered"
-                    startContent={<div className="mx-auto">x</div>}
-                    isDisabled={isDisabledBody}
-                    value={inputCantidad}
-                    onValueChange={handleValueCantidad}
-                  />
-                  <NumberInput
-                    label="Precio"
-                    minValue={0}
-                    className="col-span-4"
-                    placeholder="Ingrese el precio"
-                    variant="bordered"
-                    startContent={
-                      <MdAttachMoney size={20} style={{ margin: '0 auto' }} />
-                    }
-                    value={inputPrecio}
-                    isDisabled={isDisabledBody}
-                    onValueChange={handleValuePrecio}
-                  />
-                  <Divider className="my-2 max-w-md col-span-6" />
-                  <NumberInput
-                    label="Ancho"
-                    minValue={0}
-                    className="col-span-3"
-                    placeholder="Ancho"
-                    variant="bordered"
-                    isDisabled={isDisabledBody}
-                    startContent={
-                      <RxWidth size={20} style={{ margin: '0 auto' }} />
-                    }
-                    endContent={
-                      <span className="text-sm text-default-400">cm</span>
-                    }
-                    value={inputAncho}
-                    onValueChange={handleValueAncho}
-                  />
-                  <NumberInput
-                    label="Altura"
-                    minValue={0}
-                    className="col-span-3"
-                    placeholder="Altura"
-                    variant="bordered"
-                    isDisabled={isDisabledBody}
-                    startContent={
-                      <RxHeight size={20} style={{ margin: '0 auto' }} />
-                    }
-                    endContent={
-                      <span className="text-sm text-default-400">cm</span>
-                    }
-                    value={inputAltura}
-                    onValueChange={handleValueAltura}
-                  />
-                  <Select
-                    label="Color"
-                    variant="bordered"
-                    className="col-span-3"
-                    placeholder="Color"
-                    defaultSelectedKeys={['blanco']}
-                    startContent={
-                      <IoColorPalette size={20} style={{ margin: '0 auto' }} />
-                    }
-                    value={selectColor}
-                    isDisabled={isDisabledBody}
-                    onChange={handleValueColor}
-                  >
-                    <SelectItem key={'blanco'}>Blanco</SelectItem>
-                    <SelectItem key={'negro'}>Negro</SelectItem>
-                  </Select>
-
-                  <Select
-                    label="Vidrio"
-                    variant="bordered"
-                    className="col-span-3"
-                    placeholder="Tipo de vidrio"
-                    defaultSelectedKeys={['float4mm']}
-                    value={selectVidrio}
-                    isDisabled={isDisabledBody}
-                    onChange={handleValueVidrio}
-                  >
-                    <SelectItem key={'float4mm'}>Float 4MM</SelectItem>
-                    <SelectItem key={'3+3lam'}>Laminado 3+3</SelectItem>
-                    <SelectItem key={'dvh3+3/9/4'}>DVH 3+3/9/4</SelectItem>
-                    <SelectItem key={'dvh4/9/4'}>DVH 4/9/4</SelectItem>
-                  </Select>
-
-                  <Divider className="my-2 max-w-md col-span-6" />
-
-                  <Checkbox
-                    size="md"
-                    color="warning"
-                    checked={checkedMosquitero}
-                    onChange={handleCheckMosquitero}
-                    isDisabled={isDisabledBody}
-                    className="col-span-3"
-                  >
-                    Mosquitero
-                  </Checkbox>
-                  {checkedMosquitero && (
-                    <NumberInput
-                      label="Precio Mosquitero"
-                      minValue={0}
-                      className="col-span-3"
-                      placeholder="Ingrese el precio"
+                </ModalBody>
+                <ModalFooter>
+                  <div className="flex justify-end gap-2 w-full">
+                    <Button
+                      color="#fff"
                       variant="bordered"
-                      startContent={
-                        <MdAttachMoney size={20} style={{ margin: '0 auto' }} />
-                      }
+                      onPress={() => {
+                        cerrarModalyLimpiar()
+                        recargar()
+                      }}
+                    >
+                      Cerrar
+                    </Button>
+                    <Button
+                      color="warning"
+                      variant="solid"
+                      type="submit"
                       isDisabled={isDisabledBody}
-                    />
-                  )}
-                  <Checkbox
-                    size="md"
-                    color="warning"
-                    checked={checkedPremarco}
-                    onChange={handleCheckPremarco}
-                    isDisabled={isDisabledBody}
-                    className="col-span-3"
-                  >
-                    Premarco y Tapajuntas
-                  </Checkbox>
-                  {checkedPremarco && (
-                    <NumberInput
-                      label="Precio Premarco"
-                      minValue={0}
-                      className="col-span-3"
-                      placeholder="Ingrese el precio"
-                      variant="bordered"
-                      isDisabled={isDisabledBody}
-                      startContent={
-                        <MdAttachMoney size={20} style={{ margin: '0 auto' }} />
-                      }
-                    />
-                  )}
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancelar
-                </Button>
-                <Button color="warning" variant="bordered" onPress={agregar}>
-                  Guardar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+
+                      // onPress={agregar}
+                    >
+                      Agregar Abertura
+                    </Button>
+                  </div>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Form>
       </Modal>
     </>
   )

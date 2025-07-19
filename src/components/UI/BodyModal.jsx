@@ -168,8 +168,8 @@ function BodyModal({ abertura }) {
           value={selectLinea}
           onSelectionChange={handleValueLinea}
         >
-          {/* <SelectItem key={'herrero'}>Herrero</SelectItem>
-          <SelectItem key={'modena'}>Modena</SelectItem> */}
+          <SelectItem key={'herrero'}>Herrero</SelectItem>
+          <SelectItem key={'modena'}>Modena</SelectItem>
         </Select>
         <Select
           className="max-w-xs "

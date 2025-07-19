@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react'
 export default function TabsAberturas({
   selectedAbertura,
   getDescripcion,
+  getCodigo,
   getImg,
 }) {
   const [tagSelected, setTagSelected] = useState('')
@@ -32,11 +33,13 @@ export default function TabsAberturas({
 
   useEffect(() => {
     getDescripcion(selectedAbertura.variante[0].descripcion)
+    getCodigo(selectedAbertura.prefijo)
     getImg(selectedAbertura.variante[0].img)
     findImg(tagSelected)
     findDescripcion(tagSelected)
     return () => {
       getDescripcion('')
+      getCodigo('')
       getImg('')
     }
   }, [tagSelected, selectedAbertura])
@@ -45,7 +48,6 @@ export default function TabsAberturas({
     <div>
       {selectedAbertura.variante.length > 1 && (
         <Tabs
-          className="dark"
           color="warning"
           fullWidth={true}
           value={tagSelected}
