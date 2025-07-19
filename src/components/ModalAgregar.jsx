@@ -569,7 +569,7 @@ export default function ModalAgregar({ recargar }) {
 
                       // onPress={agregar}
                     >
-                      Agregar Abertura
+                      Cargar Abertura
                     </Button>
                   </div>
                 </ModalFooter>
