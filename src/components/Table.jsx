@@ -53,16 +53,17 @@ const INITIAL_VISIBLE_COLUMNS = [
 ]
 
 export default function TableHeroUI() {
-  const users = JSON.parse(localStorage.getItem('aberturas')) || []
+  //const users = JSON.parse(localStorage.getItem('aberturas')) || []
+  const users = []
 
-  const [actualizarTabla, setActualizarTabla] = useState(false)
-  const handleActualizarTabla = () => {
-    setActualizarTabla(!actualizarTabla)
-  }
-  useEffect(() => {
-    console.log('Tabla actualizada')
-    setActualizarTabla()
-  }, [actualizarTabla])
+  // const [actualizarTabla, setActualizarTabla] = useState(false)
+  // const handleActualizarTabla = () => {
+  //   setActualizarTabla(!actualizarTabla)
+  // }
+  // useEffect(() => {
+  //   console.log('Tabla actualizada')
+  //   setActualizarTabla()
+  // }, [actualizarTabla])
 
   const [filterValue, setFilterValue] = useState('')
   const [selectedKeys, setSelectedKeys] = useState(new Set([]))
@@ -267,7 +268,7 @@ export default function TableHeroUI() {
             {/* <Button color="primary" startContent={<PlusIcon />}>
               Agregar
             </Button> */}
-            <ModalAgregar recargar={handleActualizarTabla} />
+            <ModalAgregar />
           </div>
         </div>
         <div className="flex justify-between items-center">

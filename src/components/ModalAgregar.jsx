@@ -30,6 +30,9 @@ import TabsAbertura from './UI/TabsAbertura.jsx'
 import { HiMiniXMark } from 'react-icons/hi2'
 import { RiCheckboxMultipleBlankLine } from 'react-icons/ri'
 import { lineaModena, lineaHerrero, linea } from '../data.js' // Import the data from the data.js file
+import { hooskModal } from '../hooks/HooksModalAgregar.jsx'
+import useAberturaStore from '../stores/useAberturaStore.js'
+import InputAccesorioRef from './UI/InputAccesorioRef.jsx'
 
 export const PlusIcon = ({ size = 24, width, height, ...props }) => {
   return (
@@ -57,23 +60,72 @@ export const PlusIcon = ({ size = 24, width, height, ...props }) => {
   )
 }
 
-export default function ModalAgregar({ recargar }) {
-  const dataModena = lineaModena
-  const dataHerrero = lineaHerrero
+export default function ModalAgregar() {
+  const {
+    imgSrc,
+    handleImg,
+    touchedLinea,
+    setTouchedLinea,
+    selectLinea,
+    handleValueLinea,
+    touchedAbertura,
+    selectAbertura,
+    handleValueAbertura,
+    inputCodigo,
+    handleValueCodigo,
+    inputDescripcion,
+    handleValueDescripcion,
+    inputCantidad,
+    handleValueCantidad,
+    inputPrecio,
+    handleValuePrecio,
+    selectColor,
+    handleValueColor,
+    inputAncho,
+    handleValueAncho,
+    inputAltura,
+    handleValueAltura,
+    selectVidrio,
+    handleValueVidrio,
+    checkedMosquitero,
+    handleCheckMosquitero,
+    checkedPremarco,
+    handleCheckPremarco,
+    inputMosquitero,
+    handleValueMosquitero,
+    inputPremarco,
+    handleValuePremarco,
+    setSelectAbertura,
+    setInputCodigo,
+    setInputDescripcion,
+    setInputCantidad,
+    setInputPrecio,
+    setInputAncho,
+    setInputAltura,
+    setInputMosquitero,
+    setInputPremarco,
+    setTouchedAbertura,
+    setCheckedMosquitero,
+    setCheckedPremarco,
+  } = hooskModal()
+
   const aberturas = JSON.parse(localStorage.getItem('aberturas')) || []
+  const agregar = useAberturaStore((state) => state.agregar)
 
   const ArraySelectedAbertura = () => {
     return linea[selectLinea].find((item) => item.id === selectAbertura)
   }
 
-  const agregar = () => {
-    const dataAbertura = lineaModena.find(
+  const onSubmit = (e) => {
+    e.preventDefault()
+    const dataAbertura = linea[selectLinea].find(
       (abertura) => abertura.id === selectAbertura
     )
     const id = aberturas.length > 0 ? aberturas[aberturas.length - 1].id + 1 : 0
+
     const abertura = new Abertura(
       id,
-      'modena',
+      selectLinea,
       dataAbertura.abertura,
       dataAbertura.prefijo,
       inputDescripcion,
@@ -82,14 +134,18 @@ export default function ModalAgregar({ recargar }) {
       selectColor,
       selectVidrio,
       parseInt(inputCantidad),
-      parseFloat(inputPrecio)
+      parseFloat(inputPrecio),
+      {
+        mosquitero: checkedMosquitero ? parseFloat(inputMosquitero) : 0,
+        tapajuntas: checkedPremarco ? parseFloat(inputPremarco) : 0,
+      }
     )
     aberturas.push(abertura)
     localStorage.setItem('aberturas', JSON.stringify(aberturas))
+    // agregar(abertura)
 
     onOpenChange(false)
     cerrarModalyLimpiar()
-    recargar()
   }
 
   const cerrarModalyLimpiar = () => {
@@ -104,106 +160,13 @@ export default function ModalAgregar({ recargar }) {
     setInputAltura(NaN)
     setInputMosquitero(NaN)
     setInputPremarco(NaN)
+    setCheckedMosquitero(false)
+    setCheckedPremarco(false)
+    setInputMosquitero('')
+    setInputPremarco('')
   }
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
-
-  const [imgSrc, setImgSrc] = useState('')
-  const handleImg = (src) => {
-    setImgSrc(src)
-  }
-
-  const [touchedLinea, setTouchedLinea] = React.useState(false)
-
-  const [selectLinea, setSelectLinea] = useState('modena')
-
-  const handleValueLinea = (event) => {
-    setSelectAbertura('')
-    setTouchedAbertura(false)
-    setSelectLinea(event.target.value)
-  }
-
-  const [touchedAbertura, setTouchedAbertura] = React.useState(false)
-  const [selectAbertura, setSelectAbertura] = useState('')
-
-  const handleValueAbertura = (event) => {
-    setSelectAbertura(event.target.value)
-  }
-  const [inputCodigo, setInputCodigo] = useState('')
-
-  const handleValueCodigo = (event) => {
-    setInputCodigo(event)
-  }
-
-  const [inputDescripcion, setInputDescripcion] = useState('')
-
-  const handleValueDescripcion = (event) => {
-    setInputDescripcion(event)
-  }
-
-  const [inputCantidad, setInputCantidad] = useState(1)
-
-  const handleValueCantidad = (event) => {
-    if (typeof event === 'number') {
-      setInputCantidad(parseInt(event))
-    } else {
-      setInputCantidad(parseInt(event.target.value))
-    }
-  }
-
-  const [inputPrecio, setInputPrecio] = useState(NaN)
-
-  const handleValuePrecio = (event) => {
-    setInputPrecio(event)
-  }
-
-  const [selectColor, setSelectColor] = useState('blanco')
-
-  const handleValueColor = (event) => {
-    setSelectColor(event.target.value)
-  }
-
-  const [inputAncho, setInputAncho] = useState(NaN)
-
-  const handleValueAncho = (event) => {
-    setInputAncho(event)
-  }
-
-  const [inputAltura, setInputAltura] = useState(NaN)
-
-  const handleValueAltura = (event) => {
-    setInputAltura(event)
-  }
-
-  const [selectVidrio, setSelectVidrio] = useState('float4mm')
-
-  const handleValueVidrio = (event) => {
-    setSelectVidrio(event.target.value)
-  }
-
-  const [checkedMosquitero, setCheckedMosquitero] = useState(false)
-
-  const handleCheckMosquitero = (event) => {
-    setCheckedMosquitero(event.target.checked)
-  }
-
-  const [checkedPremarco, setCheckedPremarco] = useState(false)
-
-  const handleCheckPremarco = (event) => {
-    setCheckedPremarco(event.target.checked)
-  }
-
-  const [inputMosquitero, setInputMosquitero] = useState(NaN)
-
-  const handleValueMosquitero = (event) => {
-    setInputMosquitero(event)
-  }
-
-  const [inputPremarco, setInputPremarco] = useState(NaN)
-
-  const handleValuePremarco = (event) => {
-    setInputPremarco(event)
-  }
 
   const [isDisabledBody, setIsDisabledBody] = useState(true)
 
@@ -211,18 +174,6 @@ export default function ModalAgregar({ recargar }) {
     selectAbertura === '' || selectLinea === ''
       ? setIsDisabledBody(true)
       : setIsDisabledBody(false)
-  }
-
-  const [submitted, setSubmitted] = React.useState(null)
-
-  const onSubmit = (e) => {
-    console.log('Submitting form...')
-    e.preventDefault()
-
-    const data = Object.fromEntries(new FormData(e.currentTarget))
-
-    setSubmitted(data)
-    console.log('Form submitted:', data)
   }
 
   const errorMessage = (input) => {
@@ -382,6 +333,7 @@ export default function ModalAgregar({ recargar }) {
                     />
                     <NumberInput
                       label="Cantidad"
+                      autoFocus
                       minValue={0}
                       isWheelDisabled
                       isRequired
@@ -500,23 +452,30 @@ export default function ModalAgregar({ recargar }) {
                       Mosquitero
                     </Checkbox>
                     {checkedMosquitero && (
-                      <NumberInput
-                        label="Precio Mosquitero"
-                        minValue={1}
-                        isRequired
-                        value={inputMosquitero}
-                        onValueChange={handleValueMosquitero}
-                        className="col-span-4"
-                        placeholder="Ingrese el precio"
-                        variant="bordered"
-                        startContent={
-                          <MdAttachMoney
-                            size={20}
-                            style={{ margin: '0 auto' }}
-                          />
-                        }
-                        isDisabled={isDisabledBody}
-                      />
+                      <>
+                        <NumberInput
+                          label="Precio Mosquitero"
+                          minValue={1}
+                          isRequired
+                          value={inputMosquitero}
+                          onValueChange={handleValueMosquitero}
+                          className="col-span-3"
+                          placeholder="Ingrese el precio"
+                          variant="bordered"
+                          startContent={
+                            <MdAttachMoney
+                              size={20}
+                              style={{ margin: '0 auto' }}
+                            />
+                          }
+                          isDisabled={isDisabledBody}
+                        />
+                        <InputAccesorioRef
+                          name_accesorio={1} // 1 -Mosquitero
+                          base={inputAncho}
+                          altura={inputAltura}
+                        />
+                      </>
                     )}
                     <Checkbox
                       size="md"
@@ -529,36 +488,36 @@ export default function ModalAgregar({ recargar }) {
                       Premarco y Tapajuntas
                     </Checkbox>
                     {checkedPremarco && (
-                      <NumberInput
-                        value={inputPremarco}
-                        onValueChange={handleValuePremarco}
-                        isRequired
-                        label="Precio Premarco"
-                        minValue={0}
-                        className="col-span-4"
-                        placeholder="Ingrese el precio"
-                        variant="bordered"
-                        isDisabled={isDisabledBody}
-                        startContent={
-                          <MdAttachMoney
-                            size={20}
-                            style={{ margin: '0 auto' }}
-                          />
-                        }
-                      />
+                      <>
+                        <NumberInput
+                          value={inputPremarco}
+                          onValueChange={handleValuePremarco}
+                          isRequired
+                          label="Precio Premarco"
+                          minValue={0}
+                          className="col-span-3"
+                          placeholder="Ingrese el precio"
+                          variant="bordered"
+                          isDisabled={isDisabledBody}
+                          startContent={
+                            <MdAttachMoney
+                              size={20}
+                              style={{ margin: '0 auto' }}
+                            />
+                          }
+                        />
+                        <InputAccesorioRef
+                          name_accesorio={2} // 2- Premarco
+                          base={inputAncho}
+                          altura={inputAltura}
+                        />
+                      </>
                     )}
                   </div>
                 </ModalBody>
                 <ModalFooter>
                   <div className="flex justify-end gap-2 w-full">
-                    <Button
-                      color="#fff"
-                      variant="bordered"
-                      onPress={() => {
-                        cerrarModalyLimpiar()
-                        recargar()
-                      }}
-                    >
+                    <Button color="#fff" variant="bordered" onPress={onClose}>
                       Cerrar
                     </Button>
                     <Button

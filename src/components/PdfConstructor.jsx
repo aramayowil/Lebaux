@@ -11,6 +11,7 @@ import usePresupuestoDetails from '../stores/usePresupuestoDetailsStore'
 import useClientStore from '../stores/useClienteDetailsStore'
 import { user } from '@heroui/theme'
 import AberturaConDimensiones from './UI/Abertura'
+import ImagenEscalada from './UI/ImagenEscalada'
 
 const styles = StyleSheet.create({
   page: {
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   textEncabezado: {
-    fontSize: 11,
+    fontSize: 10.5,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -67,10 +68,10 @@ function PDF() {
         <View style={styles.section}>
           <Image
             src="./img/LEBAUX-LOGO.png"
-            style={{ width: 190, height: 55 }}
+            style={{ width: 180, height: 45 }}
           />
 
-          <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#eba434' }}>
+          <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#eba434' }}>
             PRESUPUESTO
           </Text>
         </View>
@@ -100,8 +101,9 @@ function PDF() {
             justifyContent: 'space-between',
             padding: 16,
             marginHorizontal: 16,
-            fontSize: 11,
+            fontSize: 10.5,
             borderBottom: '1px solid #000',
+            marginTop: 8,
           }}
         >
           <Text style={{ flexGrow: '0.5' }}>Producto</Text>
@@ -131,7 +133,6 @@ function PDF() {
                   alignContent: 'center',
                   padding: 8,
                   fontSize: 11,
-                  maxHeight: 200,
                 }}
               >
                 <Text
@@ -143,8 +144,14 @@ function PDF() {
                 >
                   {abertura.codigo}
                 </Text>
-                {/* <AberturaConDimensiones /> */}
-                <Image
+
+                <ImagenEscalada
+                  src={abertura.img}
+                  alturaCm={abertura.medidas.altura}
+                  baseCm={abertura.medidas.base}
+                />
+
+                {/* <Image
                   src={abertura.img}
                   style={{
                     width: `${abertura.medidas.base / 10}`,
@@ -153,7 +160,7 @@ function PDF() {
                     maxWidth: '100%',
                     margin: '0 auto',
                   }}
-                />
+                /> */}
               </View>
 
               <View
@@ -164,18 +171,38 @@ function PDF() {
                   padding: 8,
                   justifyContent: 'space-between',
                   alignContent: 'flex-start',
-                  fontSize: 11,
+                  fontSize: 10,
                 }}
               >
                 <View style={{ textAlign: 'left' }}>
                   <Text>{capitalizar(abertura.linea)}</Text>
-                  <Text>{abertura.descripcion}</Text>
+                  <Text style={{ width: '75%' }}>{abertura.descripcion}</Text>
                   <Text>
                     {abertura.medidas.base} x {abertura.medidas.altura}
                   </Text>
                   <Text>Cantidad: {abertura.cantidad}</Text>
                   <Text>Color: {capitalizar(abertura.color)}</Text>
                   <Text>Vidrio: {abertura.vidrio}</Text>
+                  {(abertura.accesorios.tapajuntas > 0 ||
+                    abertura.accesorios.mosquitero > 0) && (
+                    <Text
+                      style={{ marginTop: 6, fontStyle: 'italic', fontSize: 9 }}
+                    >
+                      Accesorios
+                    </Text>
+                  )}
+                  {abertura.accesorios.mosquitero > 0 && (
+                    <Text>
+                      Mosquitero: $
+                      {formatoDecimal(abertura.accesorios.mosquitero)}
+                    </Text>
+                  )}
+                  {abertura.accesorios.tapajuntas > 0 && (
+                    <Text>
+                      Tapajuntas: $
+                      {formatoDecimal(abertura.accesorios.tapajuntas)}
+                    </Text>
+                  )}
                 </View>
 
                 <View
