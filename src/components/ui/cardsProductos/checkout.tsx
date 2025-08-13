@@ -11,7 +11,7 @@ import {
 import { Accordion, AccordionItem } from '@heroui/react'
 import { useState } from 'react'
 import { FaRegCheckCircle } from 'react-icons/fa'
-import GeneratorPdf from '../modals/generatorPdf'
+import GeneratorPdf from '../modals/GeneratorPDF'
 
 const formatCurrency = new Intl.NumberFormat('es-AR', {
   minimumFractionDigits: 2,
