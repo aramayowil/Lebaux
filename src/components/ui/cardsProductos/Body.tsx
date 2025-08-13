@@ -1,4 +1,3 @@
-import { VerticalDotsIcon } from '@/components/icons'
 import {
   addToast,
   Button,
@@ -19,6 +18,7 @@ import useAberturasStore from '@/stores/useAberturasStore'
 import ModalEditAbertura from '../modals/ModalEditAbert'
 import { useState } from 'react'
 import TableEmpty from '../TableEmpty'
+import { HiDotsVertical } from 'react-icons/hi'
 
 const formatCurrency = (valor: number) => {
   return valor.toLocaleString('es-ES', {
@@ -201,7 +201,7 @@ export default function Body() {
                     >
                       <DropdownTrigger>
                         <Button isIconOnly size='sm' variant='light'>
-                          <VerticalDotsIcon />
+                          <HiDotsVertical />
                         </Button>
                       </DropdownTrigger>
                       <DropdownMenu>
