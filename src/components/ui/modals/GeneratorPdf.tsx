@@ -87,7 +87,6 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
                   width={'100%'}
                   value={nameCliente.toLocaleUpperCase()}
                   description='Este nombre se usará en el PDF'
-                  placeholder=''
                   onChange={(e) => setNameCliente(e.target.value)}
                 />
               </ModalBody>
