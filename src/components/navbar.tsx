@@ -12,11 +12,10 @@ import {
 } from '@heroui/navbar'
 import { link as linkStyles } from '@heroui/theme'
 import clsx from 'clsx'
-
 import { siteConfig } from '@/config/site'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { GithubIcon, SearchIcon } from '@/components/icons'
 import { Image } from '@heroui/react'
+import { FcSearch } from 'react-icons/fc'
 
 export const Navbar = () => {
   const searchInput = (
@@ -34,7 +33,7 @@ export const Navbar = () => {
       labelPlacement='outside'
       placeholder='Search...'
       startContent={
-        <SearchIcon className='text-base text-default-400 pointer-events-none flex-shrink-0' />
+        <FcSearch className='text-base text-default-400 pointer-events-none flex-shrink-0' />
       }
       type='search'
     />
@@ -105,9 +104,6 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className='sm:hidden basis-1 pl-4' justify='end'>
-        <Link isExternal href={siteConfig.links.github}>
-          <GithubIcon className='text-default-500' />
-        </Link>
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
