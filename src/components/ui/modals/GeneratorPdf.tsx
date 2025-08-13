@@ -84,10 +84,11 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
                 </div>
                 <Input
                   label='Nombre del cliente'
-                  width={'100%'}
+                  className='max-w-full'
+                  variant='faded'
                   value={nameCliente.toLocaleUpperCase()}
                   description='Este nombre se usará en el PDF'
-                  onChange={(e) => setNameCliente(e.target.value)}
+                  onValueChange={setNameCliente}
                 />
               </ModalBody>
               <ModalFooter>
