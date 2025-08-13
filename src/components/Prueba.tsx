@@ -12,7 +12,7 @@ import { BsCheck2Circle } from 'react-icons/bs'
 import { RxDownload } from 'react-icons/rx'
 import useBreakpoint from '@/config/breakpoints'
 
-function GeneratorPdf() {
+function Prueba() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const { isSm } = useBreakpoint()
   const [nameCliente, setNameCliente] = useState('')
@@ -61,4 +61,4 @@ function GeneratorPdf() {
   )
 }
 
-export default GeneratorPdf
+export default Prueba
