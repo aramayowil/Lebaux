@@ -3,7 +3,7 @@ import { FaRegCheckCircle } from 'react-icons/fa'
 import FloatButton from './FloatButton'
 import useAberturasStore from '@/stores/useAberturasStore'
 import { useState } from 'react'
-import GeneratorPdf from './ui/modals/GeneratorPDF'
+import GeneratorPdf from './ui/modals/GeneratorPdf'
 
 const formatCurrency = (valor: number, cantDecimals: number) => {
   return valor.toLocaleString('es-ES', {

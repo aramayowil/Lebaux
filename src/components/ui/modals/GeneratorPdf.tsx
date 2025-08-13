@@ -26,11 +26,7 @@ type GeneratorPdfProps = {
     importeFinal: number
   }
 }
-export default function GeneratorPdf({
-  isOpen,
-  onOpenChange,
-  compra,
-}: GeneratorPdfProps) {
+function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
   const { isSm } = useBreakpoint()
   const [nameCliente, setNameCliente] = useState('')
   const aberturasStore = useAberturasStore((state) => state.aberturas)
@@ -133,3 +129,5 @@ export default function GeneratorPdf({
     </>
   )
 }
+
+export default GeneratorPdf
