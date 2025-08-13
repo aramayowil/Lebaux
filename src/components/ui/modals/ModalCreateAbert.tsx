@@ -1,4 +1,5 @@
 import { catalogo } from '@/data'
+import { Autocomplete, AutocompleteItem } from '@heroui/react'
 import {
   Modal as ModalHeroUI,
   ModalContent,
@@ -6,8 +7,6 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Select,
-  SelectItem,
   Divider,
   AccordionItem,
   Checkbox,
@@ -17,7 +16,7 @@ import {
   Form,
   addToast,
 } from '@heroui/react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { HiMiniXMark } from 'react-icons/hi2'
 import { IoColorPalette } from 'react-icons/io5'
 import { MdAttachMoney } from 'react-icons/md'
@@ -44,6 +43,25 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
 }
+type Key = string | number
+
+export const lineas = [
+  { label: 'Modena', key: 'modena' },
+  { label: 'Herrero', key: 'herrero' },
+]
+
+export const vidrios = [
+  { label: 'Float 4MM', key: 'float4mm' },
+  { label: 'Laminado 3+3', key: '3+3lam' },
+  { label: 'DVH 3+3/9/4', key: 'dvh3+3/9/4' },
+  { label: 'DVH 4/9/4', key: 'dvh4/9/4' },
+]
+
+export const colors = [
+  { label: 'Blanco', key: 'blanco' },
+  { label: 'Negro', key: 'negro' },
+]
+
 export default function Modal({ isOpen, onClose }: ModalProps) {
   const agregarAberturaStore = useAberturasStore(
     (state) => state.agregarAbertura,
@@ -120,18 +138,18 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
       : setIsDisabledBody(false)
   }
 
-  const [selectLinea, setSelectLinea] = useState('modena')
+  const [selectLinea, setSelectLinea] = useState<string>('modena')
 
-  const handleValueLinea = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectLinea = (key: Key | null) => {
+    setSelectLinea(key?.toString() || '')
     setSelectAbertura('')
     setTouchedAbertura(false)
-    setSelectLinea(event.target.value)
   }
 
-  const [selectAbertura, setSelectAbertura] = useState('')
+  const [selectAbertura, setSelectAbertura] = useState<string>('')
 
-  const handleValueAbertura = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectAbertura(event.target.value)
+  const handleValueAbertura = (event: Key | null) => {
+    setSelectAbertura(event?.toString() || '')
     setTouchedAbertura(false)
   }
 
@@ -148,14 +166,14 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
   const handleValueAltura = (value: number) => {
     setInputAltura(value)
   }
-  const [selectColor, setSelectColor] = useState('blanco')
-  const handleValueColor = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectColor(event.target.value)
+  const [selectColor, setSelectColor] = useState<string>('blanco')
+  const handleValueColor = (event: Key | null) => {
+    setSelectColor(event?.toString() || '')
   }
 
-  const [selectVidrio, setSelectVidrio] = useState('float4mm')
-  const handleValueVidrio = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectVidrio(event.target.value)
+  const [selectVidrio, setSelectVidrio] = useState<string>('float4mm')
+  const handleValueVidrio = (event: Key | null) => {
+    setSelectVidrio(event?.toString() || '')
   }
 
   const [inputCantidad, setInputCantidad] = useState(1)
@@ -248,12 +266,13 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                 </ModalHeader>
                 <ModalBody>
                   <div className='grid grid-cols-6 gap-2 w-full'>
-                    <Select
+                    <Autocomplete
                       className='max-w-xs col-span-3'
                       label='Línea'
-                      variant='bordered'
-                      selectedKeys={[selectLinea]}
-                      onChange={handleValueLinea}
+                      defaultItems={lineas}
+                      isClearable={false}
+                      selectedKey={selectLinea}
+                      onSelectionChange={handleSelectLinea}
                       errorMessage={
                         selectLinea !== '' || !touchedLinea
                           ? ''
@@ -264,16 +283,19 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                       }
                       onClose={() => setTouchedLinea(true)}
                     >
-                      <SelectItem key={'modena'}>Modena</SelectItem>
-                      <SelectItem key={'herrero'}>Herrero</SelectItem>
-                    </Select>
+                      {(item) => (
+                        <AutocompleteItem key={item.key}>
+                          {item.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
 
-                    <Select
+                    <Autocomplete
                       className='max-w-xs col-span-3'
                       label='Tipo de abertura'
-                      variant='bordered'
-                      selectedKeys={[selectAbertura]}
-                      onChange={handleValueAbertura}
+                      isClearable={false}
+                      selectedKey={selectAbertura}
+                      onSelectionChange={handleValueAbertura}
                       isDisabled={selectLinea === ''}
                       errorMessage={
                         selectAbertura !== '' || !touchedAbertura
@@ -287,10 +309,12 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                     >
                       {catalogo[selectLinea]?.map((item) => {
                         return (
-                          <SelectItem key={item.id}>{item.abertura}</SelectItem>
+                          <AutocompleteItem key={item.id}>
+                            {item.abertura}
+                          </AutocompleteItem>
                         )
                       })}
-                    </Select>
+                    </Autocomplete>
                     <div className='col-span-6 grid justify-stretch'>
                       {selectAbertura !== '' && (
                         <TabsAbertura
@@ -340,13 +364,15 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                       value={inputAltura}
                       onValueChange={handleValueAltura}
                     />
-                    <Select
+                    <Autocomplete
                       label='Color'
                       isRequired
                       variant='bordered'
                       className='col-span-3'
                       placeholder='Color'
-                      defaultSelectedKeys={['blanco']}
+                      defaultItems={colors}
+                      selectedKey={selectColor}
+                      isClearable={false}
                       startContent={
                         <IoColorPalette
                           size={20}
@@ -355,29 +381,35 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                       }
                       value={selectColor}
                       isDisabled={isDisabledBody}
-                      onChange={handleValueColor}
+                      onSelectionChange={handleValueColor}
                     >
-                      <SelectItem key={'blanco'}>Blanco</SelectItem>
-                      <SelectItem key={'negro'}>Negro</SelectItem>
-                    </Select>
+                      {(color) => (
+                        <AutocompleteItem key={color.key}>
+                          {color.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
 
-                    <Select
+                    <Autocomplete
                       label='Vidrio'
                       isRequired
                       variant='bordered'
                       className='col-span-3'
                       placeholder='Tipo de vidrio'
-                      defaultSelectedKeys={['float4mm']}
+                      isClearable={false}
+                      defaultItems={vidrios}
+                      selectedKey={selectVidrio}
                       startContent={<RiCheckboxMultipleBlankFill />}
                       value={selectVidrio}
                       isDisabled={isDisabledBody}
-                      onChange={handleValueVidrio}
+                      onSelectionChange={handleValueVidrio}
                     >
-                      <SelectItem key={'float4mm'}>Float 4MM</SelectItem>
-                      <SelectItem key={'3+3lam'}>Laminado 3+3</SelectItem>
-                      <SelectItem key={'dvh3+3/9/4'}>DVH 3+3/9/4</SelectItem>
-                      <SelectItem key={'dvh4/9/4'}>DVH 4/9/4</SelectItem>
-                    </Select>
+                      {(vidrio) => (
+                        <AutocompleteItem key={vidrio.key}>
+                          {vidrio.label}
+                        </AutocompleteItem>
+                      )}
+                    </Autocomplete>
 
                     <NumberInput
                       label='Cantidad'

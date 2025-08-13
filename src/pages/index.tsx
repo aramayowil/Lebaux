@@ -4,7 +4,6 @@ import { BottomBar } from '@/components/BottomBar'
 import DefaultLayout from '@/layouts/default'
 import ButtonReset from '@/components/ui/modals/ButtonReset'
 import useBreakpoint from '@/config/breakpoints'
-import Prueba from '@/components/Prueba'
 
 export default function IndexPage() {
   const { isLg } = useBreakpoint()
@@ -17,7 +16,6 @@ export default function IndexPage() {
         <div className='hidden lg:flex flex-col w-full h-fit gap-4'>
           <ButtonReset />
           <Card />
-          <Prueba />
         </div>
       </div>
 
