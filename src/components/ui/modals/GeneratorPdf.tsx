@@ -84,8 +84,8 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
                 </div>
                 <Input
                   label='Nombre del cliente'
-                  className='max-w-full'
                   variant='faded'
+                  className=' max-w-full border border-red-500 focus:border-green-500 focus:ring-2 focus:ring-green-300 outline-none p-2'
                   value={nameCliente.toLocaleUpperCase()}
                   description='Este nombre se usará en el PDF'
                   onValueChange={setNameCliente}
