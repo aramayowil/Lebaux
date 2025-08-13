@@ -18,10 +18,10 @@ import {
 } from '@heroui/react'
 import { FiPlusCircle } from 'react-icons/fi'
 import Modal from './modals/ModalCreateAbert'
-import { VerticalDotsIcon } from '../icons'
 import useAberturasStore from '@/stores/useAberturasStore'
 import ModalEditAbertura from './modals/ModalEditAbert'
 import InputNameCliente from './inputs/inputNameCliente'
+import { BsThreeDotsVertical } from 'react-icons/bs'
 
 export const columns = [
   { name: 'CANTIDAD', uid: 'cantidad' },
@@ -144,7 +144,7 @@ export default function App() {
               <Dropdown>
                 <DropdownTrigger>
                   <Button isIconOnly size='sm' variant='light'>
-                    <VerticalDotsIcon className='text-default-300' />
+                    <BsThreeDotsVertical className='text-default-300' />
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu>
