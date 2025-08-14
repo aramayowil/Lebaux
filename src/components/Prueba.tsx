@@ -47,8 +47,8 @@ function Prueba() {
                       '!border-amber-400',
                       'bg-transparent',
                       'border-transparent',
-                      'text-black/90 dark:text-white/90',
-                      'placeholder:text-default-700/50 dark:placeholder:text-white/60',
+                      'text-black/90 dark:border-amber-400',
+                      'placeholder:text-default-700/50 dark:!border-amber-400',
                     ],
                   }}
                 />
