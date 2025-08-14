@@ -201,7 +201,7 @@ export default function Body() {
                     >
                       <DropdownTrigger>
                         <Button isIconOnly size='sm' variant='light'>
-                          <HiDotsVertical />
+                          <HiDotsVertical size={20} />
                         </Button>
                       </DropdownTrigger>
                       <DropdownMenu>
