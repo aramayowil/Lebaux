@@ -44,6 +44,7 @@ function Prueba() {
                   classNames={{
                     input: [
                       'z-1000',
+                      '!border-amber-400',
                       'bg-transparent',
                       'border-transparent',
                       'text-black/90 dark:text-white/90',
