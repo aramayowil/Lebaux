@@ -43,27 +43,21 @@ export const Navbar = () => {
     <HeroUINavbar maxWidth='xl' position='sticky' isBordered isBlurred={false}>
       {/* <NavbarBrand className='gap-3 max-w-fit'> */}
       <NavbarBrand className='gap-3'>
-        <Link
-          className='flex justify-start items-center gap-1'
-          color='foreground'
-          href='/'
-        >
-          <Image
-            alt='ACME Logo'
-            className='h-8 w-auto'
-            src='./images/LEBAUX-LOGO.png'
-          />
-        </Link>
+        <Image
+          alt='Lebaux Logo'
+          className='h-8 min-w-[120px] w-auto'
+          src='./images/LEBAUX-LOGO.png'
+        />
       </NavbarBrand>
       <NavbarContent className='basis-1/5 sm:basis-full' justify='start'>
         <div className='hidden lg:flex gap-4 justify-start ml-2'>
-          <NavbarItem>
+          <NavbarItem isActive>
             <Link
               className={clsx(
-                linkStyles({ color: 'foreground' }),
-                'data-[active=true]:text-primary data-[active=true]:font-medium',
+                linkStyles({ color: 'warning' }),
+                'data-[active=true]:text-primary data-[active=true]:font-medium font-semibold',
               )}
-              color='foreground'
+              color='warning'
               href='/'
             >
               Presupuesto

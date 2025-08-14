@@ -16,6 +16,15 @@ import { pdf } from '@react-pdf/renderer'
 import useAberturasStore from '@/stores/useAberturasStore'
 import useBreakpoint from '@/config/breakpoints'
 
+function obtenerFechaHoy() {
+  const hoy = new Date()
+  const dia = String(hoy.getDate()).padStart(2, '0')
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0') // ¡Recordá que enero es 0!
+  const año = hoy.getFullYear()
+
+  return `${dia}/${mes}/${año}`
+}
+
 type GeneratorPdfProps = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
@@ -59,7 +68,11 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
 
     const enlace: HTMLAnchorElement = document.createElement('a')
     enlace.href = url
-    enlace.download = 'presupuesto.pdf'
+    {
+      nameCliente === ''
+        ? (enlace.download = `presupuesto-${obtenerFechaHoy()}.pdf`)
+        : (enlace.download = `presupuesto-${nameCliente.toUpperCase()}-${obtenerFechaHoy()}.pdf`)
+    }
 
     document.body.appendChild(enlace)
     enlace.click()
@@ -89,14 +102,6 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
                   value={nameCliente.toLocaleUpperCase()}
                   description='Este nombre se usará en el PDF'
                   onValueChange={setNameCliente}
-                  classNames={{
-                    input: [
-                      'bg-transparent',
-                      'border-transparent',
-                      'text-black/90 dark:text-white/90',
-                      'placeholder:text-default-700/50 dark:placeholder:text-white/60',
-                    ],
-                  }}
                 />
               </ModalBody>
               <ModalFooter>
