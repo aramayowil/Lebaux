@@ -9,13 +9,6 @@ export default {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
-  safelist: [
-    'focus-within:bg-default-200/50',
-    'dark:focus-within:bg-default/60',
-    'hover:bg-default-200/70',
-    'dark:hover:bg-default/70',
-    'cursor-text',
-  ],
   theme: {
     extend: {},
   },
