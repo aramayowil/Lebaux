@@ -18,20 +18,13 @@ export default function IndexPage() {
         <div className='hidden lg:flex flex-col w-full h-fit gap-4'>
           <ButtonReset />
           <Card />
+          <Prueba />
           <Input
             label='Nombre del cliente'
             className='max-w-full'
+            variant='faded'
             description='Este nombre se usará en el PDF'
-            classNames={{
-              input: [
-                'bg-transparent',
-                'border-transparent',
-                'text-black/90 dark:text-white/90',
-                'placeholder:text-default-700/50 dark:placeholder:text-white/60',
-              ],
-            }}
           />
-          <Prueba />
         </div>
       </div>
 

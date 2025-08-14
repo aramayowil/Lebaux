@@ -41,6 +41,14 @@ function Prueba() {
                   value={nameCliente.toLocaleUpperCase()}
                   description='Este nombre se usará en el PDF'
                   onValueChange={setNameCliente}
+                  classNames={{
+                    input: [
+                      'bg-transparent',
+                      'border-transparent',
+                      'text-black/90 dark:text-white/90',
+                      'placeholder:text-default-700/50 dark:placeholder:text-white/60',
+                    ],
+                  }}
                 />
               </ModalBody>
               <ModalFooter>
