@@ -36,13 +36,14 @@ function Prueba() {
                 </div>
                 <Input
                   label='Nombre del cliente'
-                  className='max-w-full'
+                  className='max-w-full z-50'
                   variant='faded'
                   value={nameCliente.toLocaleUpperCase()}
                   description='Este nombre se usará en el PDF'
                   onValueChange={setNameCliente}
                   classNames={{
                     input: [
+                      'z-1000',
                       'bg-transparent',
                       'border-transparent',
                       'text-black/90 dark:text-white/90',
