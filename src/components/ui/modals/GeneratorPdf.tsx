@@ -45,41 +45,6 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
     setIsLoading(loading)
   }
 
-  // const generarPDF = async (
-  //   totalCompra: number,
-  //   descuentoCalculado: number,
-  //   ivaCalculado: number,
-  //   saldoPendiente: number,
-  //   importeFinal: number,
-  //   nameCliente: string,
-  // ): Promise<void> => {
-  //   const blob: Blob = await pdf(
-  //     <PDF
-  //       aberturas={aberturasStore}
-  //       totalCompra={totalCompra}
-  //       descuentoCalculado={descuentoCalculado}
-  //       ivaCalculado={ivaCalculado}
-  //       saldoPendiente={saldoPendiente}
-  //       importeFinal={importeFinal}
-  //       nameCliente={nameCliente}
-  //     />,
-  //   ).toBlob()
-  //   const url: string = URL.createObjectURL(blob)
-
-  //   const enlace: HTMLAnchorElement = document.createElement('a')
-  //   enlace.href = url
-  //   {
-  //     nameCliente === ''
-  //       ? (enlace.download = `presupuesto-${obtenerFechaHoy()}.pdf`)
-  //       : (enlace.download = `presupuesto-${nameCliente.toUpperCase()}-${obtenerFechaHoy()}.pdf`)
-  //   }
-
-  //   document.body.appendChild(enlace)
-  //   enlace.click()
-  //   document.body.removeChild(enlace)
-
-  //   URL.revokeObjectURL(url) // Limpieza de recursos
-  // }
   const generarPDF = async (
     totalCompra: number,
     descuentoCalculado: number,
