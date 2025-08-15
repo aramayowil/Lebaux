@@ -127,7 +127,7 @@ export function BottomBar() {
             </div>
           </AccordionItem>
         </Accordion>
-        <div className='py-6 px-4 flex flex-col gap-4'>
+        <div className='pt-6 pb-8 px-4 flex flex-col gap-4'>
           <div className='flex flex-row justify-between w-full'>
             <span className='text-lg font-semibold'>Total</span>
             <span className='text-lg font-semibold'>
@@ -160,9 +160,9 @@ export function BottomBar() {
             className={`fixed right-6 z-50 transition-all duration-300 ${
               isOpen
                 ? isCheckedACuenta
-                  ? 'bottom-76'
-                  : 'bottom-65'
-                : 'bottom-29'
+                  ? 'bottom-79'
+                  : 'bottom-69'
+                : 'bottom-32'
             }`}
           >
             <FloatButton
