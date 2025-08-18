@@ -52,15 +52,18 @@ export const lineas = [
 
 export const vidrios = [
   { label: 'Float 4MM', key: 'float4mm' },
-  { label: 'Laminado 3+3', key: 'laminado3+3' },
-  { label: 'Laminado 4+4', key: 'laminado4+4' },
-  { label: 'DVH 3+3/9/4', key: 'dvh3+3/9/4' },
-  { label: 'DVH 4/9/4', key: 'dvh4/9/4' },
+  { label: 'Laminado 3+3', key: 'laminado 3+3' },
+  { label: 'Laminado 4+4', key: 'laminado 4+4' },
+  { label: 'Laminado 5+5', key: 'laminado 5+5' },
+  { label: 'DVH 3+3/9/4', key: 'DVH 3+3/9/4' },
+  { label: 'DVH 5/9/5', key: 'DVH 5/9/5' },
+  { label: 'DVH 4/9/4', key: 'DVH 4/9/4' },
 ]
 
 export const colors = [
   { label: 'Blanco', key: 'blanco' },
   { label: 'Negro', key: 'negro' },
+  { label: 'Gris', key: 'gris anonizado' },
 ]
 
 export default function Modal({ isOpen, onClose }: ModalProps) {
