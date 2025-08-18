@@ -1,5 +1,10 @@
 import { catalogo } from '@/data'
-import { Autocomplete, AutocompleteItem } from '@heroui/react'
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Select,
+  SelectItem,
+} from '@heroui/react'
 import {
   Modal as ModalHeroUI,
   ModalContent,
@@ -56,8 +61,8 @@ export const vidrios = [
   { label: 'Laminado 4+4', key: 'laminado 4+4' },
   { label: 'Laminado 5+5', key: 'laminado 5+5' },
   { label: 'DVH 3+3/9/4', key: 'DVH 3+3/9/4' },
-  { label: 'DVH 5/9/5', key: 'DVH 5/9/5' },
   { label: 'DVH 4/9/4', key: 'DVH 4/9/4' },
+  { label: 'DVH 5/9/5', key: 'DVH 5/9/5' },
 ]
 
 export const colors = [
@@ -176,8 +181,8 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
   }
 
   const [selectVidrio, setSelectVidrio] = useState<string>('float4mm')
-  const handleValueVidrio = (event: Key | null) => {
-    setSelectVidrio(event?.toString() || '')
+  const handleValueVidrio = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectVidrio(event.target.value)
   }
 
   const [inputCantidad, setInputCantidad] = useState(1)
@@ -393,7 +398,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                         </AutocompleteItem>
                       )}
                     </Autocomplete>
-                    {/* <Select
+                    <Select
                       label='Vidrio'
                       isRequired
                       variant='bordered'
@@ -409,27 +414,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                       {vidrios.map((vidrio) => (
                         <SelectItem key={vidrio.key}>{vidrio.label}</SelectItem>
                       ))}
-                    </Select> */}
-                    <Autocomplete
-                      label='Vidrio'
-                      isRequired
-                      variant='bordered'
-                      className='col-span-3'
-                      placeholder='Tipo de vidrio'
-                      isClearable={false}
-                      defaultItems={vidrios}
-                      selectedKey={selectVidrio}
-                      startContent={<RiCheckboxMultipleBlankFill />}
-                      value={selectVidrio}
-                      isDisabled={isDisabledBody}
-                      onSelectionChange={handleValueVidrio}
-                    >
-                      {(vidrio) => (
-                        <AutocompleteItem key={vidrio.key}>
-                          {vidrio.label}
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
+                    </Select>
 
                     <NumberInput
                       label='Cantidad'
