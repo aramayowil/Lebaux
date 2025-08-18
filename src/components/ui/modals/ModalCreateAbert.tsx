@@ -52,7 +52,8 @@ export const lineas = [
 
 export const vidrios = [
   { label: 'Float 4MM', key: 'float4mm' },
-  { label: 'Laminado 3+3', key: '3+3lam' },
+  { label: 'Laminado 3+3', key: 'laminado3+3' },
+  { label: 'Laminado 4+4', key: 'laminado4+4' },
   { label: 'DVH 3+3/9/4', key: 'dvh3+3/9/4' },
   { label: 'DVH 4/9/4', key: 'dvh4/9/4' },
 ]
@@ -389,7 +390,23 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                         </AutocompleteItem>
                       )}
                     </Autocomplete>
-
+                    {/* <Select
+                      label='Vidrio'
+                      isRequired
+                      variant='bordered'
+                      className='col-span-3'
+                      placeholder='Tipo de vidrio'
+                      isClearable={false}
+                      items={vidrios}
+                      startContent={<RiCheckboxMultipleBlankFill />}
+                      value={selectVidrio}
+                      isDisabled={isDisabledBody}
+                      onChange={handleValueVidrio}
+                    >
+                      {vidrios.map((vidrio) => (
+                        <SelectItem key={vidrio.key}>{vidrio.label}</SelectItem>
+                      ))}
+                    </Select> */}
                     <Autocomplete
                       label='Vidrio'
                       isRequired
