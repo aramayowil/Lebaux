@@ -12,6 +12,8 @@ import {
   PopoverTrigger,
   ScrollShadow,
 } from '@heroui/react'
+import { colors } from '@/models/IColors'
+import { vidrios } from '@/models/IVidrios'
 import { GoTrash } from 'react-icons/go'
 import { IoIosInformationCircleOutline, IoMdCreate } from 'react-icons/io'
 import useAberturasStore from '@/stores/useAberturasStore'
@@ -105,10 +107,12 @@ export default function Body() {
                       {abertura.medidas.base}x{abertura.medidas.altura}
                     </span>
                     <span className='capitalize text-sm text-neutral-400'>
-                      {abertura.vidrio}
+                      {vidrios.find((v) => v.key === abertura.vidrio)?.label ||
+                        abertura.vidrio}
                     </span>
                     <span className='capitalize text-sm text-neutral-400'>
-                      {abertura.color}
+                      {colors.find((c) => c.key === abertura.color)?.label ||
+                        abertura.color}
                     </span>
                   </div>
                 </div>

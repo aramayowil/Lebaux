@@ -1,4 +1,7 @@
 import { catalogo } from '@/data'
+import { colors } from '@/models/IColors'
+import { lineas } from '@/models/ILineas'
+import { vidrios } from '@/models/IVidrios'
 import {
   Modal as ModalHeroUI,
   ModalContent,
@@ -44,24 +47,8 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
 }
+
 type Key = string | number
-
-export const lineas = [
-  { label: 'Modena', key: 'modena' },
-  { label: 'Herrero', key: 'herrero' },
-]
-
-export const vidrios = [
-  { label: 'Float 4MM', key: 'float4mm' },
-  { label: 'Laminado 3+3', key: '3+3lam' },
-  { label: 'DVH 3+3/9/4', key: 'dvh3+3/9/4' },
-  { label: 'DVH 4/9/4', key: 'dvh4/9/4' },
-]
-
-export const colors = [
-  { label: 'Blanco', key: 'blanco' },
-  { label: 'Negro', key: 'negro' },
-]
 
 export default function ModalEditAbertura({
   key_abertura,
@@ -185,13 +172,16 @@ export default function ModalEditAbertura({
   const handleValueAltura = (value: number) => {
     setInputAltura(value)
   }
-  const [selectColor, setSelectColor] = useState(abertura?.color || 'blanco')
+  const [selectColor, setSelectColor] = useState(
+    colors.find((c) => c.label === abertura?.color)?.label || abertura?.color,
+  )
   const handleValueColor = (event: Key | null) => {
     setSelectColor(event?.toString() || '')
   }
 
   const [selectVidrio, setSelectVidrio] = useState(
-    abertura?.vidrio || 'float4mm',
+    vidrios.find((v) => v.label === abertura?.vidrio)?.label ||
+      abertura?.vidrio,
   )
   const handleValueVidrio = (event: Key | null) => {
     setSelectVidrio(event?.toString() || '')

@@ -141,7 +141,7 @@ export function BottomBar() {
             startContent={<FaRegCheckCircle size={18} />}
             onPress={handleOpenModal}
           >
-            Finalizar compra
+            Finalizar presupuesto
           </Button>
           {isOpenModal && (
             <GeneratorPdf

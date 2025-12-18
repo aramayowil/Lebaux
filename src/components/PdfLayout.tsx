@@ -1,4 +1,6 @@
 import { Abertura } from '@/interfaces/Abertura'
+import { colors } from '@/models/IColors'
+import { vidrios } from '@/models/IVidrios'
 import {
   Document,
   Page,
@@ -185,8 +187,16 @@ function PDF({
                     {abertura.medidas.base} x {abertura.medidas.altura}
                   </Text>
                   <Text>Cantidad: {abertura.cantidad}</Text>
-                  <Text>Color: {capitalizar(abertura.color)}</Text>
-                  <Text>Vidrio: {abertura.vidrio}</Text>
+                  <Text>
+                    Color:{' '}
+                    {colors.find((c) => c.key === abertura.color)?.label ||
+                      abertura.color}
+                  </Text>
+                  <Text>
+                    Vidrio:{' '}
+                    {vidrios.find((v) => v.key === abertura.vidrio)?.label ||
+                      abertura.vidrio}
+                  </Text>
                   {(abertura.accesorios.premarco > 0 ||
                     abertura.accesorios.mosquitero > 0) && (
                     <Text style={{ marginTop: 6, fontSize: 9 }}>
