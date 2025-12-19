@@ -1,4 +1,4 @@
-import { Abertura } from '@/interfaces/IAbertura'
+import { IAbertura as Abertura } from '@/interfaces/IAbertura'
 import { colors } from '@/models/IColors'
 import { vidrios } from '@/models/IVidrios'
 import {
