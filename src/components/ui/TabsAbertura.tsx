@@ -5,7 +5,7 @@ interface Linea {
   id: string
   abertura: string
   prefijo: string
-  variante: {
+  variantes: {
     variantKey: number
     tab: string
     descripcion: string
@@ -30,47 +30,52 @@ export default function TabsAbertura({
   getVariantKey,
   setTabSelected,
 }: tabsProps) {
-  const [tagSelected, setTagSelected] = useState('')
+  //controlador del tab seleccionado
+  const [selected, setSelected] = useState(setTabSelected.toString())
 
   useEffect(() => {
-    selectedAbertura
-      ? (getCodigo(selectedAbertura.prefijo),
-        getImg(selectedAbertura.variante[setTabSelected].img),
-        getVariantKey(selectedAbertura.variante[setTabSelected].variantKey),
-        getDescripcion(selectedAbertura.variante[setTabSelected].descripcion),
-        setTagSelected(selectedAbertura.variante[setTabSelected].tab))
-      : ''
+    //cuando cambia la abertura seleccionada, seteo los valores iniciales
+    if (selectedAbertura) {
+      getCodigo(selectedAbertura.prefijo)
+      getImg(selectedAbertura.variantes[0].img)
+      getVariantKey(selectedAbertura.variantes[0].variantKey)
+      getDescripcion(selectedAbertura.variantes[0].descripcion)
+    }
+    //limpieza al desmontar o cambiar de abertura
     return () => {
       getDescripcion('')
       getCodigo('')
       getImg('')
-      getVariantKey(setTabSelected)
+      setSelected('0')
     }
   }, [selectedAbertura])
 
   useEffect(() => {
     if (selectedAbertura) {
-      const tabSelectData = selectedAbertura.variante.find(
-        (item) => item.tab === tagSelected,
+      //guardo los campos de la variante seleccionada
+      const tabSelectData = selectedAbertura.variantes.find(
+        (variante) => variante.variantKey.toString() === selected,
       )
+
       getImg(tabSelectData ? tabSelectData.img : '')
       getVariantKey(tabSelectData ? tabSelectData.variantKey : 0)
       getCodigo(selectedAbertura.prefijo)
       getDescripcion(tabSelectData ? tabSelectData.descripcion : '')
+      getVariantKey(tabSelectData ? tabSelectData.variantKey : 0)
     }
-  }, [tagSelected])
+  }, [selected])
 
   return (
     <div>
-      {selectedAbertura && selectedAbertura.variante.length > 1 && (
+      {selectedAbertura && selectedAbertura.variantes.length > 1 && (
         <Tabs
           color='warning'
           fullWidth={true}
-          selectedKey={tagSelected}
-          onSelectionChange={(key) => setTagSelected(key as typeof tagSelected)}
+          selectedKey={selected}
+          onSelectionChange={(key) => setSelected(key as typeof selected)}
         >
-          {selectedAbertura?.variante.map((item) => (
-            <Tab key={item.tab} title={item.tab} />
+          {selectedAbertura?.variantes.map((variante) => (
+            <Tab key={variante.variantKey} title={variante.tab} />
           ))}
         </Tabs>
       )}

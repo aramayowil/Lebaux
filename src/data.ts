@@ -8,7 +8,7 @@ interface Linea {
   id: string
   abertura: string
   prefijo: string
-  variante: Variante[]
+  variantes: Variante[]
 }
 
 export const catalogo: Record<string, Linea[]> = {
@@ -17,7 +17,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'pfijo',
       abertura: 'Paño Fijo',
       prefijo: 'PF',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Paño Fijo',
@@ -30,7 +30,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'corrediza',
       abertura: 'Corrediza',
       prefijo: 'VC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: '2 Hojas',
@@ -62,7 +62,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'oscilobatiente',
       abertura: 'Oscilobatiente',
       prefijo: 'OB',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'OBAT 1H',
@@ -81,7 +81,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'patagonica',
       abertura: 'Patagónica',
       prefijo: 'PAT',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Patagónica 1H',
@@ -101,10 +101,10 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'proyectante',
       abertura: 'Proyectante',
       prefijo: 'PROY',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
-          tab: 'proyectante',
+          tab: 'Proyectante',
           descripcion: 'Proyectante',
           img: './images/modena/Proyectante.jpg',
         },
@@ -114,7 +114,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'rebatible',
       abertura: 'Rebatible',
       prefijo: 'REB',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Raja 1H',
@@ -133,7 +133,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1H',
       abertura: 'Puerta',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -158,7 +158,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1H_3/4',
       abertura: 'Puerta 3/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -171,7 +171,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1H_POSTIGON',
       abertura: 'Puerta C/Postigón',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
@@ -190,7 +190,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H',
       abertura: 'Puerta 2H',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -209,7 +209,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_3/4',
       abertura: 'Puerta 2H 3/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -222,7 +222,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_postigon',
       abertura: 'Puerta 2H Postigón',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
@@ -241,7 +241,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'banderola',
       abertura: 'Banderola',
       prefijo: 'BAND',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Banderola',
@@ -254,7 +254,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'desplazable',
       abertura: 'Desplazable',
       prefijo: 'BAND',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Desplazable',
@@ -267,7 +267,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'aberturaCompuesta',
       abertura: 'Abertura Compuesta',
       prefijo: 'AC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Abertura Compuesta',
@@ -283,7 +283,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'pfijo',
       abertura: 'Paño Fijo',
       prefijo: 'PF',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Paño Fijo',
@@ -296,7 +296,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'banderola',
       abertura: 'Banderola',
       prefijo: 'BAND',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Banderola',
@@ -309,7 +309,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'raja',
       abertura: 'Raja',
       prefijo: 'RAJ',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Raja V-E',
@@ -328,7 +328,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'patagonica',
       abertura: 'Patagónica',
       prefijo: 'PAT',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Patagónica 1H',
@@ -347,7 +347,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'corrediza',
       abertura: 'Corrediza',
       prefijo: 'VC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero 2H',
@@ -366,7 +366,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'ventiluz',
       abertura: 'Ventiluz',
       prefijo: 'VTL',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Ventiluz',
@@ -379,7 +379,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'sobremesada',
       abertura: 'Sobremesada',
       prefijo: 'SOB',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -398,7 +398,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puertaBalcon',
       abertura: 'Puerta Balcón',
       prefijo: 'PTB',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -423,7 +423,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'ventanaAbrir',
       abertura: 'Ventana de Abrir',
       prefijo: 'VA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -442,7 +442,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'celosiaAbrir',
       abertura: 'Celosía de Abrir',
       prefijo: 'CA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Celosía de Abrir',
@@ -455,7 +455,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'celosiaCorrediza',
       abertura: 'Celosía Corrediza',
       prefijo: 'CC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Celosía Corrediza',
@@ -468,7 +468,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta',
       abertura: 'Puerta',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -493,7 +493,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta1/2',
       abertura: 'Puerta 1/2',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -518,7 +518,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta1/4',
       abertura: 'Puerta 1/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -537,7 +537,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta3/4',
       abertura: 'Puerta 3/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -556,7 +556,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1/2_postigon',
       abertura: 'Puerta C/Postigón',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
@@ -575,7 +575,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H',
       abertura: 'Puerta 2H',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'V.E.',
@@ -606,7 +606,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_1/4',
       abertura: 'Puerta 2H 1/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -625,7 +625,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_1/2',
       abertura: 'Puerta 2H 1/2',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -644,7 +644,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_3/4',
       abertura: 'Puerta 2H 3/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -663,7 +663,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_postigon',
       abertura: 'Puerta 2H C/Postigón',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
@@ -683,7 +683,7 @@ export const catalogo: Record<string, Linea[]> = {
     //   id: 'puertaInyectada',
     //   abertura: 'Puerta Inyectada',
     //   prefijo: 'PTA-INJ',
-    //   variante: [
+    //   variantes: [
     //     {
     //       tab: 'Puerta Inyectada',
     //       descripcion: 'Puerta Inyectada',
@@ -696,7 +696,7 @@ export const catalogo: Record<string, Linea[]> = {
     //   id: 'puertaBathroom',
     //   abertura: 'Puerta de Baño',
     //   prefijo: 'PTA-BATH',
-    //   variante: [
+    //   variantes: [
     //     {
     //       tab: 'Puerta de Baño',
     //       descripcion: 'Puerta de Baño',
@@ -708,7 +708,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'aberturaCompuesta',
       abertura: 'Abertura Compuesta',
       prefijo: 'AC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Abertura Compuesta',
@@ -724,7 +724,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'pfijo',
       abertura: 'Paño Fijo',
       prefijo: 'PF',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Paño Fijo',
@@ -737,7 +737,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'corrediza',
       abertura: 'Corrediza',
       prefijo: 'VC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: '2 Hojas',
@@ -769,7 +769,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'oscilobatiente',
       abertura: 'Oscilobatiente',
       prefijo: 'OB',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'OBAT 1H',
@@ -788,7 +788,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'patagonica',
       abertura: 'Patagónica',
       prefijo: 'PAT',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Patagónica 1H',
@@ -808,7 +808,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'proyectante',
       abertura: 'Proyectante',
       prefijo: 'PROY',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'proyectante',
@@ -821,7 +821,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'rebatible',
       abertura: 'Rebatible',
       prefijo: 'REB',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Raja 1H',
@@ -840,7 +840,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1H',
       abertura: 'Puerta',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -865,7 +865,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1H_3/4',
       abertura: 'Puerta 3/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -878,7 +878,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_1H_POSTIGON',
       abertura: 'Puerta C/Postigón',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
@@ -897,7 +897,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H',
       abertura: 'Puerta 2H',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -916,7 +916,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_3/4',
       abertura: 'Puerta 2H 3/4',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Vidrio Entero',
@@ -929,7 +929,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'puerta_2H_postigon',
       abertura: 'Puerta 2H Postigón',
       prefijo: 'PTA',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
@@ -948,7 +948,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'banderola',
       abertura: 'Banderola',
       prefijo: 'BAND',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Banderola',
@@ -961,7 +961,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'desplazable',
       abertura: 'Desplazable',
       prefijo: 'BAND',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Desplazable',
@@ -974,7 +974,7 @@ export const catalogo: Record<string, Linea[]> = {
       id: 'aberturaCompuesta',
       abertura: 'Abertura Compuesta',
       prefijo: 'AC',
-      variante: [
+      variantes: [
         {
           variantKey: 0,
           tab: 'Abertura Compuesta',

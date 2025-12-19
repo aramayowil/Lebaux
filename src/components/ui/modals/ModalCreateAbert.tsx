@@ -40,7 +40,7 @@ interface Linea {
   id: string
   abertura: string
   prefijo: string
-  variante: Variante[]
+  variantes: Variante[]
 }
 
 interface ModalProps {
