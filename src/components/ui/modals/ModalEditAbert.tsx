@@ -31,6 +31,7 @@ import TabsAbertura from '../TabsAbertura'
 import useAberturasStore from '@/stores/useAberturasStore'
 
 interface Variante {
+  variantKey: number
   tab: string
   descripcion: string
   img: string
@@ -99,6 +100,7 @@ export default function ModalEditAbertura({
       name_abertura: dataOfCatalogo?.abertura || '',
       descripcion_abertura: inputDescripcion,
       codigo: inputCodigo,
+      variantKey: variantKey,
       medidas: {
         base: inputAncho,
         altura: inputAltura,
@@ -240,6 +242,11 @@ export default function ModalEditAbertura({
     setImgSrc(img)
   }
 
+  const [variantKey, setVariantKey] = useState(abertura?.variantKey || 0)
+  const handleValueVariantKey = (variantKey: number) => {
+    setVariantKey(variantKey)
+  }
+
   useEffect(() => {
     handleDisabledBody()
   }, [selectAbertura])
@@ -343,6 +350,8 @@ export default function ModalEditAbertura({
                           getDescripcion={handleValueDescripcion}
                           getCodigo={handleValueCodigo}
                           getImg={handleImg}
+                          getVariantKey={handleValueVariantKey}
+                          setTabSelected={variantKey}
                         />
                       )}
                     </div>

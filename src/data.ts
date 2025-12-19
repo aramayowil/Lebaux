@@ -1,4 +1,5 @@
 interface Variante {
+  variantKey: number
   tab: string
   descripcion: string
   img: string
@@ -18,6 +19,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PF',
       variante: [
         {
+          variantKey: 0,
           tab: 'Paño Fijo',
           descripcion: 'Paño Fijo',
           img: './images/modena/PañoFijo.jpg',
@@ -30,21 +32,25 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'VC',
       variante: [
         {
+          variantKey: 0,
           tab: '2 Hojas',
           descripcion: 'Ventana corrediza 2 Hojas',
           img: './images/modena/Corrediza_2H.png',
         },
         {
+          variantKey: 1,
           tab: '3 Hojas',
           descripcion: 'Ventana corrediza 3 Hojas',
           img: './images/modena/Corrediza_3H_3G.jpg',
         },
         {
+          variantKey: 2,
           tab: '4 Hojas',
           descripcion: 'Ventana corrediza 4 Hojas',
           img: './images/modena/Corrediza_4H.jpg',
         },
         {
+          variantKey: 3,
           tab: '6 Hojas',
           descripcion: 'Ventana corrediza 6 Hojas',
           img: './images/modena/Corrediza_6H_3G.jpg',
@@ -58,11 +64,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'OB',
       variante: [
         {
+          variantKey: 0,
           tab: 'OBAT 1H',
           descripcion: 'Oscilobatiente',
           img: './images/modena/Oscilobatiente_1H.jpg',
         },
         {
+          variantKey: 1,
           tab: 'OBAT 2H',
           descripcion: 'Oscilobatiente 2 Hojas',
           img: './images/modena/Oscilobatiente_2H.jpg',
@@ -75,11 +83,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PAT',
       variante: [
         {
+          variantKey: 0,
           tab: 'Patagónica 1H',
           descripcion: 'Patagónica Simple',
           img: './images/herrero/PatagonicaSimple.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Patagónica 2H',
           descripcion: 'Patagónica Doble',
           img: './images/herrero/PatagonicaDoble.jpg',
@@ -93,6 +103,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PROY',
       variante: [
         {
+          variantKey: 0,
           tab: 'proyectante',
           descripcion: 'Proyectante',
           img: './images/modena/Proyectante.jpg',
@@ -105,11 +116,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'REB',
       variante: [
         {
+          variantKey: 0,
           tab: 'Raja 1H',
           descripcion: 'Raja 1 Hoja',
           img: './images/modena/Rebatible_1H.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Raja 2H',
           descripcion: 'Raja 2 Hojas',
           img: './images/modena/Rebatible_2H.jpg',
@@ -122,16 +135,19 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 1 hoja',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 1 hoja C/Travesaño',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_C-TRAVES.jpg',
         },
         {
+          variantKey: 2,
           tab: 'Ciega',
           descripcion: 'Puerta 1 hoja ciega',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_CIEGA.jpg',
@@ -144,6 +160,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 3/4 vidrio entero',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_3-4_VE.jpg',
@@ -156,11 +173,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 1 hoja C/Travesaño al medio & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-POSTIGON.jpg',
@@ -173,11 +192,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 2 hojas C/Travesaño',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_C-TRAVES.jpg',
@@ -190,6 +211,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas vidrio entero',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_3-4_VE.jpg',
@@ -202,11 +224,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 2 hojas C/Travesaño al medio & postigón',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 2 hojas C/Revestimiento & postigón',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES_POSTIGON.jpg',
@@ -219,6 +243,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'BAND',
       variante: [
         {
+          variantKey: 0,
           tab: 'Banderola',
           descripcion: 'Banderola',
           img: './images/modena/Banderola.jpg',
@@ -231,6 +256,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'BAND',
       variante: [
         {
+          variantKey: 0,
           tab: 'Desplazable',
           descripcion: 'Desplazable',
           img: './images/modena/Desplazable.jpg',
@@ -243,6 +269,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'AC',
       variante: [
         {
+          variantKey: 0,
           tab: 'Abertura Compuesta',
           descripcion: 'Abertura Compuesta',
           img: './images/img-prueba3.jpg',
@@ -258,6 +285,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PF',
       variante: [
         {
+          variantKey: 0,
           tab: 'Paño Fijo',
           descripcion: 'Paño Fijo',
           img: './images/herrero/PañoFijo.jpg',
@@ -270,6 +298,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'BAND',
       variante: [
         {
+          variantKey: 0,
           tab: 'Banderola',
           descripcion: 'Banderola C/Brazo de empuje',
           img: './images/herrero/Banderola.jpg',
@@ -282,11 +311,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'RAJ',
       variante: [
         {
+          variantKey: 0,
           tab: 'Raja V-E',
           descripcion: 'Raja Vidrio Entero',
           img: './images/herrero/RajaVE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Raja V-R',
           descripcion: 'Raja Vidrio Repartido',
           img: './images/herrero/RajaVR.jpg',
@@ -299,11 +330,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PAT',
       variante: [
         {
+          variantKey: 0,
           tab: 'Patagónica 1H',
           descripcion: 'Patagónica Simple',
           img: './images/herrero/PatagonicaSimple.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Patagónica 2H',
           descripcion: 'Patagónica Doble',
           img: './images/herrero/PatagonicaDoble.jpg',
@@ -316,11 +349,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'VC',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero 2H',
           descripcion: 'Ventana corrediza vidrio entero',
           img: './images/herrero/CorredizaVE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido 2H',
           descripcion: 'Ventana corrediza vidrio repartido',
           img: './images/herrero/CorredizaVR.jpg',
@@ -333,6 +368,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'VTL',
       variante: [
         {
+          variantKey: 0,
           tab: 'Ventiluz',
           descripcion: 'Ventiluz',
           img: './images/herrero/Ventiluz.jpg',
@@ -345,11 +381,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'SOB',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Ventana Sobremesada vidrio entero',
           img: './images/herrero/Sobremesada.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Ventana Sobremesada vidrio repartido',
           img: './images/herrero/Sobremesada.jpg',
@@ -362,16 +400,19 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTB',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta balcón vidrio entero',
           img: './images/herrero/PuertaBalcon.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta balcón vidrio repartido',
           img: './images/herrero/PuertaBalconVR.jpg',
         },
         {
+          variantKey: 2,
           tab: 'V-R-H',
           descripcion: 'Puerta balcón vidrio repartido horizontal',
           img: './images/herrero/PuertaBalconTravesano.jpg',
@@ -384,11 +425,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'VA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Ventana de abrir vidrio entero',
           img: './images/herrero/RajaVE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Ventana de abrir vidrio repartido',
           img: './images/herrero/RajaVR.jpg',
@@ -401,6 +444,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'CA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Celosía de Abrir',
           descripcion: 'Celosía de abrir',
           img: './images/herrero/CelociaDeAbrir.jpg',
@@ -413,6 +457,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'CC',
       variante: [
         {
+          variantKey: 0,
           tab: 'Celosía Corrediza',
           descripcion: 'Celosía corrediza',
           img: './images/herrero/CelociaCorrediza.jpg',
@@ -425,16 +470,19 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta vidrio entero 1 hoja',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta vidrio repartido 1 hojas',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_VR.jpg',
         },
         {
+          variantKey: 2,
           tab: 'Ciega',
           descripcion: 'Puerta ciega 1 hoja',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_CIEGA.jpg',
@@ -447,16 +495,19 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 1/2 vidrio entero',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta 1/2 vidrio repartido',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_VR.jpg',
         },
         {
+          variantKey: 2,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 1 hoja C/Travesaño',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_C-TRAVES.jpg',
@@ -469,11 +520,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 1/4 vidrio entero',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-4_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta 1/4 vidrio repartido',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-4_VR.jpg',
@@ -486,11 +539,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 3/4 vidrio entero',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_3-4_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta 3/4 vidrio repartido',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_3-4_VR.jpg',
@@ -503,11 +558,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 1 hoja C/Travesaño al medio & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
@@ -520,21 +577,25 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'V.E.',
           descripcion: 'Puerta 2 hojas',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'V.R.',
           descripcion: 'Puerta 2 hojas',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_VR.jpg',
         },
         {
+          variantKey: 2,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 2 hojas C/Travesaño',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_C-TRAVES.jpg',
         },
         {
+          variantKey: 3,
           tab: 'Ciega',
           descripcion: 'Puerta Ciega 2 hojas',
           img: './images/herrero/PuertaCiega2H.jpg',
@@ -547,11 +608,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas vidrio entero',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_1-4_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta 2 hojas vidrio repartido',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_1-4_VR.jpg',
@@ -564,11 +627,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas vidrio entero',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_1-2_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta 2 hojas vidrio repartido',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_1-2_VR.jpg',
@@ -581,11 +646,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas vidrio entero',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_3-4_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Vidrio Repartido',
           descripcion: 'Puerta 2 hojas vidrio repartido',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_3-4_VR.jpg',
@@ -598,11 +665,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 2 hojas C/Travesaño al medio & postigón',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES_POSTIGON.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 2 hojas C/Revestimiento & postigón',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_1-2_POSTIGON.jpg',
@@ -641,6 +710,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'AC',
       variante: [
         {
+          variantKey: 0,
           tab: 'Abertura Compuesta',
           descripcion: 'Abertura Compuesta',
           img: './images/img-prueba3.jpg', // Placeholder image, replace with actual image path
@@ -656,6 +726,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PF',
       variante: [
         {
+          variantKey: 0,
           tab: 'Paño Fijo',
           descripcion: 'Paño Fijo',
           img: './images/modena/PañoFijo.jpg',
@@ -668,21 +739,25 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'VC',
       variante: [
         {
+          variantKey: 0,
           tab: '2 Hojas',
           descripcion: 'Ventana corrediza 2 Hojas',
           img: './images/modena/Corrediza_2H.png',
         },
         {
+          variantKey: 1,
           tab: '3 Hojas',
           descripcion: 'Ventana corrediza 3 Hojas',
           img: './images/modena/Corrediza_3H_3G.jpg',
         },
         {
+          variantKey: 2,
           tab: '4 Hojas',
           descripcion: 'Ventana corrediza 4 Hojas',
           img: './images/modena/Corrediza_4H.jpg',
         },
         {
+          variantKey: 3,
           tab: '6 Hojas',
           descripcion: 'Ventana corrediza 6 Hojas',
           img: './images/modena/Corrediza_6H_3G.jpg',
@@ -696,11 +771,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'OB',
       variante: [
         {
+          variantKey: 0,
           tab: 'OBAT 1H',
           descripcion: 'Oscilobatiente',
           img: './images/modena/Oscilobatiente_1H.jpg',
         },
         {
+          variantKey: 1,
           tab: 'OBAT 2H',
           descripcion: 'Oscilobatiente 2 Hojas',
           img: './images/modena/Oscilobatiente_2H.jpg',
@@ -713,11 +790,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PAT',
       variante: [
         {
+          variantKey: 0,
           tab: 'Patagónica 1H',
           descripcion: 'Patagónica Simple',
           img: './images/herrero/PatagonicaSimple.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Patagónica 2H',
           descripcion: 'Patagónica Doble',
           img: './images/herrero/PatagonicaDoble.jpg',
@@ -731,6 +810,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PROY',
       variante: [
         {
+          variantKey: 0,
           tab: 'proyectante',
           descripcion: 'Proyectante',
           img: './images/modena/Proyectante.jpg',
@@ -743,11 +823,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'REB',
       variante: [
         {
+          variantKey: 0,
           tab: 'Raja 1H',
           descripcion: 'Raja 1 Hoja',
           img: './images/modena/Rebatible_1H.jpg',
         },
         {
+          variantKey: 1,
           tab: 'Raja 2H',
           descripcion: 'Raja 2 Hojas',
           img: './images/modena/Rebatible_2H.jpg',
@@ -760,16 +842,19 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 1 hoja',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 1 hoja C/Travesaño',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_C-TRAVES.jpg',
         },
         {
+          variantKey: 2,
           tab: 'Ciega',
           descripcion: 'Puerta 1 hoja ciega',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_CIEGA.jpg',
@@ -782,6 +867,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 3/4 vidrio entero',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_3-4_VE.jpg',
@@ -794,11 +880,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 1 hoja C/Travesaño al medio & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-POSTIGON.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
@@ -811,11 +899,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_VE.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 2 hojas C/Travesaño',
           img: './images/PUERTAS/2_HOJAS/PUERTA_2H_C-TRAVES.jpg',
@@ -828,6 +918,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 2 hojas vidrio entero',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_3-4_VE.jpg',
@@ -840,11 +931,13 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'PTA',
       variante: [
         {
+          variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 2 hojas C/Travesaño al medio & postigón',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES_POSTIGON.jpg',
         },
         {
+          variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 2 hojas C/Revestimiento & postigón',
           img: './images/PUERTAS/2_HOJAS/puerta_2H_1-2_POSTIGON.jpg',
@@ -857,6 +950,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'BAND',
       variante: [
         {
+          variantKey: 0,
           tab: 'Banderola',
           descripcion: 'Banderola',
           img: './images/modena/Banderola.jpg',
@@ -869,6 +963,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'BAND',
       variante: [
         {
+          variantKey: 0,
           tab: 'Desplazable',
           descripcion: 'Desplazable',
           img: './images/modena/Desplazable.jpg',
@@ -881,6 +976,7 @@ export const catalogo: Record<string, Linea[]> = {
       prefijo: 'AC',
       variante: [
         {
+          variantKey: 0,
           tab: 'Abertura Compuesta',
           descripcion: 'Abertura Compuesta',
           img: './images/img-prueba3.jpg',

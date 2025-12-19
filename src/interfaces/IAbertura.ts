@@ -1,10 +1,11 @@
-export interface Abertura {
+export interface IAbertura {
   key: number
-  linea: string
   type_aberturaID: string
+  linea: string
   name_abertura: string
   descripcion_abertura: string
   codigo: string
+  variantKey: number
   medidas: { base: number; altura: number }
   accesorios: { mosquitero: number; premarco: number }
   color: string
@@ -12,4 +13,6 @@ export interface Abertura {
   img: string
   cantidad: number
   precio: number
+  getKey(): number
+  calcularTotal(): number
 }

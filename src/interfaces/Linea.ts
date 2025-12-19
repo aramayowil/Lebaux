@@ -1,11 +1,12 @@
 export interface Variante {
-  tab: string,
-  descripcion: string,
+  variantKey: number
+  tab: string
+  descripcion: string
   img: string
 }
 export interface Linea {
-  id: string,
-  abertura: string,
-  prefijo: string,
+  id: string
+  abertura: string
+  prefijo: string
   variante: Variante[]
 }

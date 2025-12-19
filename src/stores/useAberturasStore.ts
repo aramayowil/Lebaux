@@ -1,11 +1,11 @@
-import { Abertura } from '@/interfaces/Abertura'
+import { IAbertura } from '@/interfaces/IAbertura'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 type AberturaState = {
-  aberturas: Abertura[]
-  agregarAbertura: (abertura: Abertura) => void
-  actualizarAbertura: (id: number, data: Partial<Abertura>) => void
+  aberturas: IAbertura[]
+  agregarAbertura: (abertura: IAbertura) => void
+  actualizarAbertura: (id: number, data: Partial<IAbertura>) => void
   eliminarAbertura: (id: number) => void
   limpiarAberturas: () => void
 }
@@ -16,7 +16,7 @@ const useAberturasStore = create<AberturaState>()(
       aberturas: [],
       agregarAbertura: (abertura) =>
         set((state) => ({ aberturas: [...state.aberturas, abertura] })),
-      actualizarAbertura: (key: number, data: Partial<Abertura>) =>
+      actualizarAbertura: (key: number, data: Partial<IAbertura>) =>
         set((state) => ({
           aberturas: state.aberturas.map((p) =>
             p.key === key ? { ...p, ...data } : p,

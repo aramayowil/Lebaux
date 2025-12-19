@@ -31,6 +31,7 @@ import Abertura from '@/class/Abertura.class'
 import useAberturasStore from '@/stores/useAberturasStore'
 
 interface Variante {
+  variantKey: number
   tab: string
   descripcion: string
   img: string
@@ -90,6 +91,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         data.abertura,
         inputDescripcion,
         inputCodigo,
+        variantKey,
         { base: inputAncho, altura: inputAltura },
         {
           mosquitero: checkedMosquitero ? inputMosquitero : 0,
@@ -205,6 +207,11 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
     setImgSrc(img)
   }
 
+  const [variantKey, setVariantKey] = useState<number>(0)
+  const handleValueVariantKey = (variantKey: number) => {
+    setVariantKey(variantKey)
+  }
+
   useEffect(() => {
     handleDisabledBody()
   }, [selectAbertura])
@@ -308,6 +315,8 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                           getDescripcion={handleValueDescripcion}
                           getCodigo={handleValueCodigo}
                           getImg={handleImg}
+                          getVariantKey={handleValueVariantKey}
+                          setTabSelected={variantKey}
                         />
                       )}
                     </div>

@@ -6,6 +6,7 @@ interface Linea {
   abertura: string
   prefijo: string
   variante: {
+    variantKey: number
     tab: string
     descripcion: string
     img: string
@@ -17,6 +18,8 @@ type tabsProps = {
   getDescripcion: (descripcion: string) => void
   getCodigo: (codigo: string) => void
   getImg: (img: string) => void
+  getVariantKey: (variantKey: number) => void
+  setTabSelected: number
 }
 
 export default function TabsAbertura({
@@ -24,39 +27,24 @@ export default function TabsAbertura({
   getDescripcion,
   getCodigo,
   getImg,
+  getVariantKey,
+  setTabSelected,
 }: tabsProps) {
   const [tagSelected, setTagSelected] = useState('')
 
-  const findImg = (tab: string) => {
-    const tagWitchImg = selectedAbertura?.variante.find(
-      (item) => item.tab === tab,
-    )?.img
-    if (tagWitchImg) {
-      getImg(tagWitchImg)
-    }
-  }
-
-  const findDescripcion = (tab: string) => {
-    const tagWitchDescripcion = selectedAbertura?.variante.find(
-      (item) => item.tab === tab,
-    )?.descripcion
-    if (tagWitchDescripcion) {
-      getDescripcion(tagWitchDescripcion)
-    }
-  }
-
   useEffect(() => {
     selectedAbertura
-      ? (getDescripcion(selectedAbertura.variante[0].descripcion),
-        getCodigo(selectedAbertura.prefijo),
-        findImg(tagSelected),
-        findDescripcion(tagSelected),
-        setTagSelected(selectedAbertura.variante[0].tab))
+      ? (getCodigo(selectedAbertura.prefijo),
+        getImg(selectedAbertura.variante[setTabSelected].img),
+        getVariantKey(selectedAbertura.variante[setTabSelected].variantKey),
+        getDescripcion(selectedAbertura.variante[setTabSelected].descripcion),
+        setTagSelected(selectedAbertura.variante[setTabSelected].tab))
       : ''
     return () => {
       getDescripcion('')
       getCodigo('')
       getImg('')
+      getVariantKey(setTabSelected)
     }
   }, [selectedAbertura])
 
@@ -65,10 +53,10 @@ export default function TabsAbertura({
       const tabSelectData = selectedAbertura.variante.find(
         (item) => item.tab === tagSelected,
       )
-      const newTab = tabSelectData?.tab || selectedAbertura.variante[0].tab
-      setTagSelected(newTab)
-      findImg(newTab)
-      findDescripcion(newTab)
+      getImg(tabSelectData ? tabSelectData.img : '')
+      getVariantKey(tabSelectData ? tabSelectData.variantKey : 0)
+      getCodigo(selectedAbertura.prefijo)
+      getDescripcion(tabSelectData ? tabSelectData.descripcion : '')
     }
   }, [tagSelected])
 

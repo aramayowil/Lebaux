@@ -1,4 +1,4 @@
-import { IAbertura } from '@/models/IAbertura'
+import { IAbertura } from '@/interfaces/IAbertura'
 
 export default class Abertura implements IAbertura {
   key: number
@@ -7,6 +7,7 @@ export default class Abertura implements IAbertura {
   name_abertura: string
   descripcion_abertura: string
   codigo: string
+  variantKey: number
   medidas: { base: number; altura: number }
   accesorios: { mosquitero: number; premarco: number }
   color: string
@@ -21,6 +22,7 @@ export default class Abertura implements IAbertura {
     name_abertura: string,
     descripcion_abertura: string,
     codigo: string,
+    variantKey: number,
     medidas: { base: number; altura: number },
     accesorios: { mosquitero: number; premarco: number },
     color: string,
@@ -35,6 +37,7 @@ export default class Abertura implements IAbertura {
     this.name_abertura = name_abertura
     this.descripcion_abertura = descripcion_abertura
     this.codigo = codigo
+    this.variantKey = variantKey
     this.medidas = medidas
     this.accesorios = accesorios
     this.color = color
