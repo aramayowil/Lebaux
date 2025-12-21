@@ -33,7 +33,7 @@ export const Navbar = () => {
       labelPlacement='outside'
       placeholder='Search...'
       startContent={
-        <FcSearch className='text-base text-default-400 pointer-events-none flex-shrink-0' />
+        <FcSearch className='text-base text-default-400 pointer-events-none shrink-0' />
       }
       type='search'
     />
@@ -45,7 +45,7 @@ export const Navbar = () => {
       <NavbarBrand className='gap-3'>
         <Image
           alt='Lebaux Logo'
-          className='h-8 min-w-[120px] w-auto'
+          className='h-8 min-w-30 w-auto'
           src='./images/LEBAUX-LOGO.png'
         />
       </NavbarBrand>
@@ -70,7 +70,7 @@ export const Navbar = () => {
                 'data-[active=true]:text-primary data-[active=true]:font-medium',
               )}
               color='foreground'
-              href='/'
+              href='/Docs'
             >
               Historial
             </Link>
