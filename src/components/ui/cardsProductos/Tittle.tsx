@@ -4,6 +4,7 @@ import { IoMdCreate } from 'react-icons/io'
 import Modal from '../modals/ModalCreateAbert'
 import useAberturasStore from '@/stores/useAberturasStore'
 import ButtonReset from '../modals/ButtonReset'
+import AberturaCompuesta from '../modals/abertura_unificada/AberturaCompuesta'
 
 function Tittle() {
   const [isOpenModal, setIsOpenModal] = useState(false)
@@ -24,6 +25,7 @@ function Tittle() {
       <section className='flex flex-col item-center justify-between mt-4 pb-4 border-neutral-100  lg:border-0'>
         <div className='flex w-full items-center justify-between'>
           <div className='flex flex-wrap gap-2'>{cantAberturas} productos</div>
+          <AberturaCompuesta />
           <Button
             variant='ghost'
             color='warning'

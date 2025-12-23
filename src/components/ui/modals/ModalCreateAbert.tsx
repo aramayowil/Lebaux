@@ -119,7 +119,6 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
       })
     } else {
       console.error('Abertura not found')
-      return
     }
 
     cerrarModalYLimpiar()
