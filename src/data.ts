@@ -35,7 +35,7 @@ export const catalogo: Record<string, Linea[]> = {
           variantKey: 0,
           tab: '2 Hojas',
           descripcion: 'Ventana corrediza 2 Hojas',
-          img: './images/modena/Corrediza_2H.png',
+          img: './images/modena/Corrediza_2H.jpg',
         },
         {
           variantKey: 1,
