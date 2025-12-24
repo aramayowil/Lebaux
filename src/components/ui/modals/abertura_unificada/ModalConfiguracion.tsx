@@ -42,6 +42,7 @@ type ModalConfiguracionProps = {
   setAncho: React.Dispatch<React.SetStateAction<number>>
   setAlto: React.Dispatch<React.SetStateAction<number>>
   setTipo: React.Dispatch<React.SetStateAction<string>>
+  setImgSrc: React.Dispatch<React.SetStateAction<string>>
 
   handleConfirmarModulo: () => void
 }
@@ -72,6 +73,7 @@ function ModalConfiguracion({
   setAncho,
   setAlto,
   setTipo,
+  setImgSrc,
   handleConfirmarModulo,
 }: ModalConfiguracionProps) {
   const isSelectedAbertura = (): Linea | undefined => {
@@ -147,7 +149,6 @@ function ModalConfiguracion({
     setInputPremarco(value)
   }
 
-  const [imgSrc, setImgSrc] = useState('')
   const handleImg = (img: string) => {
     setImgSrc(img)
   }
@@ -371,7 +372,7 @@ function ModalConfiguracion({
                           )}
                         </Autocomplete>
 
-                        <Divider className='col-span-6 my-1' />
+                        {/* <Divider className='col-span-6 my-1' />
                         <Accordion
                           keepContentMounted={true}
                           className='col-span-6 p-2'
@@ -498,7 +499,7 @@ function ModalConfiguracion({
                               />
                             </div>
                           </AccordionItem>
-                        </Accordion>
+                        </Accordion> */}
                       </div>
                     </CardBody>
                   </Card>

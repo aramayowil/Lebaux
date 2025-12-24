@@ -8,10 +8,31 @@ import {
   Button,
   useDisclosure,
 } from '@heroui/react'
-import { Stage, Layer, Group, Rect, Text } from 'react-konva'
+import {
+  Stage,
+  Layer,
+  Group,
+  Rect,
+  Text,
+  Image as KonvaImage,
+} from 'react-konva'
 import { v4 as uuidv4 } from 'uuid'
 import ModalConfiguracion from './ModalConfiguracion'
 import { SiMaterialdesignicons } from 'react-icons/si'
+import { useImage } from 'react-konva-utils'
+
+const ImageContainer = ({
+  src,
+  width,
+  height,
+}: {
+  src: string
+  width: number
+  height: number
+}) => {
+  const [image] = useImage(src)
+  return <KonvaImage image={image} x={0} y={0} width={width} height={height} />
+}
 
 const INITIAL_ESCALA = 0.2
 const SPACING = 20
@@ -31,6 +52,9 @@ export default function AberturaCompuesta() {
   const [tipo, setTipo] = useState<string>('Paño Fijo')
   const [ancho, setAncho] = useState<number>(1000)
   const [alto, setAlto] = useState<number>(1000)
+  const [imgSrc, setImgSrc] = useState<string>(
+    './images/modena/Corrediza_2H.jpg',
+  )
 
   const {
     isOpen: isThisOpen,
@@ -312,12 +336,30 @@ export default function AberturaCompuesta() {
                                   cornerRadius={2 / transform.scale}
                                   onClick={() => setSelectedId(m.id)}
                                 />
+                                <ImageContainer
+                                  src={imgSrc}
+                                  width={anchoPx}
+                                  height={altoPx}
+                                />
+                                <Rect
+                                  width={anchoPx}
+                                  height={altoPx}
+                                  // fill={isSelected ? '#27272a' : '#111111'}
+                                  stroke={isSelected ? '#ffffff' : '#3f3f46'}
+                                  strokeWidth={
+                                    isSelected
+                                      ? 2 / transform.scale
+                                      : 1 / transform.scale
+                                  }
+                                  cornerRadius={2 / transform.scale}
+                                  onClick={() => setSelectedId(m.id)}
+                                />
                                 <Text
                                   text={m.tipo.toUpperCase()}
                                   width={anchoPx}
                                   y={altoPx / 2 - 20 / transform.scale}
                                   align='center'
-                                  fill={isSelected ? '#ffffff' : '#52525b'}
+                                  fill={'#45454c'}
                                   fontSize={14 / transform.scale}
                                   fontStyle='bold'
                                   listening={false}
@@ -327,7 +369,7 @@ export default function AberturaCompuesta() {
                                   width={anchoPx}
                                   y={altoPx / 2 + 6 / transform.scale}
                                   align='center'
-                                  fill={isSelected ? '#ffffff' : '#a1a1aa'}
+                                  fill={'#45454c'}
                                   fontSize={17 / transform.scale}
                                   fontStyle='bold'
                                   listening={false}
@@ -387,6 +429,7 @@ export default function AberturaCompuesta() {
                   setAncho={setAncho}
                   setAlto={setAlto}
                   setTipo={setTipo}
+                  setImgSrc={setImgSrc}
                   handleConfirmarModulo={handleConfirmarModulo}
                 />
               </ModalBody>
