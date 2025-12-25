@@ -153,8 +153,12 @@ function PDF({
                 >
                   {abertura.codigo}
                 </Text>
-
                 <Image
+                  src={abertura.capturedImageBase64}
+                  style={{ border: '2px solid black' }}
+                />
+
+                {/* <Image
                   src={abertura.img}
                   style={{
                     width: `${abertura.medidas.base / 13}`,
@@ -164,7 +168,7 @@ function PDF({
                     maxWidth: '100%',
                     margin: '0 auto',
                   }}
-                />
+                /> */}
               </View>
 
               <View

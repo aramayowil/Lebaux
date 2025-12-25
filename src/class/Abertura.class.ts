@@ -13,6 +13,7 @@ export default class Abertura implements IAbertura {
   color: string
   vidrio: string
   img: string
+  capturedImageBase64: string
   cantidad: number
   precio: number
 
@@ -28,6 +29,7 @@ export default class Abertura implements IAbertura {
     color: string,
     vidrio: string,
     img: string,
+    capturedImageBase64: string,
     cantidad: number,
     precio: number,
   ) {
@@ -43,6 +45,7 @@ export default class Abertura implements IAbertura {
     this.color = color
     this.vidrio = vidrio
     this.img = img
+    this.capturedImageBase64 = capturedImageBase64
     this.cantidad = cantidad
     this.precio = precio
   }
