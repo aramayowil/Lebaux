@@ -10,27 +10,17 @@ import {
   ModalFooter,
   Button,
   Divider,
-  AccordionItem,
-  Checkbox,
-  Input,
-  Accordion,
   NumberInput,
   Autocomplete,
   AutocompleteItem,
   Card,
   CardBody,
-  addToast,
 } from '@heroui/react'
 import { useEffect, useState } from 'react'
-import { HiMiniXMark } from 'react-icons/hi2'
 import { IoColorPalette } from 'react-icons/io5'
-import { MdAttachMoney } from 'react-icons/md'
 import { RiCheckboxMultipleBlankFill } from 'react-icons/ri'
 import { RxHeight, RxWidth } from 'react-icons/rx'
-import InputAccesorioRef from '../../inputs/InputAccesorioRef'
 import TabsAbertura from '../../../ui/TabsAbertura'
-import Abertura from '@/class/Abertura.class'
-import useAberturasStore from '@/stores/useAberturasStore'
 
 //TYPES & INTERFACES
 type ModalConfiguracionProps = {
@@ -38,7 +28,6 @@ type ModalConfiguracionProps = {
   onOpenChange: () => void
   ancho: number
   alto: number
-  tipo: string
   setAncho: React.Dispatch<React.SetStateAction<number>>
   setAlto: React.Dispatch<React.SetStateAction<number>>
   setTipo: React.Dispatch<React.SetStateAction<string>>
@@ -69,7 +58,6 @@ function ModalConfiguracion({
   onOpenChange,
   ancho,
   alto,
-  tipo,
   setAncho,
   setAlto,
   setTipo,
@@ -78,7 +66,11 @@ function ModalConfiguracion({
 }: ModalConfiguracionProps) {
   const isSelectedAbertura = (): Linea | undefined => {
     if (selectLinea !== '' && selectAbertura !== '') {
-      return catalogo[selectLinea]?.find((item) => item.id === selectAbertura)
+      const aberturaSelect = catalogo[selectLinea]?.find(
+        (item) => item.id === selectAbertura,
+      )
+
+      return aberturaSelect
     }
     return undefined
   }
@@ -103,7 +95,7 @@ function ModalConfiguracion({
 
   const handleValueAbertura = (event: Key | null) => {
     setSelectAbertura(event?.toString() || '')
-    setTipo(isSelectedAbertura()?.abertura || '')
+    setTipo(event?.toString() || '')
     setTouchedAbertura(false)
   }
 
@@ -119,34 +111,6 @@ function ModalConfiguracion({
   const [selectVidrio, setSelectVidrio] = useState<string>('float4mm')
   const handleValueVidrio = (event: Key | null) => {
     setSelectVidrio(event?.toString() || '')
-  }
-
-  const [inputCodigo, setInputCodigo] = useState('')
-  const handleValueCodigo = (event: string) => {
-    setInputCodigo(event)
-  }
-
-  const [inputDescripcion, setInputDescripcion] = useState('')
-  const handleValueDescripcion = (event: string) => {
-    setInputDescripcion(event)
-  }
-
-  const [checkedMosquitero, setCheckedMosquitero] = useState(false)
-  const handleCheckMosquitero = () => {
-    setCheckedMosquitero(!checkedMosquitero)
-  }
-
-  const [inputMosquitero, setInputMosquitero] = useState(NaN)
-  const handleValueMosquitero = (value: number) => {
-    setInputMosquitero(value)
-  }
-  const [checkedPremarco, setCheckedPremarco] = useState(false)
-  const handleCheckPremarco = () => {
-    setCheckedPremarco(!checkedPremarco)
-  }
-  const [inputPremarco, setInputPremarco] = useState(NaN)
-  const handleValuePremarco = (value: number) => {
-    setInputPremarco(value)
   }
 
   const handleImg = (img: string) => {
@@ -171,6 +135,7 @@ function ModalConfiguracion({
         placement='auto'
         onOpenChange={onOpenChange}
         radius='md'
+        portalContainer={document.body}
         // animaciones
         motionProps={{
           variants: {
@@ -262,8 +227,8 @@ function ModalConfiguracion({
                           {selectAbertura !== '' && (
                             <TabsAbertura
                               selectedAbertura={isSelectedAbertura()}
-                              getDescripcion={handleValueDescripcion}
-                              getCodigo={handleValueCodigo}
+                              getDescripcion={() => {}}
+                              getCodigo={() => {}}
                               getImg={handleImg}
                               getVariantKey={handleValueVariantKey}
                               setTabSelected={variantKey}

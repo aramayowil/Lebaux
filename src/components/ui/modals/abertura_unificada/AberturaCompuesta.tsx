@@ -39,6 +39,7 @@ const SPACING = 20
 const PADDING_STAGE = 80
 const STORAGE_KEY = 'diseno_modulos_pro_editor'
 
+// 1. Agregamos imgSrc a la interfaz para que cada módulo sea independiente
 export interface Modulo {
   id: string
   x: number
@@ -46,15 +47,15 @@ export interface Modulo {
   tipo: string
   ancho: number
   alto: number
+  imgSrc: string
 }
 
 export default function AberturaCompuesta() {
-  const [tipo, setTipo] = useState<string>('Paño Fijo')
+  const [tipo, setTipo] = useState<string>('')
   const [ancho, setAncho] = useState<number>(1000)
   const [alto, setAlto] = useState<number>(1000)
-  const [imgSrc, setImgSrc] = useState<string>(
-    './images/modena/Corrediza_2H.jpg',
-  )
+  // Este imgSrc actúa como el valor seleccionado actualmente en el modal de configuración
+  const [imgSrc, setImgSrc] = useState<string>('')
 
   const {
     isOpen: isThisOpen,
@@ -176,7 +177,8 @@ export default function AberturaCompuesta() {
     if (isEditing) {
       setModulos(
         modulos.map((m) =>
-          m.id === selectedId ? { ...m, tipo, ancho, alto } : m,
+          // 2. Al editar, también actualizamos el imgSrc específico
+          m.id === selectedId ? { ...m, tipo, ancho, alto, imgSrc } : m,
         ),
       )
     } else {
@@ -188,6 +190,7 @@ export default function AberturaCompuesta() {
         tipo,
         ancho,
         alto,
+        imgSrc, // 3. Guardamos la ruta de la imagen en el objeto del módulo
       }
       setModulos([...modulos, nuevo])
       setSelectedId(nuevo.id)
@@ -199,11 +202,11 @@ export default function AberturaCompuesta() {
     <>
       <Button
         onPress={onThisOpen}
-        className='bg-zinc-950 text-white border border-zinc-800 hover:bg-zinc-900 h-10 px-8 font-bold rounded-xl'
+        className='bg-zinc-950 text-white border border-zinc-800 hover:bg-zinc-900 h-9 px-8 font-bold rounded-xl'
         variant='bordered'
-        startContent={<SiMaterialdesignicons size={17} />}
+        startContent={<SiMaterialdesignicons size={16} />}
       >
-        EDITOR DE ABERTURAS
+        Diseño aberturas
       </Button>
 
       <Modal
@@ -252,6 +255,8 @@ export default function AberturaCompuesta() {
                             setTipo(m.tipo)
                             setAncho(m.ancho)
                             setAlto(m.alto)
+                            // 4. Cargamos la imagen guardada del módulo al abrir el editor
+                            setImgSrc(m.imgSrc)
                             setIsEditing(true)
                             onOpenConfig()
                           }
@@ -277,7 +282,7 @@ export default function AberturaCompuesta() {
                 </div>
               </ModalHeader>
 
-              <ModalBody className='p-0 overflow-hidden flex flex-col flex-1 bg-[#050505] min-h-[320px]'>
+              <ModalBody className='p-0 overflow-hidden flex flex-col flex-1 bg-[#050505] min-h-80'>
                 {modulos.length === 0 ? (
                   <div className='flex flex-1 items-center justify-center p-10'>
                     <Button
@@ -289,7 +294,9 @@ export default function AberturaCompuesta() {
                       className='group w-full max-w-sm h-40 border border-dashed border-zinc-800 bg-transparent hover:border-zinc-500 flex flex-col gap-3 rounded-2xl transition-all'
                     >
                       <div className='w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors'>
-                        <span className='text-2xl text-zinc-400'>+</span>
+                        <span className='text-2xl text-zinc-400 text-center pb-1'>
+                          +
+                        </span>
                       </div>
                       <span className='text-zinc-500 font-bold tracking-widest text-xs'>
                         AÑADIR PAÑO INICIAL
@@ -299,7 +306,7 @@ export default function AberturaCompuesta() {
                 ) : (
                   <div
                     ref={containerRef}
-                    className='flex-1 w-full h-full relative overflow-hidden bg-[radial-gradient(#1a1a1a_1px,transparent_1px)] [background-size:24px_24px]'
+                    className='flex-1 w-full h-full relative overflow-hidden bg-[radial-gradient(#1a1a1a_1px,transparent_1px)] background-size-[24px_24px]'
                   >
                     {dimensions.width > 0 && dimensions.height > 0 && (
                       <Stage
@@ -323,29 +330,16 @@ export default function AberturaCompuesta() {
                             const altoPx = m.alto * INITIAL_ESCALA
                             return (
                               <Group key={m.id} x={pos.x} y={pos.y}>
-                                <Rect
-                                  width={anchoPx}
-                                  height={altoPx}
-                                  fill={isSelected ? '#27272a' : '#111111'}
-                                  stroke={isSelected ? '#ffffff' : '#3f3f46'}
-                                  strokeWidth={
-                                    isSelected
-                                      ? 2 / transform.scale
-                                      : 1 / transform.scale
-                                  }
-                                  cornerRadius={2 / transform.scale}
-                                  onClick={() => setSelectedId(m.id)}
-                                />
+                                {/* 5. Ahora cada ImageContainer usa la propiedad imgSrc del módulo m */}
                                 <ImageContainer
-                                  src={imgSrc}
+                                  src={m.imgSrc}
                                   width={anchoPx}
                                   height={altoPx}
                                 />
                                 <Rect
                                   width={anchoPx}
                                   height={altoPx}
-                                  // fill={isSelected ? '#27272a' : '#111111'}
-                                  stroke={isSelected ? '#ffffff' : '#3f3f46'}
+                                  stroke={isSelected ? '#1c1919' : '#3f3f46'}
                                   strokeWidth={
                                     isSelected
                                       ? 2 / transform.scale
@@ -425,7 +419,6 @@ export default function AberturaCompuesta() {
                   onOpenChange={onOpenChangeConfig}
                   ancho={ancho}
                   alto={alto}
-                  tipo={tipo}
                   setAncho={setAncho}
                   setAlto={setAlto}
                   setTipo={setTipo}
