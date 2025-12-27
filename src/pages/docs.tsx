@@ -3,9 +3,7 @@ import { Stage, Layer, Group, Rect, Text } from 'react-konva'
 import { v4 as uuidv4 } from 'uuid'
 
 // CONSTANTES BASE
-const ESCALA_BASE = 0.2
-const SPACING = 20
-const GAP = 0 // ELIMINADO: Ahora es 0 para que se toquen
+const ESCALA_BASE = 0.2 // ELIMINADO: Ahora es 0 para que se toquen
 const PADDING_STAGE = 100
 const STORAGE_KEY = 'diseno_modulos_pro_editor'
 
