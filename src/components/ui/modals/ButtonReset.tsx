@@ -91,7 +91,7 @@ export default function ButtonReset() {
                               'Todas las aberturas han sido eliminadas.',
                             color: 'success',
                           })
-                        }, 2000)
+                        }, 1000)
                       }}
                     >
                       Confirmar

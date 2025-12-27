@@ -25,7 +25,7 @@ import {
   Form,
   addToast,
 } from '@heroui/react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { HiMiniXMark } from 'react-icons/hi2'
 import { IoColorPalette } from 'react-icons/io5'
 import { MdAttachMoney } from 'react-icons/md'
@@ -35,7 +35,7 @@ import InputAccesorioRef from '../inputs/InputAccesorioRef'
 import TabsAbertura from '../TabsAbertura'
 import Abertura from '@/class/Abertura.class'
 import useAberturasStore from '@/stores/useAberturasStore'
-import ViewDesign from '@/components/ui/ViewDesign'
+import ViewDesign, { ViewDesignHandle } from '@/components/ui/ViewDesign'
 
 interface Variante {
   variantKey: number
@@ -57,6 +57,7 @@ interface ModalProps {
 type Key = string | number
 
 export default function Modal({ isOpen, onClose }: ModalProps) {
+  const designRef = useRef<ViewDesignHandle>(null)
   const agregarAberturaStore = useAberturasStore(
     (state) => state.agregarAbertura,
   )
@@ -87,6 +88,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const capturedImageBase64 = designRef.current?.save()
     const data = catalogo[selectLinea].find(
       (abertura) => abertura.id === selectAbertura,
     )
@@ -107,6 +109,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
         selectColor,
         selectVidrio,
         imgSrc,
+        capturedImageBase64 ? capturedImageBase64 : imgSrc,
         inputCantidad,
         inputPrecio,
       )
@@ -119,7 +122,6 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
       })
     } else {
       console.error('Abertura not found')
-      return
     }
 
     cerrarModalYLimpiar()
@@ -626,8 +628,9 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
 
                     {/* CARD 2 VISTA PREVIA O DETALLES EXTRA (Lado Derecho) */}
                     <ViewDesign
-                      width={inputAncho}
-                      height={inputAltura}
+                      ref={designRef}
+                      width={inputAncho || 0}
+                      height={inputAltura || 0}
                       imgSrc={imgSrc}
                     />
                   </div>

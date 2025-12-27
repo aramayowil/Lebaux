@@ -11,6 +11,7 @@ export interface IAbertura {
   color: string
   vidrio: string
   img: string
+  capturedImageBase64: string
   cantidad: number
   precio: number
   getKey(): number

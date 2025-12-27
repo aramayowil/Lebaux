@@ -23,7 +23,7 @@ import {
   Card,
   CardBody,
 } from '@heroui/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { HiMiniXMark } from 'react-icons/hi2'
 import { IoColorPalette } from 'react-icons/io5'
 import { MdAttachMoney } from 'react-icons/md'
@@ -32,7 +32,7 @@ import { RxHeight, RxWidth } from 'react-icons/rx'
 import InputAccesorioRef from '../inputs/InputAccesorioRef'
 import TabsAbertura from '../TabsAbertura'
 import useAberturasStore from '@/stores/useAberturasStore'
-import ViewDesign from '@/components/ui/ViewDesign'
+import ViewDesign, { ViewDesignHandle } from '@/components/ui/ViewDesign'
 
 interface Variante {
   variantKey: number
@@ -60,6 +60,7 @@ export default function ModalEditAbertura({
   isOpen,
   onClose,
 }: ModalProps) {
+  const designRef = useRef<ViewDesignHandle>(null)
   const aberturasStore = useAberturasStore((state) => state.aberturas)
   const actualizarAberturaStore = useAberturasStore(
     (state) => state.actualizarAbertura,
@@ -94,6 +95,7 @@ export default function ModalEditAbertura({
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const capturedImageBase64 = designRef.current?.save()
     const dataOfCatalogo = catalogo[selectLinea].find(
       (abertura) => abertura.id === selectAbertura,
     )
@@ -115,7 +117,8 @@ export default function ModalEditAbertura({
       },
       color: selectColor,
       vidrio: selectVidrio,
-      img: imgSrc,
+      imgSrc: imgSrc,
+      capturedImageBase64: capturedImageBase64 ? capturedImageBase64 : imgSrc,
       cantidad: inputCantidad,
       precio: inputPrecio,
     }
@@ -658,8 +661,8 @@ export default function ModalEditAbertura({
 
                     {/* CARD 2 VISTA PREVIA O DETALLES EXTRA (Lado Derecho) */}
                     <ViewDesign
-                      width={inputAncho}
-                      height={inputAltura}
+                      width={inputAncho || 0}
+                      height={inputAltura || 0}
                       imgSrc={imgSrc}
                     />
                   </div>
