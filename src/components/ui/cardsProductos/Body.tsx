@@ -17,7 +17,7 @@ import { vidrios } from '@/models/IVidrios'
 import { GoTrash } from 'react-icons/go'
 import { IoIosInformationCircleOutline, IoMdCreate } from 'react-icons/io'
 import useAberturasStore from '@/stores/useAberturasStore'
-import ModalEditAbertura from '../modals/ModalEditAbert'
+import ModalAbertura from '../modals/ModalAbertura'
 import { useState } from 'react'
 import TableEmpty from '../TableEmpty'
 import { HiDotsVertical } from 'react-icons/hi'
@@ -246,8 +246,8 @@ export default function Body() {
       )}
 
       {isOpenEditModal && (
-        <ModalEditAbertura
-          key_abertura={keyAbertura}
+        <ModalAbertura
+          aberturaKey={keyAbertura}
           isOpen={isOpenEditModal}
           onClose={onCloseEditModal}
         />

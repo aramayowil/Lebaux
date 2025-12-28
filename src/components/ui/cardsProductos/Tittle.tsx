@@ -1,7 +1,7 @@
 import { Button } from '@heroui/button'
 import { useState } from 'react'
 import { IoMdCreate } from 'react-icons/io'
-import Modal from '../modals/ModalCreateAbert'
+import Modal from '../modals/ModalAbertura'
 import useAberturasStore from '@/stores/useAberturasStore'
 import ButtonReset from '../modals/ButtonReset'
 import AberturaCompuesta from '../modals/abertura_unificada/AberturaCompuesta'
@@ -34,7 +34,13 @@ function Tittle() {
           >
             Cargar abertura
           </Button>
-          {isOpenModal && <Modal isOpen={isOpenModal} onClose={onCloseModal} />}
+          {isOpenModal && (
+            <Modal
+              isOpen={isOpenModal}
+              onClose={onCloseModal}
+              aberturaKey={null}
+            />
+          )}
         </div>
       </section>
     </div>

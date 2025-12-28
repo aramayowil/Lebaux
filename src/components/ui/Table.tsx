@@ -17,9 +17,7 @@ import {
   addToast,
 } from '@heroui/react'
 import { FiPlusCircle } from 'react-icons/fi'
-import Modal from './modals/ModalCreateAbert'
-import useAberturasStore from '@/stores/useAberturasStore'
-import ModalEditAbertura from './modals/ModalEditAbert'
+import ModalAbertura from './modals/ModalAbertura'
 import InputNameCliente from './inputs/inputNameCliente'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 
@@ -52,22 +50,24 @@ export default function App() {
   const eliminarAberturaStore = useAberturasStore(
     (state) => state.eliminarAbertura,
   )
-  const [keyAbertura, setKeyAbertura] = useState<number | null>(null)
-  const handlekeyAbertura = (key: number) => {
-    setKeyAbertura(key)
-  }
-  // controles modal agregar
-  const [isOpenModal, setIsOpenModal] = useState(false)
-  const onOpenModal = () => setIsOpenModal(true)
-  const onCloseModal = () => setIsOpenModal(false)
-  //////////////////////
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingAberturaKey, setEditingAberturaKey] = useState<number | null>(
+    null,
+  )
 
-  //controles modal editar
-  const [isOpenEditModal, setIsOpenEditModal] = useState(false)
-  const onOpenEditModal = () => setIsOpenEditModal(true)
-  const onCloseEditModal = () => {
-    setIsOpenEditModal(false)
-    setKeyAbertura(null) // Reset keyAbertura when closing the modal
+  const handleOpenCreate = () => {
+    setEditingAberturaKey(null)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEdit = (key: number) => {
+    setEditingAberturaKey(key)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setEditingAberturaKey(null)
   }
   //////////////////////
 
@@ -151,8 +151,7 @@ export default function App() {
                   <DropdownItem
                     key='edit'
                     onPress={() => {
-                      handlekeyAbertura(abertura.key)
-                      onOpenEditModal()
+                      handleOpenEdit(abertura.key)
                     }}
                   >
                     Editar
@@ -205,20 +204,17 @@ export default function App() {
           <InputNameCliente />
           <div className='flex gap-3'>
             <Button
-              onPress={onOpenModal}
+              onPress={handleOpenCreate}
               color='warning'
               startContent={<FiPlusCircle size={18} />}
             >
               Agregar
             </Button>
-            {isOpenModal && (
-              <Modal isOpen={isOpenModal} onClose={onCloseModal} />
-            )}
           </div>
         </div>
       </div>
     )
-  }, [onRowsPerPageChange, aberturas, isOpenModal])
+  }, [onRowsPerPageChange, aberturas])
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -296,13 +292,11 @@ export default function App() {
           )}
         </TableBody>
       </Table>
-      {isOpenEditModal && (
-        <ModalEditAbertura
-          key_abertura={keyAbertura}
-          isOpen={isOpenEditModal}
-          onClose={onCloseEditModal}
-        />
-      )}
+      <ModalAbertura
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        aberturaKey={editingAberturaKey}
+      />
     </>
   )
 }

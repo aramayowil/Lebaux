@@ -17,9 +17,9 @@ import {
   Image as KonvaImage,
 } from 'react-konva'
 import { v4 as uuidv4 } from 'uuid'
-import ModalConfiguracion from './ModalConfiguracion'
 import { SiMaterialdesignicons } from 'react-icons/si'
 import { useImage } from 'react-konva-utils'
+import ModalAgregar from '@/components/ui/modals/abertura_unificada/ModalAgregar'
 
 const ImageContainer = ({
   src,
@@ -57,15 +57,15 @@ export default function AberturaCompuesta() {
   // Este imgSrc actúa como el valor seleccionado actualmente en el modal de configuración
   const [imgSrc, setImgSrc] = useState<string>('')
 
+  const [showModal, setShowModal] = useState(false)
+  const handleOpenModal = () => {
+    setShowModal(!showModal)
+  }
+
   const {
     isOpen: isThisOpen,
     onOpen: onThisOpen,
     onOpenChange: onThisOpenChange,
-  } = useDisclosure()
-  const {
-    isOpen: isOpenConfig,
-    onOpen: onOpenConfig,
-    onOpenChange: onOpenChangeConfig,
   } = useDisclosure()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -195,7 +195,7 @@ export default function AberturaCompuesta() {
       setModulos([...modulos, nuevo])
       setSelectedId(nuevo.id)
     }
-    onOpenChangeConfig()
+    setShowModal(false)
   }
 
   return (
@@ -218,7 +218,6 @@ export default function AberturaCompuesta() {
           header: 'border-b border-zinc-900 bg-black/60 backdrop-blur-xl',
           footer: 'border-t border-zinc-900 bg-black/60 backdrop-blur-xl',
         }}
-        portalContainer={document.body}
       >
         <ModalContent>
           {(onClose) => (
@@ -258,7 +257,7 @@ export default function AberturaCompuesta() {
                             // 4. Cargamos la imagen guardada del módulo al abrir el editor
                             setImgSrc(m.imgSrc)
                             setIsEditing(true)
-                            onOpenConfig()
+                            setShowModal(true)
                           }
                         }}
                       >
@@ -289,7 +288,7 @@ export default function AberturaCompuesta() {
                       onPress={() => {
                         setTargetCoords({ x: 0, y: 0 })
                         setIsEditing(false)
-                        onOpenConfig()
+                        setShowModal(true)
                       }}
                       className='group w-full max-w-sm h-40 border border-dashed border-zinc-800 bg-transparent hover:border-zinc-500 flex flex-col gap-3 rounded-2xl transition-all'
                     >
@@ -401,7 +400,7 @@ export default function AberturaCompuesta() {
                                             y: m.y + dy,
                                           })
                                           setIsEditing(false)
-                                          onOpenConfig()
+                                          setShowModal(true)
                                         }}
                                       />
                                     )
@@ -414,17 +413,12 @@ export default function AberturaCompuesta() {
                     )}
                   </div>
                 )}
-                <ModalConfiguracion
-                  isOpen={isOpenConfig}
-                  onOpenChange={onOpenChangeConfig}
-                  ancho={ancho}
-                  alto={alto}
-                  setAncho={setAncho}
-                  setAlto={setAlto}
-                  setTipo={setTipo}
-                  setImgSrc={setImgSrc}
-                  handleConfirmarModulo={handleConfirmarModulo}
-                />
+                {showModal && (
+                  <ModalAgregar
+                    onClose={handleOpenModal}
+                    handleConfirmarModulo={handleConfirmarModulo}
+                  />
+                )}
               </ModalBody>
 
               <ModalFooter className='py-3 px-10 justify-between items-center'>
