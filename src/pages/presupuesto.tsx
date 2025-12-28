@@ -54,7 +54,7 @@ const VentanaPresupuesto = () => {
   return (
     <div className='flex flex-row p-8 gap-8 bg-gray-50 min-h-screen justify-center items-start text-black'>
       {/* --- PANEL DE CONFIGURACIÓN (IZQUIERDA) --- */}
-      <Card className='p-6 w-[400px] shadow-md bg-white h-fit sticky top-8'>
+      <Card className='p-6 w-100 shadow-md bg-white h-fit sticky top-8'>
         <h2 className='text-lg font-bold mb-4'>Configuración de Ventana</h2>
         <div className='space-y-6'>
           <div className='flex gap-4'>
@@ -115,7 +115,7 @@ const VentanaPresupuesto = () => {
       </Card>
 
       {/* --- VISUALIZADOR TÉCNICO (DERECHA) --- */}
-      <div className='flex flex-col bg-white p-10 border border-gray-200 rounded-lg shadow-sm h-fit min-w-[500px] items-center'>
+      <div className='flex flex-col bg-white p-10 border border-gray-200 rounded-lg shadow-sm h-fit min-w-125 items-center'>
         {/* Título centrado sin línea divisoria */}
         <div className='w-full mb-8'>
           <h3 className='text-xs font-bold text-gray-400 uppercase tracking-widest text-center'>
