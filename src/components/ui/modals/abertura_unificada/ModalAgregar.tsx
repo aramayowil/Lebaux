@@ -1,27 +1,34 @@
-import { useState } from 'react'
-import { Button, Card, CardBody, Divider } from '@heroui/react'
-import { RiCloseLine } from 'react-icons/ri'
+import { useState, useEffect } from 'react'
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from '@heroui/react'
 import { catalogo } from '@/data'
 
-// Importamos los componentes modulares
 import PropiedadesAbertura from '../../inputs/PropiedadesAbertura'
-import SeccionAccesorios from '../../inputs/SeccionAccesorios'
-import SeccionDetalles from '../../inputs/SeccionDetalles'
 import SelectorCatalogo from '../../inputs/SelectorCatalogo'
 import TabsAbertura from '../../TabsAbertura'
 
 type ModalAgregarProps = {
   onClose: () => void
+  setAncho: React.Dispatch<React.SetStateAction<number>>
+  setAlto: React.Dispatch<React.SetStateAction<number>>
+  setTipo: React.Dispatch<React.SetStateAction<string>>
+  setImgSrc: React.Dispatch<React.SetStateAction<string>>
   handleConfirmarModulo: (data: any) => void
 }
 
 const INITIAL_STATE = {
   linea: 'modena',
   abertura: '',
-  ancho: 0,
-  altura: 0,
-  color: '',
-  vidrio: '',
+  ancho: 1000,
+  altura: 1000,
+  color: 'blanco',
+  vidrio: 'float4mm',
   cantidad: 1,
   precio: 0,
   codigo: '',
@@ -32,10 +39,16 @@ const INITIAL_STATE = {
   imgSrc: '',
 }
 
-function ModalAgregar({ onClose, handleConfirmarModulo }: ModalAgregarProps) {
+function ModalAgregar({
+  onClose,
+  handleConfirmarModulo,
+  setAlto,
+  setAncho,
+  setTipo,
+  setImgSrc,
+}: ModalAgregarProps) {
   const [form, setForm] = useState(INITIAL_STATE)
 
-  // Handler unificado
   const handleChange = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
@@ -45,98 +58,77 @@ function ModalAgregar({ onClose, handleConfirmarModulo }: ModalAgregarProps) {
     onClose()
   }
 
+  useEffect(() => {
+    setAlto(form.altura)
+    setAncho(form.ancho)
+    setTipo(form.abertura)
+    setImgSrc(form.imgSrc)
+  }, [form.altura, form.ancho, form.abertura, form.imgSrc])
+
   return (
-    <div className='fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center z-50 p-4'>
-      <Card className='w-full max-w-2xl shadow-2xl border border-default-200/50'>
-        {/* HEADER */}
-        <div className='flex items-center justify-between p-6 pb-2'>
-          <div>
-            <h2 className='text-xl font-bold text-default-900'>
-              Agregar abertura
-            </h2>
-            <p className='text-small text-default-500'>
-              Configura las dimensiones y materiales.
-            </p>
-          </div>
-          <Button
-            isIconOnly
-            variant='light'
-            radius='full'
-            onPress={onClose}
-            className='text-default-400'
-          >
-            <RiCloseLine size={24} />
-          </Button>
-        </div>
-
-        <CardBody className='p-6 overflow-y-auto max-h-[70vh]'>
-          <div className='flex flex-col gap-4'>
-            <SelectorCatalogo form={form} onChange={handleChange} />
-
-            {form.abertura && (
-              <TabsAbertura
-                selectedAbertura={catalogo[form.linea].find(
-                  (i) => i.id === form.abertura,
-                )}
-                getDescripcion={(v) => handleChange('descripcion', v)}
-                getCodigo={(v) => handleChange('codigo', v)}
-                getImg={(v) => handleChange('imgSrc', v)}
-                getVariantKey={(v) => handleChange('variantKey', v)}
-                setTabSelected={form.variantKey}
-              />
-            )}
-
-            {/* 1. Usamos el componente de Medidas, Color, Vidrio y Precio */}
-            <PropiedadesAbertura
-              form={form}
-              onChange={handleChange}
-              isDisabled={false}
-            />
-
-            <Divider className='my-2' />
-
-            {/* 2. Accesorios (opcional, si los necesitas en este modal) */}
-            <SeccionAccesorios
-              form={form}
-              onChange={handleChange}
-              isDisabled={false}
-            />
-
-            <Divider className='my-2' />
-
-            {/* 3. Identificación */}
-            <SeccionDetalles
-              form={form}
-              onChange={handleChange}
-              isDisabled={false}
-            />
-
-            {/* ÁREA DE PREVISUALIZACIÓN */}
-            <div className='bg-default-100/50 rounded-xl p-6 flex items-center justify-center border-2 border-dashed border-default-200 mt-4'>
-              <p className='text-tiny text-default-400 uppercase tracking-widest font-semibold italic'>
-                Escala: {form.ancho || 0} x {form.altura || 0} mm
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      size='lg'
+      scrollBehavior='inside'
+      // Backdrop-blur para que se note la profundidad sobre el editor
+      backdrop='blur'
+    >
+      <ModalContent>
+        {(onCloseModal) => (
+          <>
+            <ModalHeader className='flex flex-col gap-1 p-6'>
+              <h2 className='text-xl font-bold text-default-900'>
+                Agregar abertura
+              </h2>
+              <p className='text-small text-default-500 font-normal'>
+                Configura las dimensiones y materiales.
               </p>
-            </div>
-          </div>
-        </CardBody>
+            </ModalHeader>
 
-        <Divider />
+            <ModalBody className='p-6'>
+              <div className='flex flex-col gap-4'>
+                <div className='grid grid-cols-6 gap-2'>
+                  <SelectorCatalogo form={form} onChange={handleChange} />
+                  <div className='col-span-6'>
+                    {form.abertura && (
+                      <TabsAbertura
+                        selectedAbertura={catalogo[form.linea].find(
+                          (i) => i.id === form.abertura,
+                        )}
+                        getDescripcion={(v) => handleChange('descripcion', v)}
+                        getCodigo={(v) => handleChange('codigo', v)}
+                        getImg={(v) => handleChange('imgSrc', v)}
+                        getVariantKey={(v) => handleChange('variantKey', v)}
+                        setTabSelected={form.variantKey}
+                      />
+                    )}
+                  </div>
+                  <PropiedadesAbertura
+                    form={form}
+                    onChange={handleChange}
+                    isDisabled={false}
+                  />
+                </div>
+              </div>
+            </ModalBody>
 
-        {/* FOOTER */}
-        <div className='flex justify-end gap-3 p-4 bg-default-50/50'>
-          <Button variant='flat' onPress={onClose}>
-            Cancelar
-          </Button>
-          <Button
-            color='warning'
-            className='font-bold shadow-lg shadow-warning/20'
-            onPress={onConfirm}
-          >
-            Añadir al diseño
-          </Button>
-        </div>
-      </Card>
-    </div>
+            <ModalFooter className='p-4'>
+              <Button variant='flat' onPress={onCloseModal}>
+                Cancelar
+              </Button>
+              <Button
+                color='warning'
+                className='font-bold shadow-lg shadow-warning/20'
+                onPress={onConfirm}
+              >
+                Añadir al diseño
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   )
 }
 
