@@ -1,27 +1,52 @@
-import React, { useState } from 'react'
-import { Stage, Layer, Rect, Group, Line, Text } from 'react-konva'
+import { useState, useEffect, useRef } from 'react'
+import { Stage, Layer, Rect, Group, Line } from 'react-konva'
 import { v4 as uuidv4 } from 'uuid'
 
-const MARCO_GROSOR = 30
-const ESCALA_VISUAL = 0.25
+const MARCO_GROSOR = 45 // Ajustado para que se vea más robusto como en la imagen
+const ESCALA_VISUAL = 0.22
 
-export default function EditorModenaBiDireccional() {
-  const [anchoTotal, setAnchoTotal] = useState(1200)
-  const [altoTotal, setAltoTotal] = useState(2050)
+export default function EditorModenaTriColumna() {
+  const [anchoTotal, setAnchoTotal] = useState(900)
+  const [altoTotal, setAltoTotal] = useState(2100)
+  const [manoApertura, setManoApertura] = useState<'izq' | 'der'>('der') // Por defecto derecha como la imagen
+  const [nodoSeleccionado, setNodoSeleccionado] = useState<string | null>(null)
 
+  // ESTADO INICIAL: Ahora nace con un travesaño horizontal (tipo 4 en tu imagen)
   const [arbol, setArbol] = useState<any>({
     id: 'root',
-    tipo: 'hoja',
-    revestimiento: 'Vidrio Float',
-    modoH: 'ninguno',
+    tipo: 'division_h',
+    ratio: 0.5,
+    hijoA: { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' }, // Paño superior
+    hijoB: { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' }, // Paño inferior
+    modoH: 'centrado',
     cantH: 1,
-    manualH: '500',
     modoV: 'ninguno',
-    cantV: 1,
-    manualV: '400',
+    tipoV: 'entero',
   })
 
-  // --- GENERADORES ---
+  // --- LÓGICA DE ACTUALIZACIÓN ---
+  const actualizarEstructura = (cambios: any) => {
+    setArbol((prev: any) => {
+      const s = { ...prev, ...cambios }
+      const netoW = anchoTotal - MARCO_GROSOR * 2
+      const netoH = altoTotal - MARCO_GROSOR * 2
+
+      // Re-generar estructura básica basada en los selects
+      let nuevaEstructura: any = {
+        id: 'root',
+        tipo: 'hoja',
+        revestimiento: 'Vidrio Float',
+      }
+
+      if (s.modoH === 'centrado') {
+        nuevaEstructura = genCentrado('division_h', s.cantH)
+      } else if (s.modoH === 'manual') {
+        nuevaEstructura = genHManual(s.manualH || '1000', netoH)
+      }
+
+      return { ...s, ...nuevaEstructura }
+    })
+  }
 
   const genCentrado = (
     tipo: 'division_h' | 'division_v',
@@ -44,67 +69,22 @@ export default function EditorModenaBiDireccional() {
   const genHManual = (str: string, hMax: number): any => {
     const alts = str
       .split(',')
-      .map((h) => parseFloat(h.trim()))
-      .filter((h) => !isNaN(h) && h > 0 && h < hMax)
+      .map((h) => parseFloat(h))
+      .filter((h) => !isNaN(h))
       .sort((a, b) => a - b)
     const build = (list: number[], base: number): any => {
       if (list.length === 0)
         return { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' }
-      const ratio = 1 - (list[0] - base) / (hMax - base)
+      const ratio = (list[0] - base) / (hMax - base)
       return {
         id: uuidv4(),
         tipo: 'division_h',
-        ratio,
-        hijoA: build(list.slice(1), list[0]),
-        hijoB: { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' },
-      }
-    }
-    return build(alts, 0)
-  }
-
-  const genVManual = (str: string, wMax: number): any => {
-    const dists = str
-      .split(',')
-      .map((d) => parseFloat(d.trim()))
-      .filter((d) => !isNaN(d) && d > 0 && d < wMax)
-      .sort((a, b) => a - b)
-    const build = (list: number[], base: number): any => {
-      if (list.length === 0)
-        return { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' }
-      const ratio = (list[0] - base) / (wMax - base)
-      return {
-        id: uuidv4(),
-        tipo: 'division_v',
         ratio,
         hijoA: { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' },
         hijoB: build(list.slice(1), list[0]),
       }
     }
-    return build(dists, 0)
-  }
-
-  const actualizarEstructura = (cambios: any) => {
-    setArbol((prev: any) => {
-      const s = { ...prev, ...cambios }
-      let base: any = {
-        id: 'root',
-        tipo: 'hoja',
-        revestimiento: 'Vidrio Float',
-      }
-
-      // Prioridad Vertical luego Horizontal
-      if (s.modoV === 'centrado')
-        base = { ...base, ...genCentrado('division_v', s.cantV) }
-      if (s.modoV === 'manual')
-        base = { ...base, ...genVManual(s.manualV, anchoTotal) }
-
-      if (s.modoH === 'centrado')
-        base = { ...base, ...genCentrado('division_h', s.cantH) }
-      if (s.modoH === 'manual')
-        base = { ...base, ...genHManual(s.manualH, altoTotal) }
-
-      return { ...s, ...base }
-    })
+    return build(alts, 0)
   }
 
   const actualizarNodo = (id: string, data: any) => {
@@ -122,233 +102,192 @@ export default function EditorModenaBiDireccional() {
   }
 
   return (
-    <div className='flex h-screen bg-[#f3f4f6] font-sans overflow-hidden'>
-      <aside className='w-96 bg-white border-r p-6 flex flex-col gap-6 shadow-2xl z-20 overflow-y-auto'>
-        <h1 className='text-xl font-black border-b-4 border-blue-600 pb-2'>
-          EDITOR MODENA
-        </h1>
-
-        {/* DIMENSIONES */}
-        <section className='grid grid-cols-2 gap-3 bg-zinc-100 p-3 rounded-lg border'>
-          <div className='flex flex-col gap-1'>
-            <label className='text-[10px] font-bold text-zinc-400 uppercase'>
-              Ancho Total
-            </label>
-            <input
-              type='number'
-              value={anchoTotal}
-              onChange={(e) => setAnchoTotal(Number(e.target.value))}
-              className='border p-2 rounded text-sm font-mono'
-            />
-          </div>
-          <div className='flex flex-col gap-1'>
-            <label className='text-[10px] font-bold text-zinc-400 uppercase'>
-              Alto Total
-            </label>
-            <input
-              type='number'
-              value={altoTotal}
-              onChange={(e) => setAltoTotal(Number(e.target.value))}
-              className='border p-2 rounded text-sm font-mono'
-            />
-          </div>
-        </section>
-
-        {/* TRAVESAÑOS */}
-        <div className='space-y-6'>
-          <section className='space-y-3'>
-            <h3 className='text-xs font-bold text-blue-600 uppercase italic'>
-              Travesaños Horizontales
-            </h3>
-            <select
-              value={arbol.modoH}
-              onChange={(e) => actualizarEstructura({ modoH: e.target.value })}
-              className='w-full border p-2 rounded text-sm'
-            >
-              <option value='ninguno'>Ninguno</option>
-              <option value='centrado'>Centrados (Equidistantes)</option>
-              <option value='manual'>Manual (Por medidas)</option>
-            </select>
-            {arbol.modoH === 'centrado' && (
+    <div className='flex h-screen bg-[#f8fafc] font-sans overflow-hidden text-slate-800'>
+      {/* SIDEBAR IZQUIERDO */}
+      <aside className='w-[300px] bg-white border-r border-slate-200 p-6 flex flex-col gap-6 shadow-sm'>
+        <div>
+          <h1 className='text-xs font-black text-blue-600 uppercase tracking-widest mb-4'>
+            Configuración Real
+          </h1>
+          <div className='space-y-4'>
+            <div className='flex flex-col gap-1'>
+              <label className='text-[10px] font-bold text-slate-400 uppercase'>
+                Ancho Total (A)
+              </label>
               <input
                 type='number'
-                value={arbol.cantH}
-                onChange={(e) =>
-                  actualizarEstructura({ cantH: Number(e.target.value) })
-                }
-                className='w-full border p-2 rounded text-sm'
-                placeholder='Cantidad...'
+                value={anchoTotal}
+                onChange={(e) => setAnchoTotal(Number(e.target.value))}
+                className='border border-slate-200 p-2 rounded-lg text-sm font-mono'
               />
-            )}
-            {arbol.modoH === 'manual' && (
-              <input
-                type='text'
-                value={arbol.manualH}
-                onChange={(e) =>
-                  actualizarEstructura({ manualH: e.target.value })
-                }
-                className='w-full border p-2 rounded text-sm'
-                placeholder='Ej: 500, 1000'
-              />
-            )}
-          </section>
-
-          <section className='space-y-3'>
-            <h3 className='text-xs font-bold text-blue-600 uppercase italic'>
-              Travesaños Verticales
-            </h3>
-            <select
-              value={arbol.modoV}
-              onChange={(e) => actualizarEstructura({ modoV: e.target.value })}
-              className='w-full border p-2 rounded text-sm'
-            >
-              <option value='ninguno'>Ninguno</option>
-              <option value='centrado'>Centrados (Equidistantes)</option>
-              <option value='manual'>Manual (Por medidas)</option>
-            </select>
-            {arbol.modoV === 'centrado' && (
+            </div>
+            <div className='flex flex-col gap-1'>
+              <label className='text-[10px] font-bold text-slate-400 uppercase'>
+                Alto Total (H)
+              </label>
               <input
                 type='number'
-                value={arbol.cantV}
-                onChange={(e) =>
-                  actualizarEstructura({ cantV: Number(e.target.value) })
-                }
-                className='w-full border p-2 rounded text-sm'
-                placeholder='Cantidad...'
+                value={altoTotal}
+                onChange={(e) => setAltoTotal(Number(e.target.value))}
+                className='border border-slate-200 p-2 rounded-lg text-sm font-mono'
               />
-            )}
-            {arbol.modoV === 'manual' && (
-              <input
-                type='text'
-                value={arbol.manualV}
-                onChange={(e) =>
-                  actualizarEstructura({ manualV: e.target.value })
-                }
-                className='w-full border p-2 rounded text-sm'
-                placeholder='Ej: 400, 800'
-              />
-            )}
-          </section>
+            </div>
+          </div>
         </div>
 
-        {/* MODULOS */}
-        <section className='space-y-3'>
-          <h3 className='text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b pb-1'>
-            Configuración de Revestimiento
-          </h3>
-          <div className='space-y-2'>
-            <RenderizarFormularios
-              Revestimiento
-              nodo={arbol}
-              onUpdate={actualizarNodo}
-            />
+        <div className='pt-6 border-t border-slate-100'>
+          <label className='text-[10px] font-bold text-slate-400 uppercase mb-2 block'>
+            Mano de Apertura
+          </label>
+          <div className='flex bg-slate-100 p-1 rounded-xl'>
+            {(['izq', 'der'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setManoApertura(m)}
+                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${manoApertura === m ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}
+              >
+                {m === 'izq' ? 'Hacia Izq.' : 'Hacia Der.'}
+              </button>
+            ))}
           </div>
-        </section>
+        </div>
       </aside>
 
-      <main className='flex-1 flex items-center justify-center p-10 bg-zinc-200/50'>
-        <div className='bg-white p-4 shadow-xl'>
+      {/* VISUALIZADOR CENTRAL */}
+      <main
+        className='flex-1 flex items-center justify-center p-12 bg-slate-50'
+        onClick={() => setNodoSeleccionado(null)}
+      >
+        <div
+          className='relative bg-white p-12 shadow-2xl rounded-sm border border-slate-200'
+          onClick={(e) => e.stopPropagation()}
+        >
           <Stage
             width={anchoTotal * ESCALA_VISUAL}
             height={altoTotal * ESCALA_VISUAL}
           >
             <Layer>
-              <RenderizarVisual
-                nodo={arbol}
+              {/* Marco Exterior */}
+              <Rect
                 x={0}
                 y={0}
+                width={anchoTotal * ESCALA_VISUAL}
+                height={altoTotal * ESCALA_VISUAL}
+                fill='#334155'
+              />
+
+              {/* Contenido (Paños y Travesaños) */}
+              <Group
+                x={MARCO_GROSOR * ESCALA_VISUAL}
+                y={MARCO_GROSOR * ESCALA_VISUAL}
+              >
+                <RenderizarVisual
+                  nodo={arbol}
+                  x={0}
+                  y={0}
+                  ancho={anchoTotal - MARCO_GROSOR * 2}
+                  alto={altoTotal - MARCO_GROSOR * 2}
+                  escala={ESCALA_VISUAL}
+                  seleccionado={nodoSeleccionado}
+                  onSelect={setNodoSeleccionado}
+                />
+              </Group>
+
+              {/* Líneas de apertura estilo Arquitectura */}
+              <RenderizarApertura
+                mano={manoApertura}
                 ancho={anchoTotal}
                 alto={altoTotal}
                 escala={ESCALA_VISUAL}
               />
             </Layer>
           </Stage>
+
+          {/* Etiquetas de Cota (Estilo imagen) */}
+          <div className='absolute -bottom-8 left-0 w-full text-center text-xs font-bold text-slate-600'>
+            A = {anchoTotal}mm
+          </div>
+          <div className='absolute -right-12 top-0 h-full flex items-center text-xs font-bold text-slate-600 [writing-mode:vertical-rl]'>
+            H = {altoTotal}mm
+          </div>
         </div>
       </main>
+
+      {/* SIDEBAR DERECHO */}
+      <aside className='w-[300px] bg-white border-l border-slate-200 p-6 overflow-y-auto'>
+        <h2 className='text-xs font-black text-emerald-600 uppercase tracking-widest mb-4'>
+          Componentes
+        </h2>
+        <RenderizarJerarquia
+          nodo={arbol}
+          onUpdate={actualizarNodo}
+          nivel={0}
+          seleccionado={nodoSeleccionado}
+          onSelect={setNodoSeleccionado}
+        />
+      </aside>
     </div>
   )
 }
 
-// --- COMPONENTE FORMULARIOS ---
-let mIdx = 1
-const RenderizarFormularios = ({ nodo, onUpdate, reset = true }: any) => {
-  if (reset) mIdx = 1
+// --- SUB-COMPONENTES ACTUALIZADOS ---
 
-  if (nodo.tipo === 'hoja') {
-    const num = mIdx++
-    return (
-      <div className='bg-zinc-50 border p-3 rounded-md shadow-sm'>
-        <div className='flex justify-between items-center mb-2'>
-          <span className='text-[11px] font-black text-zinc-600 uppercase'>
-            Módulo {num}
-          </span>
-        </div>
-        <select
-          value={nodo.revestimiento}
-          onChange={(e) => onUpdate(nodo.id, { revestimiento: e.target.value })}
-          className='w-full text-xs border p-2 rounded bg-white'
-        >
-          <option value='Vidrio Float'>Vidrio Float</option>
-          <option value='Vidrio Laminado'>Vidrio Laminado</option>
-          <option value='Revestimiento Tubular'>Revestimiento Tubular</option>
-        </select>
-      </div>
-    )
-  }
+const RenderizarApertura = ({ mano, ancho, alto, escala }: any) => {
+  const w = ancho * escala
+  const h = alto * escala
+  const m = MARCO_GROSOR * escala
+
+  // Puntos para crear la "V" lateral que indica apertura
+  // La punta de la V toca el centro del lateral donde está el picaporte
+  const puntos =
+    mano === 'izq'
+      ? [w - m, m, m, h / 2, w - m, h - m] // Apertura izquierda (bisagras a la derecha)
+      : [m, m, w - m, h / 2, m, h - m] // Apertura derecha (bisagras a la izquierda)
 
   return (
-    <>
-      <RenderizarFormularios
-        nodo={nodo.hijoA}
-        onUpdate={onUpdate}
-        reset={false}
-      />
-      <RenderizarFormularios
-        nodo={nodo.hijoB}
-        onUpdate={onUpdate}
-        reset={false}
-      />
-    </>
+    <Line
+      points={puntos}
+      stroke='#64748b'
+      strokeWidth={1.5}
+      dash={[8, 4]}
+      opacity={0.8}
+      listening={false}
+    />
   )
 }
 
-// --- RENDER KONVA ---
-const RenderizarVisual = ({ nodo, x, y, ancho, alto, escala }: any) => {
+const RenderizarVisual = ({
+  nodo,
+  x,
+  y,
+  ancho,
+  alto,
+  escala,
+  seleccionado,
+  onSelect,
+}: any) => {
+  const isSelected = seleccionado === nodo.id
+
   if (nodo.tipo === 'hoja') {
-    const color =
-      nodo.revestimiento === 'Revestimiento Tubular' ? '#f8fafc' : '#e2e8f0'
     return (
-      <Group>
-        <Rect
-          x={x * escala}
-          y={y * escala}
-          width={ancho * escala}
-          height={alto * escala}
-          fill={color}
-          stroke='#475569'
-          strokeWidth={0.5}
-        />
-        {nodo.revestimiento === 'Revestimiento Tubular' &&
-          // Efecto visual de líneas para el tubular
-          [...Array(Math.floor(ancho / 100))].map((_, i) => (
-            <Line
-              key={i}
-              points={[
-                (x + (i + 1) * 100) * escala,
-                y * escala,
-                (x + (i + 1) * 100) * escala,
-                (y + alto) * escala,
-              ]}
-              stroke='#cbd5e1'
-              strokeWidth={0.5}
-            />
-          ))}
-      </Group>
+      <Rect
+        x={x * escala}
+        y={y * escala}
+        width={ancho * escala}
+        height={alto * escala}
+        fill={isSelected ? '#eff6ff' : '#f8fafc'}
+        stroke={isSelected ? '#3b82f6' : '#cbd5e1'}
+        strokeWidth={isSelected ? 2 : 1}
+        onClick={(e) => {
+          e.cancelBubble = true
+          onSelect(nodo.id)
+        }}
+      />
     )
   }
 
   const esH = nodo.tipo === 'division_h'
-  const medidaA = (esH ? alto : ancho) * nodo.ratio
+  const mA = ((esH ? alto : ancho) - MARCO_GROSOR) * nodo.ratio
 
   return (
     <Group>
@@ -356,362 +295,89 @@ const RenderizarVisual = ({ nodo, x, y, ancho, alto, escala }: any) => {
         nodo={nodo.hijoA}
         x={x}
         y={y}
-        ancho={esH ? ancho : medidaA}
-        alto={esH ? medidaA : alto}
+        ancho={esH ? ancho : mA}
+        alto={esH ? mA : alto}
         escala={escala}
+        seleccionado={seleccionado}
+        onSelect={onSelect}
+      />
+      <Rect
+        x={(esH ? x : x + mA) * escala}
+        y={(esH ? y + mA : y) * escala}
+        width={(esH ? ancho : MARCO_GROSOR) * escala}
+        height={(esH ? MARCO_GROSOR : alto) * escala}
+        fill='#334155'
+        onClick={(e) => {
+          e.cancelBubble = true
+          onSelect(nodo.id)
+        }}
       />
       <RenderizarVisual
         nodo={nodo.hijoB}
-        x={esH ? x : x + medidaA}
-        y={esH ? y + medidaA : y}
-        ancho={esH ? ancho : ancho - medidaA}
-        alto={esH ? alto : alto}
+        x={esH ? x : x + mA + MARCO_GROSOR}
+        y={esH ? y + mA + MARCO_GROSOR : y}
+        ancho={esH ? ancho : ancho - mA - MARCO_GROSOR}
+        alto={esH ? alto - mA - MARCO_GROSOR : alto}
         escala={escala}
-      />
-      <Rect
-        x={(esH ? x : x + medidaA - MARCO_GROSOR / 2) * escala}
-        y={(esH ? y + medidaA - MARCO_GROSOR / 2 : y) * escala}
-        width={(esH ? ancho : MARCO_GROSOR) * escala}
-        height={(esH ? MARCO_GROSOR : alto) * escala}
-        fill='#1e293b'
+        seleccionado={seleccionado}
+        onSelect={onSelect}
       />
     </Group>
   )
 }
 
-// import React, { useState } from 'react'
-// import { Stage, Layer, Rect, Group, Line } from 'react-konva'
-// import { v4 as uuidv4 } from 'uuid'
+const RenderizarJerarquia = ({
+  nodo,
+  onUpdate,
+  nivel,
+  seleccionado,
+  onSelect,
+}: any) => {
+  const isBranch = nodo.tipo !== 'hoja'
+  const isSelected = seleccionado === nodo.id
 
-// const MARCO_GROSOR = 30
-// const ESCALA_VISUAL = 0.25
-
-// export default function EditorModenaBiDireccional() {
-//   const [anchoTotal, setAnchoTotal] = useState(1200)
-//   const [altoTotal, setAltoTotal] = useState(2050)
-
-//   const [arbol, setArbol] = useState({
-//     id: 'root',
-//     tipo: 'hoja',
-//     contenido: 'puerta',
-//     ladoAbrir: 'derecho',
-//     // Configuración Horizontal
-//     modoH: 'ninguno',
-//     cantH: 1,
-//     manualH: '500',
-//     // Configuración Vertical
-//     modoV: 'ninguno',
-//     cantV: 1,
-//     manualV: '400',
-//   })
-
-//   // --- MOTORES DE GENERACIÓN ---
-
-//   // Generador Horizontal (Desde abajo hacia arriba)
-//   const genHManual = (str: string, hMax: number): any => {
-//     const alts = str
-//       .split(',')
-//       .map((h) => parseFloat(h.trim()))
-//       .filter((h) => !isNaN(h) && h > 0 && h < hMax)
-//       .sort((a, b) => a - b)
-//     const build = (list: number[], base: number): any => {
-//       if (list.length === 0)
-//         return { id: uuidv4(), tipo: 'hoja', contenido: 'fijo' }
-//       const ratio = 1 - (list[0] - base) / (hMax - base)
-//       return {
-//         id: uuidv4(),
-//         tipo: 'division_h',
-//         ratio,
-//         hijoA: build(list.slice(1), list[0]),
-//         hijoB: { id: uuidv4(), tipo: 'hoja' },
-//       }
-//     }
-//     return build(alts, 0)
-//   }
-
-//   // Generador Vertical (De izquierda a derecha)
-//   const genVManual = (str: string, wMax: number): any => {
-//     const dists = str
-//       .split(',')
-//       .map((d) => parseFloat(d.trim()))
-//       .filter((d) => !isNaN(d) && d > 0 && d < wMax)
-//       .sort((a, b) => a - b)
-//     const build = (list: number[], base: number): any => {
-//       if (list.length === 0)
-//         return { id: uuidv4(), tipo: 'hoja', contenido: 'fijo' }
-//       const ratio = (list[0] - base) / (wMax - base)
-//       return {
-//         id: uuidv4(),
-//         tipo: 'division_v',
-//         ratio,
-//         hijoA: { id: uuidv4(), tipo: 'hoja' },
-//         hijoB: build(list.slice(1), list[0]),
-//       }
-//     }
-//     return build(dists, 0)
-//   }
-
-//   const genCentrado = (
-//     tipo: 'division_h' | 'division_v',
-//     cant: number,
-//   ): any => {
-//     if (cant <= 0) return { id: uuidv4(), tipo: 'hoja', contenido: 'fijo' }
-//     return {
-//       id: uuidv4(),
-//       tipo,
-//       ratio: 1 / (cant + 1),
-//       hijoA: { id: uuidv4(), tipo: 'hoja' },
-//       hijoB: genCentrado(tipo, cant - 1),
-//     }
-//   }
-
-//   const actualizarEstructura = (cambios: any) => {
-//     setArbol((prev) => {
-//       const s = { ...prev, ...cambios }
-//       let base: any = {
-//         id: 'root',
-//         tipo: 'hoja',
-//         contenido: 'puerta',
-//         ladoAbrir: s.ladoAbrir,
-//       }
-
-//       // Aplicar Verticales primero (Estructura principal)
-//       if (s.modoV === 'centrado')
-//         base = { ...base, ...genCentrado('division_v', s.cantV) }
-//       if (s.modoV === 'manual')
-//         base = { ...base, ...genVManual(s.manualV, anchoTotal) }
-
-//       // Aplicar Horizontales (Esta lógica es simplificada para el ejemplo: afecta a todo el marco)
-//       if (s.modoH === 'centrado')
-//         base = { ...base, ...genCentrado('division_h', s.cantH) }
-//       if (s.modoH === 'manual')
-//         base = { ...base, ...genHManual(s.manualH, altoTotal) }
-
-//       return { ...s, ...base }
-//     })
-//   }
-
-//   return (
-//     <div className='flex h-screen bg-[#f3f4f6] font-sans overflow-hidden'>
-//       <aside className='w-96 bg-white border-r p-6 flex flex-col gap-6 shadow-2xl z-20 overflow-y-auto'>
-//         <h1 className='text-xl font-black'>Configurador Pro</h1>
-
-//         {/* DIMENSIONES */}
-//         <section className='grid grid-cols-2 gap-3 bg-zinc-50 p-3 rounded-lg border'>
-//           <div className='flex flex-col gap-1'>
-//             <label className='text-[10px] font-bold text-zinc-400 uppercase'>
-//               Ancho (X)
-//             </label>
-//             <input
-//               type='number'
-//               value={anchoTotal}
-//               onChange={(e) => setAnchoTotal(Number(e.target.value))}
-//               className='border p-2 rounded text-sm font-mono focus:ring-2 ring-blue-500 outline-none'
-//             />
-//           </div>
-//           <div className='flex flex-col gap-1'>
-//             <label className='text-[10px] font-bold text-zinc-400 uppercase'>
-//               Alto (Y)
-//             </label>
-//             <input
-//               type='number'
-//               value={altoTotal}
-//               onChange={(e) => setAltoTotal(Number(e.target.value))}
-//               className='border p-2 rounded text-sm font-mono focus:ring-2 ring-blue-500 outline-none'
-//             />
-//           </div>
-//         </section>
-
-//         {/* TRAVESAÑOS HORIZONTALES */}
-//         <section className='space-y-3'>
-//           <h3 className='text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b pb-1'>
-//             Horizontales (Y)
-//           </h3>
-//           <select
-//             value={arbol.modoH}
-//             onChange={(e) => actualizarEstructura({ modoH: e.target.value })}
-//             className='w-full border p-2 rounded text-sm'
-//           >
-//             <option value='ninguno'>Ninguno</option>
-//             <option value='centrado'>Centrados</option>
-//             <option value='manual'>Manual (Desde abajo)</option>
-//           </select>
-//           {arbol.modoH === 'centrado' && (
-//             <input
-//               type='number'
-//               value={arbol.cantH}
-//               onChange={(e) =>
-//                 actualizarEstructura({ cantH: Number(e.target.value) })
-//               }
-//               className='w-full border p-2 rounded text-sm'
-//               placeholder='Cant.'
-//             />
-//           )}
-//           {arbol.modoH === 'manual' && (
-//             <input
-//               type='text'
-//               value={arbol.manualH}
-//               onChange={(e) =>
-//                 actualizarEstructura({ manualH: e.target.value })
-//               }
-//               className='w-full border p-2 rounded text-sm font-mono'
-//               placeholder='Ej: 500, 1000'
-//             />
-//           )}
-//         </section>
-
-//         {/* TRAVESAÑOS VERTICALES */}
-//         <section className='space-y-3'>
-//           <h3 className='text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b pb-1'>
-//             Verticales (X)
-//           </h3>
-//           <select
-//             value={arbol.modoV}
-//             onChange={(e) => actualizarEstructura({ modoV: e.target.value })}
-//             className='w-full border p-2 rounded text-sm'
-//           >
-//             <option value='ninguno'>Ninguno</option>
-//             <option value='centrado'>Centrados</option>
-//             <option value='manual'>Manual (Desde izquierda)</option>
-//           </select>
-//           {arbol.modoV === 'centrado' && (
-//             <input
-//               type='number'
-//               value={arbol.cantV}
-//               onChange={(e) =>
-//                 actualizarEstructura({ cantV: Number(e.target.value) })
-//               }
-//               className='w-full border p-2 rounded text-sm'
-//               placeholder='Cant.'
-//             />
-//           )}
-//           {arbol.modoV === 'manual' && (
-//             <input
-//               type='text'
-//               value={arbol.manualV}
-//               onChange={(e) =>
-//                 actualizarEstructura({ manualV: e.target.value })
-//               }
-//               className='w-full border p-2 rounded text-sm font-mono'
-//               placeholder='Ej: 400, 800'
-//             />
-//           )}
-//         </section>
-
-//         {/* GIRO */}
-//         <section className='space-y-3'>
-//           <h3 className='text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b pb-1'>
-//             Apertura
-//           </h3>
-//           <div className='flex bg-zinc-100 p-1 rounded-lg'>
-//             {['izquierdo', 'derecho'].map((l) => (
-//               <button
-//                 key={l}
-//                 onClick={() => actualizarEstructura({ ladoAbrir: l })}
-//                 className={`flex-1 py-2 text-[10px] font-bold rounded-md transition-all ${arbol.ladoAbrir === l ? 'bg-white shadow text-blue-600' : 'text-zinc-400'}`}
-//               >
-//                 {l.toUpperCase()}
-//               </button>
-//             ))}
-//           </div>
-//         </section>
-//       </aside>
-
-//       {/* VISOR */}
-//       <main className='flex-1 flex items-center justify-center p-10 bg-zinc-200/50'>
-//         <div className='bg-white p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded border border-zinc-300'>
-//           <Stage
-//             width={anchoTotal * ESCALA_VISUAL}
-//             height={altoTotal * ESCALA_VISUAL}
-//           >
-//             <Layer>
-//               <RenderizarVisual
-//                 nodo={arbol}
-//                 x={0}
-//                 y={0}
-//                 ancho={anchoTotal}
-//                 alto={altoTotal}
-//                 escala={ESCALA_VISUAL}
-//               />
-//             </Layer>
-//           </Stage>
-//         </div>
-//       </main>
-//     </div>
-//   )
-// }
-
-// const RenderizarVisual = ({ nodo, x, y, ancho, alto, escala }: any) => {
-//   if (nodo.tipo === 'hoja') {
-//     return (
-//       <Group>
-//         <Rect
-//           x={x * escala}
-//           y={y * escala}
-//           width={ancho * escala}
-//           height={alto * escala}
-//           fill='white'
-//           stroke='#333'
-//           strokeWidth={1}
-//         />
-//         {nodo.contenido === 'puerta' && (
-//           <Line
-//             points={
-//               nodo.ladoAbrir === 'derecho'
-//                 ? [
-//                     x * escala,
-//                     y * escala,
-//                     (x + ancho) * escala,
-//                     (y + alto / 2) * escala,
-//                     x * escala,
-//                     (y + alto) * escala,
-//                   ]
-//                 : [
-//                     (x + ancho) * escala,
-//                     y * escala,
-//                     x * escala,
-//                     (y + alto / 2) * escala,
-//                     (x + ancho) * escala,
-//                     (y + alto) * escala,
-//                   ]
-//             }
-//             stroke='#cbd5e1'
-//             strokeWidth={1}
-//             dash={[5, 5]}
-//           />
-//         )}
-//       </Group>
-//     )
-//   }
-
-//   const esH = nodo.tipo === 'division_h'
-//   const medidaA = (esH ? alto : ancho) * nodo.ratio
-
-//   return (
-//     <Group>
-//       <RenderizarVisual
-//         nodo={nodo.hijoA}
-//         x={x}
-//         y={y}
-//         ancho={esH ? ancho : medidaA}
-//         alto={esH ? medidaA : alto}
-//         escala={escala}
-//       />
-//       <RenderizarVisual
-//         nodo={nodo.hijoB}
-//         x={esH ? x : x + medidaA}
-//         y={esH ? y + medidaA : y}
-//         ancho={esH ? ancho : ancho - medidaA}
-//         alto={esH ? alto : alto}
-//         escala={escala}
-//       />
-//       <Rect
-//         x={(esH ? x : x + medidaA - MARCO_GROSOR / 2) * escala}
-//         y={(esH ? y + medidaA - MARCO_GROSOR / 2 : y) * escala}
-//         width={(esH ? ancho : MARCO_GROSOR) * escala}
-//         height={(esH ? MARCO_GROSOR : alto) * escala}
-//         fill='#1a1a1a'
-//       />
-//     </Group>
-//   )
-// }
+  return (
+    <div
+      className={`flex flex-col ${nivel > 0 ? 'ml-4 border-l border-slate-100 pl-2' : ''}`}
+    >
+      <div
+        onClick={() => onSelect(nodo.id)}
+        className={`p-3 rounded-lg border cursor-pointer mb-2 transition-all ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-100'}`}
+      >
+        <p className='text-[9px] font-bold text-slate-400 uppercase'>
+          {isBranch ? 'Perfil Travesaño' : 'Paño de Vidrio'}
+        </p>
+        {!isBranch && (
+          <select
+            value={nodo.revestimiento}
+            onChange={(e) =>
+              onUpdate(nodo.id, { revestimiento: e.target.value })
+            }
+            className='text-xs font-semibold bg-transparent w-full'
+          >
+            <option value='Vidrio Float'>Vidrio Float 4mm</option>
+            <option value='Vidrio Laminado'>Laminado 3+3</option>
+          </select>
+        )}
+      </div>
+      {isBranch && (
+        <>
+          <RenderizarJerarquia
+            nodo={nodo.hijoA}
+            onUpdate={onUpdate}
+            nivel={nivel + 1}
+            seleccionado={seleccionado}
+            onSelect={onSelect}
+          />
+          <RenderizarJerarquia
+            nodo={nodo.hijoB}
+            onUpdate={onUpdate}
+            nivel={nivel + 1}
+            seleccionado={seleccionado}
+            onSelect={onSelect}
+          />
+        </>
+      )}
+    </div>
+  )
+}

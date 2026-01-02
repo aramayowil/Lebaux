@@ -70,9 +70,21 @@ export const Navbar = () => {
                 'data-[active=true]:text-primary data-[active=true]:font-medium',
               )}
               color='foreground'
-              href='/Docs'
+              href='/ventanaModena'
             >
-              Historial
+              Ventanas
+            </Link>
+          </NavbarItem>
+          <NavbarItem>
+            <Link
+              className={clsx(
+                linkStyles({ color: 'foreground' }),
+                'data-[active=true]:text-primary data-[active=true]:font-medium',
+              )}
+              color='foreground'
+              href='/dvhCalc'
+            >
+              CALC DVH
             </Link>
           </NavbarItem>
           <Link
