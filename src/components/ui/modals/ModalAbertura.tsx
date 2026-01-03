@@ -148,15 +148,27 @@ export default function ModalAbertura({
       size='4xl'
       isOpen={isOpen}
       onOpenChange={cerrarModalYLimpiar}
-      scrollBehavior='outside'
+      scrollBehavior='inside'
+      isDismissable={false}
+      backdrop='opaque'
+      classNames={{
+        base: 'bg-[#18181b] border border-white/10 shadow-2xl max-h-[90vh]',
+        header: 'border-b border-white/5',
+        footer: 'border-t border-white/5',
+        closeButton: 'hover:bg-white/10 active:bg-white/20 transition-colors',
+      }}
     >
-      <Form onSubmit={onSubmit} validationBehavior='native'>
-        <ModalContent>
+      <ModalContent>
+        <Form
+          onSubmit={onSubmit}
+          validationBehavior='native'
+          className='w-full flex flex-col items-stretch'
+        >
           <ModalHeader className='justify-center uppercase text-tiny font-bold text-default-600'>
             {isEditMode ? 'Editar Abertura' : 'Agregar Abertura'}
           </ModalHeader>
           <ModalBody>
-            <div className='flex flex-col md:flex-row gap-2 w-full'>
+            <div className='flex flex-col md:flex-row gap-2 w-full '>
               <Card className='flex-1 bg-default-50/50 shadow-sm border-none'>
                 <CardBody>
                   <ScrollShadow className='h-87.5' hideScrollBar>
@@ -215,16 +227,20 @@ export default function ModalAbertura({
               />
             </div>
           </ModalBody>
-          <ModalFooter>
-            <Button variant='bordered' onPress={cerrarModalYLimpiar}>
+          <ModalFooter className='flex justify-end items-center gap-3'>
+            <Button
+              variant='flat'
+              color='default'
+              onPress={cerrarModalYLimpiar}
+            >
               Cancelar
             </Button>
-            <Button color='warning' type='submit'>
+            <Button color='warning' type='submit' className='font-medium'>
               {isEditMode ? 'Guardar Cambios' : 'Guardar Abertura'}
             </Button>
           </ModalFooter>
-        </ModalContent>
-      </Form>
+        </Form>
+      </ModalContent>
     </ModalHeroUI>
   )
 }
