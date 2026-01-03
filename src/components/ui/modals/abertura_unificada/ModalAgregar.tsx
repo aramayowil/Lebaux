@@ -15,11 +15,23 @@ import TabsAbertura from '../../TabsAbertura'
 
 type ModalAgregarProps = {
   onClose: () => void
+  handleConfirmarModulo: (data: any) => void
+  setLinea: React.Dispatch<React.SetStateAction<string>>
+  setAbertura: React.Dispatch<React.SetStateAction<string>>
+  setDescripcion: React.Dispatch<React.SetStateAction<string>>
   setAncho: React.Dispatch<React.SetStateAction<number>>
   setAlto: React.Dispatch<React.SetStateAction<number>>
-  setTipo: React.Dispatch<React.SetStateAction<string>>
   setImgSrc: React.Dispatch<React.SetStateAction<string>>
-  handleConfirmarModulo: (data: any) => void
+  setColor: React.Dispatch<React.SetStateAction<string>>
+  setVidrio: React.Dispatch<React.SetStateAction<string>>
+  setCantidad: React.Dispatch<React.SetStateAction<number>>
+  setPrecio: React.Dispatch<React.SetStateAction<number>>
+  setMosquitero: React.Dispatch<
+    React.SetStateAction<{ checked: boolean; precio: number }>
+  >
+  setPremarco: React.Dispatch<
+    React.SetStateAction<{ checked: boolean; precio: number }>
+  >
 }
 
 const INITIAL_STATE = {
@@ -42,10 +54,18 @@ const INITIAL_STATE = {
 function ModalAgregar({
   onClose,
   handleConfirmarModulo,
+  setLinea,
+  setAbertura,
+  setDescripcion,
   setAlto,
   setAncho,
-  setTipo,
   setImgSrc,
+  setVidrio,
+  setColor,
+  setCantidad,
+  setPrecio,
+  setMosquitero,
+  setPremarco,
 }: ModalAgregarProps) {
   const [form, setForm] = useState(INITIAL_STATE)
 
@@ -59,11 +79,33 @@ function ModalAgregar({
   }
 
   useEffect(() => {
+    setLinea(form.linea)
+    setAbertura(form.abertura)
+    setDescripcion(form.descripcion)
     setAlto(form.altura)
     setAncho(form.ancho)
-    setTipo(form.abertura)
     setImgSrc(form.imgSrc)
-  }, [form.altura, form.ancho, form.abertura, form.imgSrc])
+    setVidrio(form.vidrio)
+    setColor(form.color)
+    setCantidad(form.cantidad)
+    setPrecio(form.precio)
+    setMosquitero(form.mosquitero)
+    setPremarco(form.premarco)
+  }, [
+    form.linea,
+    form.abertura,
+    form.descripcion,
+    form.altura,
+    form.ancho,
+    form.imgSrc,
+    form.descripcion,
+    form.vidrio,
+    form.color,
+    form.cantidad,
+    form.precio,
+    form.mosquitero,
+    form.premarco,
+  ])
 
   return (
     <Modal

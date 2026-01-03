@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react'
 import {
   Modal,
   ModalContent,
-  ModalHeader,
   ModalBody,
   ModalFooter,
   Button,
@@ -18,8 +17,40 @@ import {
 } from 'react-konva'
 import { v4 as uuidv4 } from 'uuid'
 import { SiMaterialdesignicons } from 'react-icons/si'
+import {
+  HiOutlineRefresh,
+  HiOutlineTrash,
+  HiX,
+  HiAdjustments,
+  HiCheckCircle,
+} from 'react-icons/hi'
 import { useImage } from 'react-konva-utils'
 import ModalAgregar from '@/components/ui/modals/abertura_unificada/ModalAgregar'
+import ModalResumenDiseno from './ModalConfirmar'
+
+// --- INTERFACES ---
+interface Modulo {
+  id: string
+  x: number // Posición lógica en la grilla
+  y: number // Posición lógica en la grilla
+  linea: string
+  abertura: string
+  descripcion: string
+  ancho: number // Medida real en mm
+  alto: number // Medida real en mm
+  imgSrc: string
+  color: string
+  vidrio: string
+  cantidad: number
+  precio: number
+  mosquitero: { checked: boolean; precio: number }
+  premarco: { checked: boolean; precio: number }
+}
+
+const INITIAL_ESCALA = 0.2
+const SPACING = 20
+const PADDING_STAGE = 100
+const STORAGE_KEY = 'diseno_modulos_compuesta'
 
 const ImageContainer = ({
   src,
@@ -31,67 +62,45 @@ const ImageContainer = ({
   height: number
 }) => {
   const [image, status] = useImage(src)
-  // Solo renderizamos si la imagen está lista para evitar fallos de dibujo en Konva
   if (status !== 'loaded') return null
-  return <KonvaImage image={image} x={0} y={0} width={width} height={height} />
-}
-
-const INITIAL_ESCALA = 0.2
-const SPACING = 20
-const PADDING_STAGE = 80
-const STORAGE_KEY = 'diseno_modulos_pro_editor'
-
-export interface Modulo {
-  id: string
-  x: number
-  y: number
-  tipo: string
-  ancho: number
-  alto: number
-  imgSrc: string
+  return (
+    <KonvaImage
+      image={image}
+      x={0}
+      y={0}
+      width={width}
+      height={height}
+      opacity={0.9}
+    />
+  )
 }
 
 export default function AberturaCompuesta() {
-  const [tipo, setTipo] = useState<string>('')
+  const [linea, setLinea] = useState<string>('Modena')
+  const [abertura, setAbertura] = useState<string>('')
+  const [descripcion, setDescripcion] = useState<string>('')
   const [ancho, setAncho] = useState<number>(1000)
   const [alto, setAlto] = useState<number>(1000)
   const [imgSrc, setImgSrc] = useState<string>('')
+  const [color, setColor] = useState<string>('')
+  const [vidrio, setVidrio] = useState<string>('')
+  const [cantidad, setCantidad] = useState<number>(1)
+  const [precio, setPrecio] = useState<number>(0)
+  const [mosquitero, setMosquitero] = useState({ checked: false, precio: 0 })
+  const [premarco, setPremarco] = useState({ checked: false, precio: 0 })
 
   const [showModal, setShowModal] = useState(false)
-  const handleOpenModal = () => setShowModal(!showModal)
+  const [lastSaved, setLastSaved] = useState(false)
 
   const {
     isOpen: isThisOpen,
     onOpen: onThisOpen,
     onOpenChange: onThisOpenChange,
   } = useDisclosure()
-
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  // Función para medir el contenedor
-  const updateSize = () => {
-    if (containerRef.current) {
-      const { offsetWidth, offsetHeight } = containerRef.current
-      if (offsetWidth > 0 && offsetHeight > 0) {
-        setDimensions({ width: offsetWidth, height: offsetHeight })
-      }
-    }
-  }
-
-  // Efecto para manejar la apertura del modal y cambios de tamaño
-  useLayoutEffect(() => {
-    if (isThisOpen) {
-      // Pequeño timeout para esperar a que termine la animación de entrada de HeroUI
-      const timer = setTimeout(updateSize, 60)
-      window.addEventListener('resize', updateSize)
-      return () => {
-        window.removeEventListener('resize', updateSize)
-        clearTimeout(timer)
-      }
-    }
-  }, [isThisOpen])
-
+  // --- ESTADO DE MÓDULOS CON CARGA INICIAL ---
   const [modulos, setModulos] = useState<Modulo[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -100,13 +109,6 @@ export default function AberturaCompuesta() {
     return []
   })
 
-  // EFECTO CRÍTICO: Recalcular dimensiones cuando aparece el primer módulo
-  useEffect(() => {
-    if (modulos.length > 0 && dimensions.width === 0) {
-      updateSize()
-    }
-  }, [modulos.length])
-
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [targetCoords, setTargetCoords] = useState<{
@@ -114,34 +116,54 @@ export default function AberturaCompuesta() {
     y: number
   } | null>(null)
 
+  // Guardado automático y feedback visual
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(modulos))
+    setLastSaved(true)
+    const timer = setTimeout(() => setLastSaved(false), 2000)
+    return () => clearTimeout(timer)
   }, [modulos])
 
-  const obtenerPosicionVisual = (coordX: number, coordY: number) => {
-    let visualX = 0
-    let visualY = 0
-    if (coordX > 0) {
-      for (let i = 0; i < coordX; i++) {
-        const m = modulos.find((mod) => mod.x === i)
-        visualX += (m?.ancho || 1000) * INITIAL_ESCALA
-      }
-    } else if (coordX < 0) {
-      for (let i = -1; i >= coordX; i--) {
-        const m = modulos.find((mod) => mod.x === i)
-        visualX -= (m?.ancho || 1000) * INITIAL_ESCALA
+  const updateSize = () => {
+    if (containerRef.current) {
+      const { offsetWidth, offsetHeight } = containerRef.current
+      if (offsetWidth > 0 && offsetHeight > 0)
+        setDimensions({ width: offsetWidth, height: offsetHeight })
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (isThisOpen) {
+      const timer = setTimeout(updateSize, 100)
+      window.addEventListener('resize', updateSize)
+      return () => {
+        window.removeEventListener('resize', updateSize)
+        clearTimeout(timer)
       }
     }
+  }, [isThisOpen])
+
+  const obtenerPosicionVisual = (coordX: number, coordY: number) => {
+    let visualX = 0,
+      visualY = 0
+    // Lógica para calcular posición basada en el ancho/alto de los módulos vecinos
+    if (coordX > 0) {
+      for (let i = 0; i < coordX; i++)
+        visualX +=
+          (modulos.find((m) => m.x === i)?.ancho || 1000) * INITIAL_ESCALA
+    } else if (coordX < 0) {
+      for (let i = -1; i >= coordX; i--)
+        visualX -=
+          (modulos.find((m) => m.x === i)?.ancho || 1000) * INITIAL_ESCALA
+    }
     if (coordY > 0) {
-      for (let j = 0; j < coordY; j++) {
-        const m = modulos.find((mod) => mod.y === j)
-        visualY += (m?.alto || 1000) * INITIAL_ESCALA
-      }
+      for (let j = 0; j < coordY; j++)
+        visualY +=
+          (modulos.find((m) => m.y === j)?.alto || 1000) * INITIAL_ESCALA
     } else if (coordY < 0) {
-      for (let j = -1; j >= coordY; j--) {
-        const m = modulos.find((mod) => mod.y === j)
-        visualY -= (m?.alto || 1000) * INITIAL_ESCALA
-      }
+      for (let j = -1; j >= coordY; j--)
+        visualY -=
+          (modulos.find((m) => m.y === j)?.alto || 1000) * INITIAL_ESCALA
     }
     return { x: visualX, y: visualY }
   }
@@ -152,21 +174,23 @@ export default function AberturaCompuesta() {
     const bounds = modulos.map((m) => {
       const pos = obtenerPosicionVisual(m.x, m.y)
       return {
-        left: pos.x,
-        right: pos.x + m.ancho * INITIAL_ESCALA,
-        top: pos.y,
-        bottom: pos.y + m.alto * INITIAL_ESCALA,
+        l: pos.x,
+        r: pos.x + m.ancho * INITIAL_ESCALA,
+        t: pos.y,
+        b: pos.y + m.alto * INITIAL_ESCALA,
       }
     })
-    const minX = Math.min(...bounds.map((b) => b.left))
-    const maxX = Math.max(...bounds.map((b) => b.right))
-    const minY = Math.min(...bounds.map((b) => b.top))
-    const maxY = Math.max(...bounds.map((b) => b.bottom))
-    const contentW = maxX - minX
-    const contentH = maxY - minY
-    const scaleX = (dimensions.width - PADDING_STAGE) / (contentW || 1)
-    const scaleY = (dimensions.height - PADDING_STAGE) / (contentH || 1)
-    const dynamicScale = Math.min(scaleX, scaleY, 1)
+    const minX = Math.min(...bounds.map((b) => b.l)),
+      maxX = Math.max(...bounds.map((b) => b.r))
+    const minY = Math.min(...bounds.map((b) => b.t)),
+      maxY = Math.max(...bounds.map((b) => b.b))
+    const contentW = maxX - minX,
+      contentH = maxY - minY
+    const dynamicScale = Math.min(
+      (dimensions.width - PADDING_STAGE) / (contentW || 1),
+      (dimensions.height - PADDING_STAGE) / (contentH || 1),
+      1,
+    )
     return {
       x:
         dimensions.width / 2 -
@@ -180,14 +204,35 @@ export default function AberturaCompuesta() {
     }
   }, [modulos, dimensions])
 
-  const estaOcupado = (x: number, y: number) =>
-    modulos.some((m) => m.x === x && m.y === y)
+  const handleReset = () => {
+    if (window.confirm('¿Restablecer el lienzo de trabajo?')) {
+      setModulos([])
+      setSelectedId(null)
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  }
 
   const handleConfirmarModulo = () => {
     if (isEditing) {
       setModulos(
         modulos.map((m) =>
-          m.id === selectedId ? { ...m, tipo, ancho, alto, imgSrc } : m,
+          m.id === selectedId
+            ? {
+                ...m,
+                linea,
+                abertura,
+                descripcion,
+                ancho,
+                alto,
+                imgSrc,
+                color,
+                vidrio,
+                cantidad,
+                precio,
+                mosquitero,
+                premarco,
+              }
+            : m,
         ),
       )
     } else {
@@ -196,10 +241,18 @@ export default function AberturaCompuesta() {
         id: uuidv4(),
         x: coords.x,
         y: coords.y,
-        tipo,
+        linea,
+        abertura,
+        descripcion,
         ancho,
         alto,
         imgSrc,
+        color,
+        vidrio,
+        cantidad,
+        precio,
+        mosquitero: { checked: false, precio: 0 },
+        premarco: { checked: false, precio: 0 },
       }
       setModulos([...modulos, nuevo])
       setSelectedId(nuevo.id)
@@ -207,255 +260,283 @@ export default function AberturaCompuesta() {
     setShowModal(false)
   }
 
+  // --- FUNCIÓN DE GUARDADO FINAL ---
+  // const handleGuardarFinal = () => {
+  //   localStorage.setItem(STORAGE_KEY, JSON.stringify(modulos))
+  //   onThisOpenChange() // Cerrar modal
+  // }
+
   return (
     <>
       <Button
         onPress={onThisOpen}
-        className='bg-zinc-950 text-white border border-zinc-800 hover:bg-zinc-900 h-9 px-8 font-bold rounded-xl'
-        variant='bordered'
-        startContent={<SiMaterialdesignicons size={16} />}
+        className='bg-zinc-950 text-zinc-300 border border-zinc-800 hover:border-zinc-600 h-10 px-6 font-bold rounded-xl'
+        startContent={<SiMaterialdesignicons size={18} />}
       >
-        Diseño aberturas
+        CONFIGURADOR TÉCNICO
       </Button>
 
       {showModal && (
         <ModalAgregar
-          onClose={handleOpenModal}
+          onClose={() => setShowModal(false)}
           handleConfirmarModulo={handleConfirmarModulo}
+          setLinea={setLinea}
+          setAbertura={setAbertura}
+          setDescripcion={setDescripcion}
           setAncho={setAncho}
           setAlto={setAlto}
-          setTipo={setTipo}
           setImgSrc={setImgSrc}
+          setColor={setColor}
+          setVidrio={setVidrio}
+          setCantidad={setCantidad}
+          setPrecio={setPrecio}
+          setMosquitero={setMosquitero}
+          setPremarco={setPremarco}
         />
       )}
+
       <Modal
         isOpen={isThisOpen}
         onOpenChange={onThisOpenChange}
-        size='5xl'
-        classNames={{
-          base: 'max-h-[90vh] bg-[#050505] text-zinc-100 border border-zinc-800/80 shadow-2xl',
-          header: 'border-b border-zinc-900 bg-black/60 backdrop-blur-xl',
-          footer: 'border-t border-zinc-900 bg-black/60 backdrop-blur-xl',
-        }}
+        size='full'
+        classNames={{ base: 'bg-[#0c0c0e] text-zinc-100', wrapper: 'p-0' }}
+        hideCloseButton
       >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex justify-between items-center py-4 px-8'>
-                <h2 className='text-2xl font-bold tracking-tight text-white'>
-                  Configuración Técnica
-                </h2>
-                <div className='flex gap-3 mr-6'>
+              {/* HEADER */}
+              <div className='h-16 flex justify-between items-center px-10 border-b border-zinc-800/50 bg-black/40 backdrop-blur-md z-50'>
+                <div className='flex items-center gap-4'>
+                  <HiAdjustments className='text-zinc-500' size={20} />
+                  <h2 className='text-sm font-bold tracking-0.1em text-zinc-200 uppercase'>
+                    Composición de Aberturas{' '}
+                    <span className='text-zinc-600 ml-2 font-mono text-xs'>
+                      v3.0
+                    </span>
+                  </h2>
+                  {lastSaved && (
+                    <div className='flex items-center gap-1 text-[10px] text-emerald-500 font-bold animate-pulse'>
+                      <HiCheckCircle size={14} /> AUTOGUARDADO
+                    </div>
+                  )}
+                </div>
+
+                <div className='flex items-center gap-3'>
                   {modulos.length > 0 && (
                     <Button
                       size='sm'
-                      variant='flat'
-                      color='warning'
-                      radius='lg'
-                      className='font-bold h-9 px-4 bg-zinc-900 text-zinc-400 hover:bg-zinc-800'
-                      onPress={() => {
-                        setModulos([])
-                        setSelectedId(null)
-                        setDimensions({ width: 0, height: 0 }) // Reset dimensiones
-                      }}
+                      variant='bordered'
+                      className='border-zinc-800 text-zinc-500 hover:text-red-400 px-4 font-bold'
+                      startContent={<HiOutlineRefresh size={14} />}
+                      onPress={handleReset}
                     >
-                      Reiniciar Diseño
+                      Limpiar
                     </Button>
                   )}
+
                   {selectedId && (
-                    <>
+                    <div className='flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-lg'>
                       <Button
                         size='sm'
-                        radius='lg'
-                        className='bg-zinc-100 text-black hover:bg-white font-bold h-9 px-5 transition-transform'
+                        variant='light'
+                        className='text-zinc-300 font-bold px-3'
                         onPress={() => {
                           const m = modulos.find((mod) => mod.id === selectedId)
                           if (m) {
-                            setTipo(m.tipo)
+                            setLinea(m.linea)
+                            setAbertura(m.abertura)
                             setAncho(m.ancho)
                             setAlto(m.alto)
                             setImgSrc(m.imgSrc)
+                            setColor(m.color)
+                            setVidrio(m.vidrio)
+                            setCantidad(m.cantidad)
+                            setPrecio(m.precio)
+                            setMosquitero(m.mosquitero)
+                            setPremarco(m.premarco)
                             setIsEditing(true)
                             setShowModal(true)
                           }
                         }}
                       >
-                        Editar Módulo
+                        Modificar
                       </Button>
                       <Button
                         size='sm'
-                        variant='flat'
+                        variant='light'
                         color='danger'
-                        radius='lg'
-                        className='font-bold h-9 px-5 bg-red-950/20 text-red-500 hover:bg-red-950/40'
+                        isIconOnly
                         onPress={() => {
                           setModulos(modulos.filter((m) => m.id !== selectedId))
                           setSelectedId(null)
                         }}
                       >
-                        Eliminar
+                        <HiOutlineTrash size={16} />
                       </Button>
-                    </>
+                    </div>
                   )}
-                </div>
-              </ModalHeader>
 
-              <ModalBody className='p-0 overflow-hidden flex flex-col flex-1 bg-[#050505] min-h-75'>
-                {modulos.length === 0 ? (
-                  <div className='flex flex-1 items-center justify-center p-10'>
-                    <Button
-                      onPress={() => {
-                        setTargetCoords({ x: 0, y: 0 })
-                        setIsEditing(false)
-                        setShowModal(true)
-                      }}
-                      className='group w-full max-w-sm h-40 border border-dashed border-zinc-800 bg-transparent hover:border-zinc-500 flex flex-col gap-3 rounded-2xl transition-all'
-                    >
-                      <div className='w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors'>
-                        <span className='text-2xl text-zinc-400 text-center pb-1'>
-                          +
-                        </span>
-                      </div>
-                      <span className='text-zinc-500 font-bold tracking-widest text-xs'>
-                        AÑADIR PAÑO INICIAL
-                      </span>
-                    </Button>
-                  </div>
-                ) : (
-                  <div
-                    ref={containerRef}
-                    className='flex-1 w-full h-full relative overflow-hidden bg-[radial-gradient(#1a1a1a_1px,transparent_1px)] bg-size-[24px_24px]'
-                  >
-                    {dimensions.width > 0 && dimensions.height > 0 && (
-                      <Stage
-                        width={dimensions.width}
-                        height={dimensions.height}
-                        onClick={(e) =>
-                          e.target === e.target.getStage() &&
-                          setSelectedId(null)
-                        }
-                      >
-                        <Layer
-                          x={transform.x}
-                          y={transform.y}
-                          scaleX={transform.scale}
-                          scaleY={transform.scale}
-                        >
-                          {modulos.map((m) => {
-                            const pos = obtenerPosicionVisual(m.x, m.y)
-                            const isSelected = selectedId === m.id
-                            const anchoPx = m.ancho * INITIAL_ESCALA
-                            const altoPx = m.alto * INITIAL_ESCALA
-                            return (
-                              <Group key={m.id} x={pos.x} y={pos.y}>
-                                <ImageContainer
-                                  src={m.imgSrc}
-                                  width={anchoPx}
-                                  height={altoPx}
-                                />
-                                <Rect
-                                  width={anchoPx}
-                                  height={altoPx}
-                                  stroke={isSelected ? '#1c1919' : '#3f3f46'}
-                                  strokeWidth={
-                                    isSelected
-                                      ? 2 / transform.scale
-                                      : 1 / transform.scale
-                                  }
-                                  cornerRadius={2 / transform.scale}
-                                  onClick={() => setSelectedId(m.id)}
-                                />
-                                <Text
-                                  text={m.tipo.toUpperCase()}
-                                  width={anchoPx}
-                                  y={altoPx / 2 - 20 / transform.scale}
-                                  align='center'
-                                  fill={'#45454c'}
-                                  fontSize={14 / transform.scale}
-                                  fontStyle='bold'
-                                  listening={false}
-                                />
-                                <Text
-                                  text={`${m.ancho} × ${m.alto}`}
-                                  width={anchoPx}
-                                  y={altoPx / 2 + 6 / transform.scale}
-                                  align='center'
-                                  fill={'#45454c'}
-                                  fontSize={17 / transform.scale}
-                                  fontStyle='bold'
-                                  listening={false}
-                                />
-                                {isSelected &&
-                                  [
-                                    [1, 0],
-                                    [-1, 0],
-                                    [0, 1],
-                                    [0, -1],
-                                  ].map(([dx, dy], i) => {
-                                    if (estaOcupado(m.x + dx, m.y + dy))
-                                      return null
-                                    let bx =
-                                      dx === 1
-                                        ? anchoPx + SPACING / transform.scale
-                                        : dx === -1
-                                          ? -SPACING / transform.scale
-                                          : anchoPx / 2
-                                    let by =
-                                      dy === 1
-                                        ? altoPx + SPACING / transform.scale
-                                        : dy === -1
-                                          ? -SPACING / transform.scale
-                                          : altoPx / 2
-                                    return (
-                                      <BotonPlus
-                                        key={i}
-                                        x={bx}
-                                        y={by}
-                                        scaleFactor={transform.scale}
-                                        onClick={() => {
-                                          setTargetCoords({
-                                            x: m.x + dx,
-                                            y: m.y + dy,
-                                          })
-                                          setIsEditing(false)
-                                          setShowModal(true)
-                                        }}
-                                      />
-                                    )
-                                  })}
-                              </Group>
-                            )
-                          })}
-                        </Layer>
-                      </Stage>
-                    )}
-                  </div>
-                )}
-              </ModalBody>
-
-              <ModalFooter className='py-3 px-10 justify-between items-center'>
-                <div className='flex flex-col'>
-                  <span className='text-[10px] text-zinc-600 font-bold uppercase tracking-wider'>
-                    Módulos
-                  </span>
-                  <span className='text-xl font-mono font-bold text-zinc-200'>
-                    {modulos.length.toString().padStart(2, '0')}
-                  </span>
-                </div>
-                <div className='flex gap-2'>
                   <Button
-                    variant='light'
-                    className='text-zinc-500 hover:text-white font-medium px-6'
+                    isIconOnly
+                    variant='flat'
+                    className='bg-zinc-900 text-zinc-500'
                     onPress={onClose}
                   >
-                    Cancelar
+                    <HiX size={20} />
                   </Button>
+                </div>
+              </div>
+
+              <ModalBody className='p-0 overflow-hidden relative flex-1'>
+                <div ref={containerRef} className='w-full h-full bg-[#0c0c0e]'>
+                  {modulos.length === 0 ? (
+                    <div className='flex h-full items-center justify-center'>
+                      <Button
+                        onPress={() => {
+                          setTargetCoords({ x: 0, y: 0 })
+                          setIsEditing(false)
+                          setShowModal(true)
+                        }}
+                        className='group w-80 h-40 border border-zinc-800 bg-zinc-900/30 hover:border-zinc-700 rounded-2xl flex flex-col gap-2'
+                      >
+                        <span className='text-3xl text-zinc-600'>+</span>
+                        <p className='text-xs font-bold text-zinc-500 uppercase tracking-widest'>
+                          Empezar Diseño
+                        </p>
+                      </Button>
+                    </div>
+                  ) : (
+                    <Stage
+                      width={dimensions.width}
+                      height={dimensions.height}
+                      onClick={(e) =>
+                        e.target === e.target.getStage() && setSelectedId(null)
+                      }
+                    >
+                      <Layer
+                        x={transform.x}
+                        y={transform.y}
+                        scaleX={transform.scale}
+                        scaleY={transform.scale}
+                      >
+                        {modulos.map((m) => {
+                          const pos = obtenerPosicionVisual(m.x, m.y)
+                          const isSel = selectedId === m.id
+                          const wPx = m.ancho * INITIAL_ESCALA,
+                            hPx = m.alto * INITIAL_ESCALA
+                          return (
+                            <Group key={m.id} x={pos.x} y={pos.y}>
+                              <ImageContainer
+                                src={m.imgSrc}
+                                width={wPx}
+                                height={hPx}
+                              />
+                              <Rect
+                                width={wPx}
+                                height={hPx}
+                                fill={
+                                  isSel
+                                    ? 'rgba(255,255,255,0.05)'
+                                    : 'transparent'
+                                }
+                                stroke={isSel ? '#ffffff' : '#3f3f46'}
+                                strokeWidth={
+                                  isSel
+                                    ? 2 / transform.scale
+                                    : 1 / transform.scale
+                                }
+                                onClick={() => setSelectedId(m.id)}
+                              />
+                              <Text
+                                text={`${m.abertura}\n${m.ancho}x${m.alto}`}
+                                width={wPx}
+                                height={hPx}
+                                align='center'
+                                verticalAlign='middle'
+                                fill={isSel ? '#fff' : '#71717a'}
+                                fontSize={10 / transform.scale}
+                                fontStyle='bold'
+                                listening={false}
+                              />
+                              {isSel &&
+                                [
+                                  [1, 0],
+                                  [-1, 0],
+                                  [0, 1],
+                                  [0, -1],
+                                ].map(([dx, dy], i) => {
+                                  if (
+                                    modulos.some(
+                                      (mod) =>
+                                        mod.x === m.x + dx &&
+                                        mod.y === m.y + dy,
+                                    )
+                                  )
+                                    return null
+                                  const bx =
+                                    dx === 1
+                                      ? wPx + SPACING / transform.scale
+                                      : dx === -1
+                                        ? -SPACING / transform.scale
+                                        : wPx / 2
+                                  const by =
+                                    dy === 1
+                                      ? hPx + SPACING / transform.scale
+                                      : dy === -1
+                                        ? -SPACING / transform.scale
+                                        : hPx / 2
+                                  return (
+                                    <BotonPlusMinimal
+                                      key={i}
+                                      x={bx}
+                                      y={by}
+                                      scaleFactor={transform.scale}
+                                      onClick={() => {
+                                        setTargetCoords({
+                                          x: m.x + dx,
+                                          y: m.y + dy,
+                                        })
+                                        setIsEditing(false)
+                                        setShowModal(true)
+                                      }}
+                                    />
+                                  )
+                                })}
+                            </Group>
+                          )
+                        })}
+                      </Layer>
+                    </Stage>
+                  )}
+                </div>
+              </ModalBody>
+
+              {/* FOOTER */}
+              <ModalFooter className='h-20 border-t border-zinc-800/50 bg-black/60 px-10'>
+                <div className='flex-1'>
+                  <span className='text-[10px] text-zinc-600 font-bold uppercase tracking-widest'>
+                    Módulos Totales
+                  </span>
+                  <div className='text-xl font-mono font-bold text-zinc-200'>
+                    {modulos.length}
+                  </div>
+                </div>
+                <div className='flex gap-3'>
                   <Button
-                    className='bg-zinc-100 text-black font-black px-12 h-10 rounded-xl hover:bg-white transition-all shadow-lg'
-                    onPress={() => onClose()}
+                    variant='light'
+                    className='text-zinc-500 font-bold'
+                    onPress={onClose}
                   >
-                    FINALIZAR DISEÑO
+                    DESCARTAR
                   </Button>
+                  {/* <Button
+                    className='bg-white text-black font-bold px-10 rounded-xl'
+                    onPress={handleGuardarFinal}
+                  >
+                    GUARDAR CAMBIOS
+                  </Button> */}
+                  <ModalResumenDiseno />
                 </div>
               </ModalFooter>
             </>
@@ -466,48 +547,40 @@ export default function AberturaCompuesta() {
   )
 }
 
-const BotonPlus = ({
-  x,
-  y,
-  onClick,
-  scaleFactor,
-}: {
-  x: number
-  y: number
-  onClick: () => void
-  scaleFactor: number
-}) => {
-  const [isHovered, setIsHovered] = useState(false)
-  const size = 28 / scaleFactor
+// Subcomponente para los botones "+"
+const BotonPlusMinimal = ({ x, y, onClick, scaleFactor }: any) => {
+  const [hover, setHover] = useState(false)
+  const size = 32 / scaleFactor
   return (
     <Group
       x={x}
       y={y}
       offsetX={size / 2}
       offsetY={size / 2}
+      cursor='pointer'
       onClick={(e) => {
         e.cancelBubble = true
         onClick()
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       <Rect
         width={size}
         height={size}
-        fill={isHovered ? '#27272a' : '#111111'}
-        cornerRadius={4 / scaleFactor}
-        stroke={isHovered ? '#71717a' : '#3f3f46'}
+        fill={hover ? '#3f3f46' : '#18181b'}
+        stroke='#52525b'
         strokeWidth={1 / scaleFactor}
+        cornerRadius={8 / scaleFactor}
       />
       <Text
         text='+'
-        fill={isHovered ? '#ffffff' : '#a1a1aa'}
+        fill={hover ? '#fff' : '#71717a'}
         width={size}
         height={size}
         align='center'
         verticalAlign='middle'
-        fontSize={16 / scaleFactor}
+        fontSize={18 / scaleFactor}
         fontStyle='bold'
       />
     </Group>
