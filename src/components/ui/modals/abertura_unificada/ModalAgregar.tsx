@@ -113,7 +113,6 @@ function ModalAgregar({
       onClose={onClose}
       size='lg'
       scrollBehavior='inside'
-      // Backdrop-blur para que se note la profundidad sobre el editor
       backdrop='blur'
     >
       <ModalContent>
