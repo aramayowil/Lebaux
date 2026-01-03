@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom'
 
 import IndexPage from '@/pages/index'
-import CalculadorVidrioDVH from './pages/CalcVidrioDVH'
-import CotizarVentana from './pages/ventanaModena'
+import CalculadorVidrioDVH from '@/pages/calculadoraVidrioDVH'
+import CotizarVentana from '@/pages/ventanaModena'
 import BlogPage from '@/pages/arbol'
 import AboutPage from '@/pages/about'
 
