@@ -20,6 +20,7 @@ import { FiPlusCircle } from 'react-icons/fi'
 import ModalAbertura from './modals/ModalAbertura'
 import InputNameCliente from './inputs/inputNameCliente'
 import { BsThreeDotsVertical } from 'react-icons/bs'
+import useAberturasStore from '@/stores/useAberturasStore'
 
 export const columns = [
   { name: 'CANTIDAD', uid: 'cantidad' },
@@ -264,7 +265,7 @@ export default function App() {
         bottomContent={bottomContent}
         bottomContentPlacement='outside'
         classNames={{
-          wrapper: 'max-h-[382px]',
+          wrapper: 'max-h-95.5',
           table: 'min-w-max',
         }}
         selectionMode='single'

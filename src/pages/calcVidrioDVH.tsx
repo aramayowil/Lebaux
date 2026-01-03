@@ -50,7 +50,7 @@ const OPCIONES_CAMARA: Record<CamaraId, CamaraConfig> = {
   '12': { nombre: 'Cámara 12mm', precioML: 9200, valor: 12 },
 }
 
-const CalcVidrioDVH: FC = () => {
+const CalculadorVidrioDVH: FC = () => {
   const [dimensiones, setDimensiones] = useState<Dimensiones>({
     ancho: 1000,
     alto: 1000,
@@ -378,4 +378,4 @@ const FilaHero: FC<{
   </div>
 )
 
-export default CalcVidrioDVH
+export default CalculadorVidrioDVH

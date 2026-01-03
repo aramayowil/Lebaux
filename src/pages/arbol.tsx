@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Stage, Layer, Rect, Group, Line } from 'react-konva'
 import { v4 as uuidv4 } from 'uuid'
 
 const MARCO_GROSOR = 45 // Ajustado para que se vea más robusto como en la imagen
 const ESCALA_VISUAL = 0.22
 
-export default function EditorModenaTriColumna() {
+export default function Arbol() {
   const [anchoTotal, setAnchoTotal] = useState(900)
   const [altoTotal, setAltoTotal] = useState(2100)
   const [manoApertura, setManoApertura] = useState<'izq' | 'der'>('der') // Por defecto derecha como la imagen
@@ -24,69 +24,6 @@ export default function EditorModenaTriColumna() {
     tipoV: 'entero',
   })
 
-  // --- LÓGICA DE ACTUALIZACIÓN ---
-  const actualizarEstructura = (cambios: any) => {
-    setArbol((prev: any) => {
-      const s = { ...prev, ...cambios }
-      const netoW = anchoTotal - MARCO_GROSOR * 2
-      const netoH = altoTotal - MARCO_GROSOR * 2
-
-      // Re-generar estructura básica basada en los selects
-      let nuevaEstructura: any = {
-        id: 'root',
-        tipo: 'hoja',
-        revestimiento: 'Vidrio Float',
-      }
-
-      if (s.modoH === 'centrado') {
-        nuevaEstructura = genCentrado('division_h', s.cantH)
-      } else if (s.modoH === 'manual') {
-        nuevaEstructura = genHManual(s.manualH || '1000', netoH)
-      }
-
-      return { ...s, ...nuevaEstructura }
-    })
-  }
-
-  const genCentrado = (
-    tipo: 'division_h' | 'division_v',
-    cant: number,
-  ): any => {
-    const build = (n: number): any => {
-      if (n <= 0)
-        return { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' }
-      return {
-        id: uuidv4(),
-        tipo,
-        ratio: 1 / (n + 1),
-        hijoA: { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' },
-        hijoB: build(n - 1),
-      }
-    }
-    return build(cant)
-  }
-
-  const genHManual = (str: string, hMax: number): any => {
-    const alts = str
-      .split(',')
-      .map((h) => parseFloat(h))
-      .filter((h) => !isNaN(h))
-      .sort((a, b) => a - b)
-    const build = (list: number[], base: number): any => {
-      if (list.length === 0)
-        return { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' }
-      const ratio = (list[0] - base) / (hMax - base)
-      return {
-        id: uuidv4(),
-        tipo: 'division_h',
-        ratio,
-        hijoA: { id: uuidv4(), tipo: 'hoja', revestimiento: 'Vidrio Float' },
-        hijoB: build(list.slice(1), list[0]),
-      }
-    }
-    return build(alts, 0)
-  }
-
   const actualizarNodo = (id: string, data: any) => {
     const recursiveUpdate = (nodo: any): any => {
       if (nodo.id === id) return { ...nodo, ...data }
@@ -104,7 +41,7 @@ export default function EditorModenaTriColumna() {
   return (
     <div className='flex h-screen bg-[#f8fafc] font-sans overflow-hidden text-slate-800'>
       {/* SIDEBAR IZQUIERDO */}
-      <aside className='w-[300px] bg-white border-r border-slate-200 p-6 flex flex-col gap-6 shadow-sm'>
+      <aside className='w-75 bg-white border-r border-slate-200 p-6 flex flex-col gap-6 shadow-sm'>
         <div>
           <h1 className='text-xs font-black text-blue-600 uppercase tracking-widest mb-4'>
             Configuración Real
@@ -214,7 +151,7 @@ export default function EditorModenaTriColumna() {
       </main>
 
       {/* SIDEBAR DERECHO */}
-      <aside className='w-[300px] bg-white border-l border-slate-200 p-6 overflow-y-auto'>
+      <aside className='w-75 bg-white border-l border-slate-200 p-6 overflow-y-auto'>
         <h2 className='text-xs font-black text-emerald-600 uppercase tracking-widest mb-4'>
           Componentes
         </h2>
