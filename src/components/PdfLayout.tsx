@@ -99,7 +99,7 @@ function PDF({
             src='./images/LEBAUX-LOGO.png'
             style={{ width: 180, height: 45 }}
           />
-          <Text style={{ fontSize: 26, fontWeight: 'bold', color: '#eba434' }}>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#eba434' }}>
             PRESUPUESTO
           </Text>
         </View>
