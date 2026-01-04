@@ -20,7 +20,7 @@ import {
   HiOutlineCube,
   HiOutlineTag,
   HiOutlineColorSwatch,
-  HiOutlineSparkles, // Icono para Vidrio
+  HiOutlineSparkles,
 } from 'react-icons/hi'
 import { SiGitforwindows } from 'react-icons/si'
 import ViewDesignCompuesto from './ViewDesignCompuesto'
@@ -28,23 +28,25 @@ import { colors } from '@/models/IColors'
 import { vidrios } from '@/models/IVidrios'
 import Abertura_Compuesta from '@/class/Abertura_Compuesta.class'
 
-// --- INTERFACES ---
+// --- INTERFACES ACTUALIZADAS ---
 interface Modulo {
   id: string
   x: number
   y: number
-  linea: string
-  abertura: string
-  descripcion: string
-  ancho: number
-  alto: number
-  imgSrc: string
-  color: string
-  vidrio: string
-  cantidad: number
-  precio: number
-  mosquitero: { checked: boolean; precio: number }
-  premarco: { checked: boolean; precio: number }
+  abertura: {
+    linea: string
+    abertura: string
+    descripcion: string
+    ancho: number
+    altura: number
+    imgSrc: string
+    color: string
+    vidrio: string
+    cantidad: number
+    precio: number
+    mosquitero: { checked: boolean; precio: number }
+    premarco: { checked: boolean; precio: number }
+  }
 }
 
 const STORAGE_KEY = 'diseno_modulos_compuesta'
@@ -53,33 +55,6 @@ export default function ModalResumenDiseno() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [datos, setDatos] = useState<Modulo[]>([])
 
-  const createAberturaCompuesta = () => {
-    // 1. Calculamos las medidas totales (el envolvente de todos los módulos)
-    const anchoTotal = Math.max(...datos.map((m) => m.x + m.ancho))
-    const altoTotal = Math.max(...datos.map((m) => m.y + m.alto))
-
-    // 2. Creamos la instancia de la clase
-    const nuevaAberturaCompuesta = new Abertura_Compuesta(
-      'Abertura compuesta',
-      `Composición de ${datos.length} módulos`,
-      `COMP-${Date.now()}`,
-      { base: anchoTotal, altura: altoTotal },
-      '',
-      '',
-      {
-        aberturas: datos as any, // Mapeo de tus módulos a la interfaz IAbertura
-        x: anchoTotal,
-        y: altoTotal,
-      },
-      1,
-      totalGeneral,
-    )
-
-    // 3. Usamos el método de la clase para persistir
-    // nuevaAberturaCompuesta.guardar()
-
-    alert('¡Composición guardada con éxito!')
-  }
   useEffect(() => {
     if (isOpen) {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -87,10 +62,16 @@ export default function ModalResumenDiseno() {
     }
   }, [isOpen])
 
-  const actualizarModulo = (id: string, campo: keyof Modulo, valor: any) => {
+  // --- MANEJADORES CORREGIDOS ---
+
+  const actualizarModulo = (id: string, campo: string, valor: any) => {
     const nuevosDatos = datos.map((mod) => {
       if (mod.id === id) {
-        return { ...mod, [campo]: valor }
+        // Actualizamos dentro del objeto anidado 'abertura'
+        return {
+          ...mod,
+          abertura: { ...mod.abertura, [campo]: valor },
+        }
       }
       return mod
     })
@@ -99,13 +80,39 @@ export default function ModalResumenDiseno() {
   }
 
   const totalGeneral = datos.reduce((acc, mod) => {
+    const ab = mod.abertura
     const subtotal =
-      (mod.precio +
-        (mod.mosquitero.checked ? mod.mosquitero.precio : 0) +
-        (mod.premarco.checked ? mod.premarco.precio : 0)) *
-      mod.cantidad
-    return acc + subtotal
+      (ab.precio +
+        (ab.mosquitero.checked ? ab.mosquitero.precio : 0) +
+        (ab.premarco.checked ? ab.premarco.precio : 0)) *
+      ab.cantidad
+    return acc + (subtotal || 0)
   }, 0)
+
+  const createAberturaCompuesta = () => {
+    if (datos.length === 0) return
+
+    const anchoTotal = Math.max(...datos.map((m) => m.x + m.abertura.ancho))
+    const alturaTotal = Math.max(...datos.map((m) => m.y + m.abertura.altura))
+
+    const nuevaAberturaCompuesta = new Abertura_Compuesta(
+      'Abertura compuesta',
+      `Composición de ${datos.length} módulos`,
+      `COMP-${Date.now()}`,
+      { base: anchoTotal, altura: alturaTotal },
+      '',
+      '',
+      {
+        aberturas: datos as any,
+        x: anchoTotal,
+        y: alturaTotal,
+      },
+      1,
+      totalGeneral,
+    )
+
+    alert('¡Composición generada con éxito!')
+  }
 
   return (
     <>
@@ -151,25 +158,25 @@ export default function ModalResumenDiseno() {
 
                     {datos.length === 0 ? (
                       <div className='text-zinc-600 italic text-center py-10'>
-                        No hay módulos guardados.
+                        No hay módulos.
                       </div>
                     ) : (
-                      datos.map((mod, index) => (
+                      datos.map((mod) => (
                         <Accordion
-                          key={mod.id || index}
+                          key={mod.id}
                           variant='splitted'
                           isCompact
                           className='px-0'
                         >
                           <AccordionItem
-                            aria-label={mod.abertura}
                             title={
                               <div className='flex flex-col'>
                                 <span className='text-sm font-bold text-zinc-200'>
-                                  {mod.descripcion}
+                                  {mod.abertura.descripcion}
                                 </span>
                                 <span className='text-[10px] text-zinc-500 uppercase'>
-                                  {mod.linea} • {mod.ancho} x {mod.alto} mm
+                                  {mod.abertura.linea} • {mod.abertura.ancho} x{' '}
+                                  {mod.abertura.altura} mm
                                 </span>
                               </div>
                             }
@@ -178,48 +185,41 @@ export default function ModalResumenDiseno() {
                                 <HiOutlineCube size={18} />
                               </div>
                             }
-                            className='bg-zinc-900/40 border border-zinc-800/50 mb-2 overflow-hidden'
+                            className='bg-zinc-900/40 border border-zinc-800/50 mb-2'
                           >
                             <div className='flex flex-col gap-4 pb-4 px-1'>
                               <Divider className='bg-zinc-800/50' />
 
-                              {/* SELECTS E INPUTS CON ICONOS */}
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                                 <Select
-                                  label='Color del Perfil'
-                                  placeholder='Selecciona color'
+                                  label='Color'
                                   size='sm'
-                                  variant='flat'
                                   startContent={
                                     <HiOutlineColorSwatch className='text-blue-500' />
                                   }
-                                  disallowEmptySelection
-                                  selectedKeys={mod.color ? [mod.color] : []}
+                                  selectedKeys={[mod.abertura.color]}
                                   onSelectionChange={(keys) =>
                                     actualizarModulo(
                                       mod.id,
                                       'color',
-                                      Array.from(keys)[0], // Tomamos el primer (y único) valor del Set
+                                      Array.from(keys)[0],
                                     )
                                   }
                                 >
-                                  {colors.map((color) => (
-                                    <SelectItem key={color.key}>
-                                      {color.label}
+                                  {colors.map((c) => (
+                                    <SelectItem key={c.key}>
+                                      {c.label}
                                     </SelectItem>
                                   ))}
                                 </Select>
 
                                 <Select
-                                  label='Tipo de Vidrio'
-                                  placeholder='Selecciona vidrio'
+                                  label='Vidrio'
                                   size='sm'
-                                  variant='flat'
-                                  disallowEmptySelection
                                   startContent={
                                     <HiOutlineSparkles className='text-cyan-400' />
                                   }
-                                  selectedKeys={mod.vidrio ? [mod.vidrio] : []}
+                                  selectedKeys={[mod.abertura.vidrio]}
                                   onSelectionChange={(keys) =>
                                     actualizarModulo(
                                       mod.id,
@@ -228,9 +228,9 @@ export default function ModalResumenDiseno() {
                                     )
                                   }
                                 >
-                                  {vidrios.map((vidrio) => (
-                                    <SelectItem key={vidrio.key}>
-                                      {vidrio.label}
+                                  {vidrios.map((v) => (
+                                    <SelectItem key={v.key}>
+                                      {v.label}
                                     </SelectItem>
                                   ))}
                                 </Select>
@@ -239,11 +239,10 @@ export default function ModalResumenDiseno() {
                                   type='number'
                                   label='Precio Unitario'
                                   size='sm'
-                                  variant='flat'
                                   startContent={
                                     <HiOutlineTag className='text-emerald-500' />
                                   }
-                                  value={mod.precio.toString()}
+                                  value={mod.abertura.precio.toString()}
                                   onValueChange={(val) =>
                                     actualizarModulo(
                                       mod.id,
@@ -260,80 +259,50 @@ export default function ModalResumenDiseno() {
                                       Medidas
                                     </span>
                                     <span className='text-sm font-mono text-zinc-300'>
-                                      {mod.ancho}x{mod.alto} mm
+                                      {mod.abertura.ancho}x{mod.abertura.altura}
+                                      mm
                                     </span>
                                   </div>
                                 </div>
                               </div>
 
-                              {/* ADICIONALES */}
                               <div className='flex flex-wrap gap-2'>
                                 <Chip
                                   size='sm'
                                   variant='dot'
                                   color={
-                                    mod.mosquitero.checked
+                                    mod.abertura.mosquitero.checked
                                       ? 'success'
                                       : 'default'
                                   }
-                                  className={`cursor-pointer transition-opacity ${!mod.mosquitero.checked && 'opacity-40'}`}
+                                  className='cursor-pointer'
                                   onClick={() =>
                                     actualizarModulo(mod.id, 'mosquitero', {
-                                      ...mod.mosquitero,
-                                      checked: !mod.mosquitero.checked,
+                                      ...mod.abertura.mosquitero,
+                                      checked: !mod.abertura.mosquitero.checked,
                                     })
                                   }
                                 >
-                                  Mosquitero{' '}
-                                  {mod.mosquitero.checked &&
-                                    `+$${mod.mosquitero.precio}`}
+                                  Mosquitero
                                 </Chip>
-
                                 <Chip
                                   size='sm'
                                   variant='dot'
                                   color={
-                                    mod.premarco.checked ? 'primary' : 'default'
+                                    mod.abertura.premarco.checked
+                                      ? 'primary'
+                                      : 'default'
                                   }
-                                  className={`cursor-pointer transition-opacity ${!mod.premarco.checked && 'opacity-40'}`}
+                                  className='cursor-pointer'
                                   onClick={() =>
                                     actualizarModulo(mod.id, 'premarco', {
-                                      ...mod.premarco,
-                                      checked: !mod.premarco.checked,
+                                      ...mod.abertura.premarco,
+                                      checked: !mod.abertura.premarco.checked,
                                     })
                                   }
                                 >
-                                  Premarco{' '}
-                                  {mod.premarco.checked &&
-                                    `+$${mod.premarco.precio}`}
+                                  Premarco
                                 </Chip>
-
-                                <Chip
-                                  size='sm'
-                                  variant='flat'
-                                  className='ml-auto bg-zinc-800 text-zinc-300'
-                                >
-                                  Cant: {mod.cantidad}
-                                </Chip>
-                              </div>
-
-                              <div className='bg-blue-600/10 p-3 rounded-xl flex justify-between items-center border border-blue-500/20'>
-                                <span className='text-[10px] text-blue-400 font-bold uppercase tracking-widest'>
-                                  Subtotal Item
-                                </span>
-                                <span className='text-md font-bold text-blue-400'>
-                                  ${' '}
-                                  {(
-                                    (mod.precio +
-                                      (mod.mosquitero.checked
-                                        ? mod.mosquitero.precio
-                                        : 0) +
-                                      (mod.premarco.checked
-                                        ? mod.premarco.precio
-                                        : 0)) *
-                                    mod.cantidad
-                                  ).toLocaleString()}
-                                </span>
                               </div>
                             </div>
                           </AccordionItem>
@@ -362,14 +331,14 @@ export default function ModalResumenDiseno() {
                   <Button
                     variant='light'
                     onPress={onClose}
-                    className='text-zinc-400 font-medium'
+                    className='text-zinc-400'
                   >
                     Cerrar
                   </Button>
                   <Button
                     color='primary'
                     className='font-bold px-8'
-                    variant='shadow'
+                    onPress={createAberturaCompuesta}
                   >
                     Confirmar y Exportar
                   </Button>

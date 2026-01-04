@@ -12,15 +12,17 @@ import {
 import { useImage } from 'react-konva-utils'
 import { HiOutlineEye } from 'react-icons/hi'
 
-// --- INTERFACES ---
+// --- INTERFACES ACTUALIZADAS ---
 interface Modulo {
   id: string
   x: number
   y: number
-  ancho: number
-  alto: number
-  imgSrc: string
-  [key: string]: any
+  abertura: {
+    ancho: number
+    altura: number
+    imgSrc: string
+    [key: string]: any
+  }
 }
 
 const PREVIEW_SCALE = 0.15
@@ -43,10 +45,13 @@ export default function ViewDesignCompuesto({ datos }: { datos: Modulo[] }) {
   const [stageSize, setStageSize] = useState({ width: 400, height: 400 })
 
   // --- 1. CÁLCULO DE DIMENSIONES REALES (mm) ---
+  // Accedemos a m.abertura.ancho y m.abertura.alto
   const filas = Array.from(new Set(datos.map((m) => m.y)))
   const anchoTotalMM = Math.max(
     ...filas.map((y) =>
-      datos.filter((m) => m.y === y).reduce((acc, curr) => acc + curr.ancho, 0),
+      datos
+        .filter((m) => m.y === y)
+        .reduce((acc, curr) => acc + curr.abertura.ancho, 0),
     ),
     0,
   )
@@ -54,29 +59,43 @@ export default function ViewDesignCompuesto({ datos }: { datos: Modulo[] }) {
   const columnas = Array.from(new Set(datos.map((m) => m.x)))
   const altoTotalMM = Math.max(
     ...columnas.map((x) =>
-      datos.filter((m) => m.x === x).reduce((acc, curr) => acc + curr.alto, 0),
+      datos
+        .filter((m) => m.x === x)
+        .reduce((acc, curr) => acc + curr.abertura.altura, 0),
     ),
     0,
   )
 
   // --- 2. CÁLCULO DE ESCALAS Y POSICIONES (px) ---
-  const minX = Math.min(...datos.map((m) => m.x * (m.ancho * PREVIEW_SCALE)))
+  // Calculamos los límites usando la nueva estructura
+  const minX = Math.min(
+    ...datos.map((m) => m.x * (m.abertura.ancho * PREVIEW_SCALE)),
+    0,
+  )
   const maxX = Math.max(
     ...datos.map(
-      (m) => m.x * (m.ancho * PREVIEW_SCALE) + m.ancho * PREVIEW_SCALE,
+      (m) =>
+        m.x * (m.abertura.ancho * PREVIEW_SCALE) +
+        m.abertura.ancho * PREVIEW_SCALE,
     ),
+    0,
   )
-  const minY = Math.min(...datos.map((m) => m.y * (m.alto * PREVIEW_SCALE)))
+  const minY = Math.min(
+    ...datos.map((m) => m.y * (m.abertura.altura * PREVIEW_SCALE)),
+    0,
+  )
   const maxY = Math.max(
     ...datos.map(
-      (m) => m.y * (m.alto * PREVIEW_SCALE) + m.alto * PREVIEW_SCALE,
+      (m) =>
+        m.y * (m.abertura.altura * PREVIEW_SCALE) +
+        m.abertura.altura * PREVIEW_SCALE,
     ),
+    0,
   )
 
   const totalWidthPx = maxX - minX
   const totalHeightPx = maxY - minY
 
-  // Atributos de flecha idénticos a tu componente original
   const arrowAttr = {
     pointerLength: 8,
     pointerWidth: 6,
@@ -108,8 +127,7 @@ export default function ViewDesignCompuesto({ datos }: { datos: Modulo[] }) {
       className='flex-1 flex-col p-2 shadow-sm border-none bg-default-100/50 rounded-lg h-fit items-center w-full overflow-hidden'
     >
       <div className='flex w-full mt-2 mb-2 items-center justify-center gap-2'>
-        <HiOutlineEye size={17} />
-
+        <HiOutlineEye size={17} className='text-zinc-400' />
         <h2 className='text-xs font-bold text-white uppercase tracking-widest text-center'>
           Vista Previa de Composición
         </h2>
@@ -121,64 +139,68 @@ export default function ViewDesignCompuesto({ datos }: { datos: Modulo[] }) {
           {datos.map((m) => (
             <Group
               key={m.id}
-              x={m.x * (m.ancho * PREVIEW_SCALE)}
-              y={m.y * (m.alto * PREVIEW_SCALE)}
+              x={m.x * (m.abertura.ancho * PREVIEW_SCALE)}
+              y={m.y * (m.abertura.altura * PREVIEW_SCALE)}
             >
               <ImageContainer
-                src={m.imgSrc}
-                width={m.ancho * PREVIEW_SCALE}
-                height={m.alto * PREVIEW_SCALE}
+                src={m.abertura.imgSrc}
+                width={m.abertura.ancho * PREVIEW_SCALE}
+                height={m.abertura.altura * PREVIEW_SCALE}
               />
               <Rect
-                width={m.ancho * PREVIEW_SCALE}
-                height={m.alto * PREVIEW_SCALE}
+                width={m.abertura.ancho * PREVIEW_SCALE}
+                height={m.abertura.altura * PREVIEW_SCALE}
                 stroke='#3b82f6'
-                strokeWidth={0}
-                opacity={0.5}
+                strokeWidth={1}
+                opacity={0.2}
               />
             </Group>
           ))}
 
           {/* 2. COTA SUPERIOR (ANCHO TOTAL) */}
-          <Group y={-12}>
-            <Arrow
-              points={[0, 0, totalWidthPx, 0]}
-              {...arrowAttr}
-              pointerAtBeginning={true}
-              pointerAtEnding={true}
-            />
-            <Text
-              text={`${anchoTotalMM}`}
-              x={0}
-              y={-17}
-              width={totalWidthPx}
-              align='center'
-              fontSize={13}
-              fontStyle='bold'
-              fill='white'
-            />
-          </Group>
+          {datos.length > 0 && (
+            <Group y={-15}>
+              <Arrow
+                points={[0, 0, totalWidthPx, 0]}
+                {...arrowAttr}
+                pointerAtBeginning={true}
+                pointerAtEnding={true}
+              />
+              <Text
+                text={`${anchoTotalMM} mm`}
+                x={0}
+                y={-17}
+                width={totalWidthPx}
+                align='center'
+                fontSize={12}
+                fontStyle='bold'
+                fill='#a1a1aa'
+              />
+            </Group>
+          )}
 
           {/* 3. COTA LATERAL (ALTO TOTAL) */}
-          <Group x={totalWidthPx + 15}>
-            <Arrow
-              points={[0, 0, 0, totalHeightPx]}
-              {...arrowAttr}
-              pointerAtBeginning={true}
-              pointerAtEnding={true}
-            />
-            <Text
-              text={`${altoTotalMM}`}
-              x={18}
-              y={totalHeightPx / 2 - 19}
-              width={40}
-              rotation={90}
-              align='center'
-              fontSize={13}
-              fontStyle='bold'
-              fill='white'
-            />
-          </Group>
+          {datos.length > 0 && (
+            <Group x={totalWidthPx + 15}>
+              <Arrow
+                points={[0, 0, 0, totalHeightPx]}
+                {...arrowAttr}
+                pointerAtBeginning={true}
+                pointerAtEnding={true}
+              />
+              <Text
+                text={`${altoTotalMM} mm`}
+                x={18}
+                y={totalHeightPx / 2 - 20}
+                width={80}
+                rotation={90}
+                align='center'
+                fontSize={12}
+                fontStyle='bold'
+                fill='#a1a1aa'
+              />
+            </Group>
+          )}
         </Layer>
       </Stage>
     </Card>

@@ -18,7 +18,6 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import { SiMaterialdesignicons } from 'react-icons/si'
 import {
-  HiOutlineRefresh,
   HiOutlineTrash,
   HiX,
   HiAdjustments,
@@ -28,23 +27,29 @@ import { useImage } from 'react-konva-utils'
 import ModalAgregar from '@/components/ui/modals/abertura_unificada/ModalAgregar'
 import ModalResumenDiseno from './ModalConfirmar'
 
-// --- INTERFACES ---
-interface Modulo {
-  id: string
-  x: number // Posición lógica en la grilla
-  y: number // Posición lógica en la grilla
+// --- NUEVAS INTERFACES ---
+interface abertura {
   linea: string
   abertura: string
-  descripcion: string
-  ancho: number // Medida real en mm
-  alto: number // Medida real en mm
-  imgSrc: string
+  ancho: number
+  altura: number
   color: string
   vidrio: string
   cantidad: number
   precio: number
+  codigo: string
+  descripcion: string
   mosquitero: { checked: boolean; precio: number }
   premarco: { checked: boolean; precio: number }
+  imgSrc: string
+  variantKey: number
+}
+
+interface EstadoAbertura {
+  id: string // Agregado para tracking de React/Konva
+  abertura: abertura
+  x: number // Posición lógica
+  y: number // Posición lógica
 }
 
 const INITIAL_ESCALA = 0.2
@@ -52,6 +57,7 @@ const SPACING = 20
 const PADDING_STAGE = 100
 const STORAGE_KEY = 'diseno_modulos_compuesta'
 
+// Componente de Imagen optimizado para Konva
 const ImageContainer = ({
   src,
   width,
@@ -76,22 +82,41 @@ const ImageContainer = ({
 }
 
 export default function AberturaCompuesta() {
-  const [linea, setLinea] = useState<string>('Modena')
-  const [abertura, setAbertura] = useState<string>('')
-  const [descripcion, setDescripcion] = useState<string>('')
-  const [ancho, setAncho] = useState<number>(1000)
-  const [alto, setAlto] = useState<number>(1000)
-  const [imgSrc, setImgSrc] = useState<string>('')
-  const [color, setColor] = useState<string>('')
-  const [vidrio, setVidrio] = useState<string>('')
-  const [cantidad, setCantidad] = useState<number>(1)
-  const [precio, setPrecio] = useState<number>(0)
-  const [mosquitero, setMosquitero] = useState({ checked: false, precio: 0 })
-  const [premarco, setPremarco] = useState({ checked: false, precio: 0 })
+  // Estado principal: Array de aperturas configuradas
+  const [modulos, setModulos] = useState<EstadoAbertura[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
 
+  const [abertura, setAbertura] = useState<EstadoAbertura>({
+    id: '',
+    abertura: {
+      linea: 'modena',
+      abertura: '',
+      ancho: 1000,
+      altura: 1000,
+      color: 'blanco',
+      vidrio: 'float4mm',
+      cantidad: 1,
+      precio: 0,
+      codigo: '',
+      descripcion: '',
+      mosquitero: { checked: false, precio: 0 },
+      premarco: { checked: false, precio: 0 },
+      imgSrc: '',
+      variantKey: 0,
+    },
+    x: 0,
+    y: 0,
+  })
+
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [lastSaved, setLastSaved] = useState(false)
-
   const {
     isOpen: isThisOpen,
     onOpen: onThisOpen,
@@ -100,23 +125,7 @@ export default function AberturaCompuesta() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  // --- ESTADO DE MÓDULOS CON CARGA INICIAL ---
-  const [modulos, setModulos] = useState<Modulo[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      return saved ? JSON.parse(saved) : []
-    }
-    return []
-  })
-
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [targetCoords, setTargetCoords] = useState<{
-    x: number
-    y: number
-  } | null>(null)
-
-  // Guardado automático y feedback visual
+  // Guardado automático
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(modulos))
     setLastSaved(true)
@@ -146,24 +155,27 @@ export default function AberturaCompuesta() {
   const obtenerPosicionVisual = (coordX: number, coordY: number) => {
     let visualX = 0,
       visualY = 0
-    // Lógica para calcular posición basada en el ancho/alto de los módulos vecinos
     if (coordX > 0) {
       for (let i = 0; i < coordX; i++)
         visualX +=
-          (modulos.find((m) => m.x === i)?.ancho || 1000) * INITIAL_ESCALA
+          (modulos.find((m) => m.x === i)?.abertura.ancho || 1000) *
+          INITIAL_ESCALA
     } else if (coordX < 0) {
       for (let i = -1; i >= coordX; i--)
         visualX -=
-          (modulos.find((m) => m.x === i)?.ancho || 1000) * INITIAL_ESCALA
+          (modulos.find((m) => m.x === i)?.abertura.ancho || 1000) *
+          INITIAL_ESCALA
     }
     if (coordY > 0) {
       for (let j = 0; j < coordY; j++)
         visualY +=
-          (modulos.find((m) => m.y === j)?.alto || 1000) * INITIAL_ESCALA
+          (modulos.find((m) => m.y === j)?.abertura.altura || 1000) *
+          INITIAL_ESCALA
     } else if (coordY < 0) {
       for (let j = -1; j >= coordY; j--)
         visualY -=
-          (modulos.find((m) => m.y === j)?.alto || 1000) * INITIAL_ESCALA
+          (modulos.find((m) => m.y === j)?.abertura.altura || 1000) *
+          INITIAL_ESCALA
     }
     return { x: visualX, y: visualY }
   }
@@ -175,9 +187,9 @@ export default function AberturaCompuesta() {
       const pos = obtenerPosicionVisual(m.x, m.y)
       return {
         l: pos.x,
-        r: pos.x + m.ancho * INITIAL_ESCALA,
+        r: pos.x + m.abertura.ancho * INITIAL_ESCALA,
         t: pos.y,
-        b: pos.y + m.alto * INITIAL_ESCALA,
+        b: pos.y + m.abertura.altura * INITIAL_ESCALA,
       }
     })
     const minX = Math.min(...bounds.map((b) => b.l)),
@@ -204,67 +216,20 @@ export default function AberturaCompuesta() {
     }
   }, [modulos, dimensions])
 
-  const handleReset = () => {
-    if (window.confirm('¿Restablecer el lienzo de trabajo?')) {
-      setModulos([])
-      setSelectedId(null)
-      localStorage.removeItem(STORAGE_KEY)
-    }
-  }
-
   const handleConfirmarModulo = () => {
     if (isEditing) {
       setModulos(
         modulos.map((m) =>
-          m.id === selectedId
-            ? {
-                ...m,
-                linea,
-                abertura,
-                descripcion,
-                ancho,
-                alto,
-                imgSrc,
-                color,
-                vidrio,
-                cantidad,
-                precio,
-                mosquitero,
-                premarco,
-              }
-            : m,
+          m.id === selectedId ? { ...abertura, id: m.id } : m,
         ),
       )
     } else {
-      const coords = targetCoords || { x: 0, y: 0 }
-      const nuevo: Modulo = {
-        id: uuidv4(),
-        x: coords.x,
-        y: coords.y,
-        linea,
-        abertura,
-        descripcion,
-        ancho,
-        alto,
-        imgSrc,
-        color,
-        vidrio,
-        cantidad,
-        precio,
-        mosquitero: { checked: false, precio: 0 },
-        premarco: { checked: false, precio: 0 },
-      }
+      const nuevo: EstadoAbertura = { ...abertura, id: uuidv4() }
       setModulos([...modulos, nuevo])
       setSelectedId(nuevo.id)
     }
     setShowModal(false)
   }
-
-  // --- FUNCIÓN DE GUARDADO FINAL ---
-  // const handleGuardarFinal = () => {
-  //   localStorage.setItem(STORAGE_KEY, JSON.stringify(modulos))
-  //   onThisOpenChange() // Cerrar modal
-  // }
 
   return (
     <>
@@ -280,18 +245,10 @@ export default function AberturaCompuesta() {
         <ModalAgregar
           onClose={() => setShowModal(false)}
           handleConfirmarModulo={handleConfirmarModulo}
-          setLinea={setLinea}
-          setAbertura={setAbertura}
-          setDescripcion={setDescripcion}
-          setAncho={setAncho}
-          setAlto={setAlto}
-          setImgSrc={setImgSrc}
-          setColor={setColor}
-          setVidrio={setVidrio}
-          setCantidad={setCantidad}
-          setPrecio={setPrecio}
-          setMosquitero={setMosquitero}
-          setPremarco={setPremarco}
+          abertura={abertura.abertura}
+          setAbertura={(nuevaAbertura) => {
+            setAbertura((prev) => ({ ...prev, abertura: nuevaAbertura }))
+          }}
         />
       )}
 
@@ -299,7 +256,7 @@ export default function AberturaCompuesta() {
         isOpen={isThisOpen}
         onOpenChange={onThisOpenChange}
         size='full'
-        classNames={{ base: 'bg-[#0c0c0e] text-zinc-100', wrapper: 'p-0' }}
+        classNames={{ base: 'bg-[#0c0c0e] text-zinc-100' }}
         hideCloseButton
       >
         <ModalContent>
@@ -310,10 +267,7 @@ export default function AberturaCompuesta() {
                 <div className='flex items-center gap-4'>
                   <HiAdjustments className='text-zinc-500' size={20} />
                   <h2 className='text-sm font-bold tracking-0.1em text-zinc-200 uppercase'>
-                    Composición de Aberturas{' '}
-                    <span className='text-zinc-600 ml-2 font-mono text-xs'>
-                      v3.0
-                    </span>
+                    Composición de Aberturas
                   </h2>
                   {lastSaved && (
                     <div className='flex items-center gap-1 text-[10px] text-emerald-500 font-bold animate-pulse'>
@@ -323,18 +277,6 @@ export default function AberturaCompuesta() {
                 </div>
 
                 <div className='flex items-center gap-3'>
-                  {modulos.length > 0 && (
-                    <Button
-                      size='sm'
-                      variant='bordered'
-                      className='border-zinc-800 text-zinc-500 hover:text-red-400 px-4 font-bold'
-                      startContent={<HiOutlineRefresh size={14} />}
-                      onPress={handleReset}
-                    >
-                      Limpiar
-                    </Button>
-                  )}
-
                   {selectedId && (
                     <div className='flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-lg'>
                       <Button
@@ -344,17 +286,7 @@ export default function AberturaCompuesta() {
                         onPress={() => {
                           const m = modulos.find((mod) => mod.id === selectedId)
                           if (m) {
-                            setLinea(m.linea)
-                            setAbertura(m.abertura)
-                            setAncho(m.ancho)
-                            setAlto(m.alto)
-                            setImgSrc(m.imgSrc)
-                            setColor(m.color)
-                            setVidrio(m.vidrio)
-                            setCantidad(m.cantidad)
-                            setPrecio(m.precio)
-                            setMosquitero(m.mosquitero)
-                            setPremarco(m.premarco)
+                            setAbertura(m)
                             setIsEditing(true)
                             setShowModal(true)
                           }
@@ -376,7 +308,6 @@ export default function AberturaCompuesta() {
                       </Button>
                     </div>
                   )}
-
                   <Button
                     isIconOnly
                     variant='flat'
@@ -394,7 +325,7 @@ export default function AberturaCompuesta() {
                     <div className='flex h-full items-center justify-center'>
                       <Button
                         onPress={() => {
-                          setTargetCoords({ x: 0, y: 0 })
+                          setAbertura((prev) => ({ ...prev, x: 0, y: 0 }))
                           setIsEditing(false)
                           setShowModal(true)
                         }}
@@ -423,12 +354,12 @@ export default function AberturaCompuesta() {
                         {modulos.map((m) => {
                           const pos = obtenerPosicionVisual(m.x, m.y)
                           const isSel = selectedId === m.id
-                          const wPx = m.ancho * INITIAL_ESCALA,
-                            hPx = m.alto * INITIAL_ESCALA
+                          const wPx = m.abertura.ancho * INITIAL_ESCALA,
+                            hPx = m.abertura.altura * INITIAL_ESCALA
                           return (
                             <Group key={m.id} x={pos.x} y={pos.y}>
                               <ImageContainer
-                                src={m.imgSrc}
+                                src={m.abertura.imgSrc}
                                 width={wPx}
                                 height={hPx}
                               />
@@ -449,7 +380,7 @@ export default function AberturaCompuesta() {
                                 onClick={() => setSelectedId(m.id)}
                               />
                               <Text
-                                text={`${m.abertura}\n${m.ancho}x${m.alto}`}
+                                text={`${m.abertura.abertura}\n${m.abertura.ancho}x${m.abertura.altura}`}
                                 width={wPx}
                                 height={hPx}
                                 align='center'
@@ -493,10 +424,11 @@ export default function AberturaCompuesta() {
                                       y={by}
                                       scaleFactor={transform.scale}
                                       onClick={() => {
-                                        setTargetCoords({
+                                        setAbertura((prev) => ({
+                                          ...prev,
                                           x: m.x + dx,
                                           y: m.y + dy,
-                                        })
+                                        }))
                                         setIsEditing(false)
                                         setShowModal(true)
                                       }}
@@ -511,7 +443,6 @@ export default function AberturaCompuesta() {
                   )}
                 </div>
               </ModalBody>
-
               {/* FOOTER */}
               <ModalFooter className='h-20 border-t border-zinc-800/50 bg-black/60 px-10'>
                 <div className='flex-1'>
@@ -530,12 +461,6 @@ export default function AberturaCompuesta() {
                   >
                     DESCARTAR
                   </Button>
-                  {/* <Button
-                    className='bg-white text-black font-bold px-10 rounded-xl'
-                    onPress={handleGuardarFinal}
-                  >
-                    GUARDAR CAMBIOS
-                  </Button> */}
                   <ModalResumenDiseno />
                 </div>
               </ModalFooter>
