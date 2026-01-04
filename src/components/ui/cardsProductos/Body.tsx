@@ -134,13 +134,13 @@ export default function Body() {
                         variant='light'
                         radius='full'
                         size='sm'
-                        className='min-w-2 min-h-2 h-[26px] w-[26px]'
+                        className='min-w-2 min-h-2 h-6.5 w-6.5'
                       >
                         <IoIosInformationCircleOutline size={20} />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent>
-                      <div className='px-1 py-2 w-[190px]'>
+                      <div className='px-1 py-2 w-47.5'>
                         <div className='text-md font-bold mb-2'>Detalles</div>
                         <div className='flex flex-col'>
                           <div className='flex justify-between w-full'>

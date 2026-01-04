@@ -26,6 +26,7 @@ import { SiGitforwindows } from 'react-icons/si'
 import ViewDesignCompuesto from './ViewDesignCompuesto'
 import { colors } from '@/models/IColors'
 import { vidrios } from '@/models/IVidrios'
+import Abertura_Compuesta from '@/class/Abertura_Compuesta.class'
 
 // --- INTERFACES ---
 interface Modulo {
@@ -52,6 +53,33 @@ export default function ModalResumenDiseno() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [datos, setDatos] = useState<Modulo[]>([])
 
+  const createAberturaCompuesta = () => {
+    // 1. Calculamos las medidas totales (el envolvente de todos los módulos)
+    const anchoTotal = Math.max(...datos.map((m) => m.x + m.ancho))
+    const altoTotal = Math.max(...datos.map((m) => m.y + m.alto))
+
+    // 2. Creamos la instancia de la clase
+    const nuevaAberturaCompuesta = new Abertura_Compuesta(
+      'Abertura compuesta',
+      `Composición de ${datos.length} módulos`,
+      `COMP-${Date.now()}`,
+      { base: anchoTotal, altura: altoTotal },
+      '',
+      '',
+      {
+        aberturas: datos as any, // Mapeo de tus módulos a la interfaz IAbertura
+        x: anchoTotal,
+        y: altoTotal,
+      },
+      1,
+      totalGeneral,
+    )
+
+    // 3. Usamos el método de la clase para persistir
+    // nuevaAberturaCompuesta.guardar()
+
+    alert('¡Composición guardada con éxito!')
+  }
   useEffect(() => {
     if (isOpen) {
       const saved = localStorage.getItem(STORAGE_KEY)

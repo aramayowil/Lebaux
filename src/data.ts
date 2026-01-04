@@ -176,13 +176,19 @@ export const catalogo: Record<string, Linea[]> = {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 1 hoja C/Travesaño al medio & postigón',
-          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
+          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-POSTIGON.jpg',
         },
         {
           variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
-          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-POSTIGON.jpg',
+          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
+        },
+        {
+          variantKey: 2,
+          tab: 'Ciega C/Postigon',
+          descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
+          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_CIEGAYPOSTIGON.jpg',
         },
       ],
     },
@@ -569,6 +575,12 @@ export const catalogo: Record<string, Linea[]> = {
           descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
         },
+        {
+          variantKey: 2,
+          tab: 'Ciega C/Postigon',
+          descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
+          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_CIEGAYPOSTIGON.jpg',
+        },
       ],
     },
     {
@@ -678,32 +690,6 @@ export const catalogo: Record<string, Linea[]> = {
         },
       ],
     },
-
-    // {
-    //   id: 'puertaInyectada',
-    //   abertura: 'Puerta Inyectada',
-    //   prefijo: 'PTA-INJ',
-    //   variantes: [
-    //     {
-    //       tab: 'Puerta Inyectada',
-    //       descripcion: 'Puerta Inyectada',
-    //       img: './images/img-prueba3.jpg', // Placeholder image, replace with actual image path
-    //     },
-    //   ],
-    // },
-
-    // {
-    //   id: 'puertaBathroom',
-    //   abertura: 'Puerta de Baño',
-    //   prefijo: 'PTA-BATH',
-    //   variantes: [
-    //     {
-    //       tab: 'Puerta de Baño',
-    //       descripcion: 'Puerta de Baño',
-    //       img: './images/img-prueba3.jpg', // Placeholder image, replace with actual image path
-    //     },
-    //   ],
-    // },
     {
       id: 'aberturaCompuesta',
       abertura: 'Abertura Compuesta',
@@ -890,6 +876,12 @@ export const catalogo: Record<string, Linea[]> = {
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
           img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_C-TRAVESYPOSTIGON.jpg',
+        },
+        {
+          variantKey: 2,
+          tab: 'Ciega C/Postigon',
+          descripcion: 'Puerta 1 hoja C/Revestimiento & postigón',
+          img: './images/PUERTAS/1_HOJA/PUERTA_1H_1-2_CIEGAYPOSTIGON.jpg',
         },
       ],
     },
