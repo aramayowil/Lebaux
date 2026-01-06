@@ -39,6 +39,7 @@ import {
 } from 'react-icons/hi'
 import { useImage } from 'react-konva-utils'
 import ModalAgregar from './ModalAgregar'
+import colors from '@/models/IColors'
 
 // --- 1. IMPORTACIÓN DEL STORE ---
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
@@ -190,6 +191,7 @@ export default function AberturaCompuesta() {
   })
 
   const [cantidadCompuesta, setCantidadCompuesta] = useState(1)
+  const [color, setColor] = useState('blanco')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -363,8 +365,9 @@ export default function AberturaCompuesta() {
         './images/img-prueba3.jpg',
         imagenLimpia, // Aquí va la imagen sin textos ni botones
         modulos,
-        1,
+        cantidadCompuesta,
         totalGeneral,
+        color,
       )
 
       agregarAberturaComp(nuevaInstancia)
@@ -489,56 +492,112 @@ export default function AberturaCompuesta() {
                   )}
                 </div>
 
-                <div className='flex items-center gap-3'>
-                  {selectedId && (
-                    <div className='flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-xl shadow-xl'>
-                      <Button
-                        size='sm'
-                        variant='light'
-                        className='text-zinc-300 font-bold text-[10px]'
-                        onPress={() => {
-                          const m = modulos.find((mod) => mod.id === selectedId)
-                          if (m) {
-                            setAberturaActual(m)
-                            setIsEditing(true)
-                            setShowModal(true)
-                          }
-                        }}
-                      >
-                        MODIFICAR
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='light'
-                        color='danger'
-                        isIconOnly
-                        onPress={() => {
-                          setModulos(modulos.filter((m) => m.id !== selectedId))
-                          setSelectedId(null)
-                        }}
-                      >
-                        <HiOutlineTrash size={16} />
-                      </Button>
-                    </div>
-                  )}
-                  <Divider orientation='vertical' className='h-6 bg-zinc-800' />
-                  <Button
-                    size='sm'
-                    variant='flat'
-                    className='bg-zinc-900 text-zinc-500 font-bold text-[10px]'
-                    startContent={<HiOutlineRefresh />}
-                    onPress={() => setModulos([])}
-                  >
-                    RESETEAR
-                  </Button>
-                  <Button
-                    isIconOnly
-                    variant='flat'
-                    className='bg-zinc-900 text-zinc-500'
-                    onPress={onClose}
-                  >
-                    <HiX size={20} />
-                  </Button>
+                <div className='flex items-center gap-6'>
+                  {/* --- SELECT DE COLOR --- */}
+                  <div className='flex flex-col gap-1'>
+                    <span className='text-[9px] font-bold text-zinc-500 uppercase tracking-[0.2em] leading-none ml-1'>
+                      Color de Pintado
+                    </span>
+                    <Select
+                      size='sm'
+                      variant='bordered'
+                      placeholder='Seleccionar'
+                      className='w-44'
+                      disallowEmptySelection
+                      defaultSelectedKeys={[color]} // Selección por defecto
+                      onSelectionChange={(keys) => {
+                        const selectedKey = Array.from(keys)[0]
+                        if (selectedKey !== undefined) {
+                          setColor(String(selectedKey))
+                        }
+                      }}
+                      classNames={{
+                        trigger:
+                          'h-8 border-zinc-800 bg-zinc-900/50 min-h-unit-8',
+                        value: 'text-[10px] font-black uppercase text-zinc-200',
+                      }}
+                    >
+                      {colors.map((color) => (
+                        <SelectItem
+                          key={color.key}
+                          textValue={color.label}
+                          className='hover:bg-zinc-800'
+                        >
+                          <div className='flex items-center gap-2'>
+                            <div
+                              className={`w-2 h-2 rounded-full border border-white/10 ${
+                                color.key === 'blanco'
+                                  ? 'bg-white'
+                                  : color.key === 'negro'
+                                    ? 'bg-black'
+                                    : 'bg-zinc-500'
+                              }`}
+                            />
+                            <span className='text-[10px] font-bold uppercase text-zinc-300'>
+                              {color.label}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <Divider orientation='vertical' className='h-8 bg-zinc-800' />
+
+                  <div className='flex items-center gap-3'>
+                    {selectedId && (
+                      <div className='flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-xl shadow-xl'>
+                        <Button
+                          size='sm'
+                          variant='light'
+                          className='text-zinc-300 font-bold text-[10px]'
+                          onPress={() => {
+                            const m = modulos.find(
+                              (mod) => mod.id === selectedId,
+                            )
+                            if (m) {
+                              setAberturaActual(m)
+                              setIsEditing(true)
+                              setShowModal(true)
+                            }
+                          }}
+                        >
+                          MODIFICAR
+                        </Button>
+                        <Button
+                          size='sm'
+                          variant='light'
+                          color='danger'
+                          isIconOnly
+                          onPress={() => {
+                            setModulos(
+                              modulos.filter((m) => m.id !== selectedId),
+                            )
+                            setSelectedId(null)
+                          }}
+                        >
+                          <HiOutlineTrash size={16} />
+                        </Button>
+                      </div>
+                    )}
+                    <Button
+                      size='sm'
+                      variant='flat'
+                      className='bg-zinc-900 text-zinc-500 font-bold text-[10px]'
+                      startContent={<HiOutlineRefresh />}
+                      onPress={() => setModulos([])}
+                    >
+                      RESETEAR
+                    </Button>
+                    <Button
+                      isIconOnly
+                      variant='flat'
+                      className='bg-zinc-900 text-zinc-500'
+                      onPress={onClose}
+                    >
+                      <HiX size={20} />
+                    </Button>
+                  </div>
                 </div>
               </div>
 

@@ -11,6 +11,7 @@ export interface IAbertura_Compuesta {
   configuracion: IModulo[]
   cantidad: number
   precio: number
+  color: string
   getKey(): string
   calcularTotal(): number
 }

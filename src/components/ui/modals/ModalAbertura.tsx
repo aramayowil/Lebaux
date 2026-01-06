@@ -59,7 +59,7 @@ export default function ModalAbertura({
   } = useAberturasStore()
 
   const [form, setForm] = useState(INITIAL_FORM_STATE)
-  const isEditMode = aberturaKey !== null
+  const isEditMode = aberturaKey.trim() !== ''
 
   useEffect(() => {
     if (isOpen) {

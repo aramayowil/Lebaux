@@ -320,7 +320,7 @@ function PDF({
           })}
         </View>
 
-        {/* --- ITEMS ABERTURAS SIMPLES ---*/}
+        {/* --- ITEMS ABERTURAS COMPUESTAS ---*/}
         <View>
           {aberturasCompuestas.map((compuesta, index) => {
             const AREA_MAX_W = 230
@@ -424,7 +424,7 @@ function PDF({
                           marginBottom: 2,
                         }}
                       >
-                        {`${modulo.abertura.medidas?.altura} x ${modulo.abertura.medidas?.base} mm`}
+                        {`${modulo.abertura.ancho} x ${modulo.abertura.altura} mm`}
                       </Text>
                       <Text
                         style={{
@@ -466,11 +466,11 @@ function PDF({
                         {compuesta.medidas.base} x {compuesta.medidas.altura} mm
                       </Text>
                     </Text>
-                    {/* <Text style={{ fontSize: 10 }}>
+                    <Text style={{ fontSize: 10 }}>
                       Color:{' '}
                       {colors.find((c) => c.key === compuesta.color)?.label ||
                         compuesta.descripcion_abertura}
-                    </Text> */}
+                    </Text>
                     <Text style={{ fontSize: 10 }}>
                       Cantidad: {compuesta.cantidad}
                     </Text>

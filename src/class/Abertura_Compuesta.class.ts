@@ -13,6 +13,7 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
   configuracion: IModulo[]
   cantidad: number
   precio: number
+  color: string
 
   constructor(
     name_abertura: string,
@@ -24,6 +25,7 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
     configuracion: IModulo[],
     cantidad: number,
     precio: number,
+    color: string,
   ) {
     // Es vital asignar las propiedades antes de llamar a métodos que las usen
     this.name_abertura = name_abertura
@@ -35,6 +37,7 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
     this.configuracion = configuracion
     this.cantidad = cantidad
     this.precio = precio
+    this.color = color
 
     // Generamos la key única llamando al método obligatorio de la interfaz
     this.key = this.getKey()
