@@ -15,6 +15,7 @@ import PDF from '@/components/PdfLayout'
 import { pdf } from '@react-pdf/renderer'
 import useAberturasStore from '@/stores/useAberturasStore'
 import useBreakpoint from '@/config/breakpoints'
+import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 
 function obtenerFechaHoy() {
   const hoy = new Date()
@@ -36,10 +37,14 @@ type GeneratorPdfProps = {
     importeFinal: number
   }
 }
+
 function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
   const { isSm } = useBreakpoint()
   const [nameCliente, setNameCliente] = useState('')
   const aberturasStore = useAberturasStore((state) => state.aberturas)
+  const aberturasCompuestasStore = useAberturasCompuestasStore(
+    (state) => state.aberturasComps,
+  )
   const [isLoading, setIsLoading] = useState(false)
   const handleLoading = (loading: boolean) => {
     setIsLoading(loading)
@@ -56,6 +61,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
     const blob: Blob = await pdf(
       <PDF
         aberturas={aberturasStore}
+        aberturasCompuestas={aberturasCompuestasStore}
         totalCompra={totalCompra}
         descuentoCalculado={descuentoCalculado}
         ivaCalculado={ivaCalculado}

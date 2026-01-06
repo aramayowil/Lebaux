@@ -45,6 +45,7 @@ import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 import Abertura_Compuesta from '@/class/Abertura_Compuesta.class'
 
 // --- CONSTANTES DE CONFIGURACIÓN ---
+const COLOR = '#f5a524'
 const INITIAL_ESCALA = 0.2
 const SPACING = 20
 const PADDING_STAGE = 100
@@ -116,6 +117,7 @@ const BotonPlusMinimal = ({ x, y, onClick, scaleFactor }: any) => {
   const size = 32 / scaleFactor
   return (
     <Group
+      name='boton-agregar'
       x={x}
       y={y}
       offsetX={size / 2}
@@ -132,13 +134,13 @@ const BotonPlusMinimal = ({ x, y, onClick, scaleFactor }: any) => {
         width={size}
         height={size}
         fill={hover ? '#3f3f46' : '#18181b'}
-        stroke='#10b981'
+        stroke={COLOR}
         strokeWidth={1 / scaleFactor}
         cornerRadius={8 / scaleFactor}
       />
       <Text
         text='+'
-        fill={hover ? '#fff' : '#10b981'}
+        fill={hover ? '#fff' : COLOR}
         width={size}
         height={size}
         align='center'
@@ -187,6 +189,7 @@ export default function AberturaCompuesta() {
     y: 0,
   })
 
+  const [cantidadCompuesta, setCantidadCompuesta] = useState(1)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -196,16 +199,58 @@ export default function AberturaCompuesta() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
+  // const generarImagenBase64 = () => {
+  //   if (stageRef.current) {
+  //     // 1. Obtenemos el Data URL
+  //     // pixelRatio: 2 mejora la calidad (es como un screenshot en 2k)
+  //     const dataUrl = stageRef.current.toDataURL({
+  //       pixelRatio: 2,
+  //       mimeType: 'image/png',
+  //     })
+
+  //     return dataUrl // Esto es el string Base64
+  //   }
+  //   return null
+  // }
   const generarImagenBase64 = () => {
     if (stageRef.current) {
-      // 1. Obtenemos el Data URL
-      // pixelRatio: 2 mejora la calidad (es como un screenshot en 2k)
-      const dataUrl = stageRef.current.toDataURL({
-        pixelRatio: 2,
-        mimeType: 'image/png',
+      const layer = stageRef.current.findOne('Layer')
+      if (!layer) return null
+
+      // 1. Calculamos el área ocupada SOLO por los rectángulos y las imágenes
+      const box = layer.getClientRect({
+        skipTransform: false,
+        skipShadow: true,
+        // Filtro estricto: solo tomamos en cuenta los módulos de abertura
+        callback: (node: any) => {
+          const isText = node.className === 'Text'
+          const isButton = node.name() === 'boton-agregar'
+          // Retornamos falso para ignorar estos elementos en el cálculo del tamaño
+          return !isText && !isButton
+        },
       })
 
-      return dataUrl // Esto es el string Base64
+      // 2. Antes de capturar, ocultamos temporalmente los textos y botones
+      const textNodes = stageRef.current.find('Text')
+      const buttonNodes = stageRef.current.find('.boton-agregar')
+
+      textNodes.forEach((n: any) => n.hide())
+      buttonNodes.forEach((n: any) => n.hide())
+
+      // 3. Capturamos el área recortada
+      const dataUrl = stageRef.current.toDataURL({
+        x: box.x,
+        y: box.y,
+        width: box.width,
+        height: box.height,
+        pixelRatio: 2,
+      })
+
+      // 4. Volvemos a mostrar todo para que el usuario siga viendo la interfaz
+      textNodes.forEach((n: any) => n.show())
+      buttonNodes.forEach((n: any) => n.show())
+
+      return dataUrl
     }
     return null
   }
@@ -302,23 +347,29 @@ export default function AberturaCompuesta() {
   const handleFinalizarComposicion = (onClose: () => void) => {
     if (modulos.length === 0) return
 
-    const { anchoTotal, altoTotal } = calcularDimensionesTotales()
+    // 1. Limpiamos selección para que no salga el recuadro verde de "editando"
+    setSelectedId(null)
 
-    const nuevaInstancia = new Abertura_Compuesta(
-      `Composición ${modulos.length} mod.`,
-      `Composición ${modulos.length} mod.`,
-      'COMP',
-      { base: anchoTotal, altura: altoTotal },
-      './images/img-prueba3.jpg',
-      generarImagenBase64(),
-      modulos,
-      1,
-      totalGeneral,
-    )
+    // 2. Pequeño delay para asegurar que el estado de Konva se actualice sin el borde verde
+    setTimeout(() => {
+      const { anchoTotal, altoTotal } = calcularDimensionesTotales()
+      const imagenLimpia = generarImagenBase64()
 
-    agregarAberturaComp(nuevaInstancia)
-    alert('Diseño guardado correctamente.')
-    onClose() // Cerramos el modal
+      const nuevaInstancia = new Abertura_Compuesta(
+        `Composición ${modulos.length} mod.`,
+        `Composición ${modulos.length} mod.`,
+        'COMP',
+        { base: anchoTotal, altura: altoTotal },
+        './images/img-prueba3.jpg',
+        imagenLimpia, // Aquí va la imagen sin textos ni botones
+        modulos,
+        1,
+        totalGeneral,
+      )
+
+      agregarAberturaComp(nuevaInstancia)
+      onClose()
+    }, 60)
   }
 
   const obtenerPosicionVisual = (coordX: number, coordY: number) => {
@@ -404,12 +455,14 @@ export default function AberturaCompuesta() {
     <>
       <Button
         onPress={onOpen}
-        color='primary'
-        variant='faded'
-        startContent={<HiOutlineViewGrid size={20} />}
-        className='font-bold'
+        color='warning'
+        variant='flat' // El fondo es suave y traslúcido
+        startContent={
+          <HiOutlineViewGrid size={20} className='text-warning-500' />
+        }
+        className='font-bold border-1 border-warning/20 bg-warning/10 backdrop-blur-md hover:bg-warning/20 transition-all'
       >
-        ABRIR CONFIGURADOR
+        Diseñar Abertura
       </Button>
 
       <Modal
@@ -430,7 +483,7 @@ export default function AberturaCompuesta() {
                     Composición Técnica
                   </h2>
                   {lastSaved && (
-                    <div className='flex items-center gap-1 text-[9px] text-emerald-500 font-bold animate-pulse'>
+                    <div className='flex items-center gap-1 text-[9px] text-warning font-bold animate-pulse'>
                       <HiCheckCircle size={14} /> AUTOGUARDADO
                     </div>
                   )}
@@ -514,43 +567,24 @@ export default function AberturaCompuesta() {
                           >
                             {modulos.map((mod) => (
                               <AccordionItem
-                                key={mod.id}
-                                aria-label={mod.abertura.descripcion}
-                                onPress={() => setSelectedId(mod.id)}
                                 title={
                                   <div className='flex flex-col'>
                                     <span
-                                      className={`text-sm font-bold ${
-                                        selectedId === mod.id
-                                          ? 'text-emerald-400'
-                                          : 'text-zinc-200'
-                                      }`}
+                                      className={`text-sm font-bold ${selectedId === mod.id ? 'text-warning' : 'text-zinc-200'}`}
                                     >
                                       {mod.abertura.abertura || 'Sin nombre'}
                                     </span>
-                                    <span className='text-[10px] text-zinc-500 uppercase'>
-                                      {mod.abertura.linea} •{' '}
-                                      {mod.abertura.ancho}x{mod.abertura.altura}{' '}
-                                      mm
-                                    </span>
+                                    {/* ... */}
                                   </div>
                                 }
                                 startContent={
                                   <div
-                                    className={`p-2 rounded-lg ${
-                                      selectedId === mod.id
-                                        ? 'bg-emerald-500/20 text-emerald-400'
-                                        : 'bg-blue-500/10 text-blue-400'
-                                    }`}
+                                    className={`p-2 rounded-lg ${selectedId === mod.id ? 'bg-warning/20 text-warning' : 'bg-zinc-800 text-zinc-400'}`}
                                   >
                                     <HiOutlineCube size={18} />
                                   </div>
                                 }
-                                className={`bg-zinc-900/40 border transition-all mb-2 ${
-                                  selectedId === mod.id
-                                    ? 'border-emerald-500/50'
-                                    : 'border-zinc-800/50'
-                                }`}
+                                className={`bg-zinc-900/40 border transition-all mb-2 ${selectedId === mod.id ? 'border-warning/50' : 'border-zinc-800/50'}`}
                               >
                                 <div className='flex flex-col gap-4 pb-4 px-1'>
                                   <Divider className='bg-zinc-800/50' />
@@ -739,7 +773,7 @@ export default function AberturaCompuesta() {
                                         ? 'rgba(16, 185, 129, 0.05)'
                                         : 'transparent'
                                     }
-                                    stroke={isSel ? '#10b981' : '#3f3f46'}
+                                    stroke={isSel ? COLOR : '#3f3f46'}
                                     strokeWidth={
                                       isSel
                                         ? 2 / transform.scale
@@ -748,6 +782,7 @@ export default function AberturaCompuesta() {
                                     onClick={() => setSelectedId(m.id)}
                                   />
                                   <Text
+                                    name='medida-texto'
                                     text={`${m.abertura.abertura}\n${m.abertura.ancho}x${m.abertura.altura}`}
                                     width={wPx}
                                     height={hPx}
@@ -825,17 +860,56 @@ export default function AberturaCompuesta() {
                       {modulos.length.toString().padStart(2, '0')}
                     </div>
                   </div>
+
+                  {/* --- NUEVO SELECTOR DE CANTIDAD --- */}
+                  <div className='flex flex-col gap-1'>
+                    <span className='text-[10px] text-zinc-500 font-bold uppercase tracking-widest'>
+                      Cantidad Total
+                    </span>
+                    <div className='flex items-center gap-3 bg-zinc-900 border border-zinc-800 p-1 rounded-xl'>
+                      <Button
+                        isIconOnly
+                        size='sm'
+                        variant='light'
+                        className='text-zinc-400 font-bold text-lg'
+                        onPress={() =>
+                          setCantidadCompuesta(
+                            Math.max(1, cantidadCompuesta - 1),
+                          )
+                        }
+                      >
+                        -
+                      </Button>
+                      <span className='text-zinc-200 font-mono font-bold w-6 text-center'>
+                        {cantidadCompuesta}
+                      </span>
+                      <Button
+                        isIconOnly
+                        size='sm'
+                        variant='light'
+                        className='text-zinc-400  font-bold text-lg'
+                        onPress={() =>
+                          setCantidadCompuesta(cantidadCompuesta + 1)
+                        }
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
                   <div className='flex flex-col'>
                     <span className='text-[10px] text-zinc-500 uppercase font-bold tracking-widest'>
                       Total Estimado
                     </span>
                     <div className='flex items-center gap-2'>
-                      <span className='text-3xl font-black text-emerald-400'>
-                        $ {totalGeneral.toLocaleString()}
+                      <span className='text-3xl font-black text-warning'>
+                        {/* Multiplicamos el total por la cantidad seleccionada para mostrar el precio real */}
+                        $ {(totalGeneral * cantidadCompuesta).toLocaleString()}
                       </span>
                     </div>
                   </div>
                 </div>
+
                 <div className='flex gap-3'>
                   <Button
                     variant='light'
@@ -845,8 +919,8 @@ export default function AberturaCompuesta() {
                     DESCARTAR
                   </Button>
                   <Button
-                    onPress={() => handleFinalizarComposicion(onClose)} // <--- ACCIÓN INTEGRADA
-                    className='bg-emerald-500 hover:bg-emerald-400 text-black font-black px-10 h-12 rounded-2xl shadow-lg shadow-emerald-500/10'
+                    onPress={() => handleFinalizarComposicion(onClose)}
+                    className='bg-warning hover:bg-warning-400 text-black font-black px-10 h-12 rounded-2xl shadow-lg shadow-emerald-500/10'
                   >
                     FINALIZAR COMPOSICIÓN
                   </Button>

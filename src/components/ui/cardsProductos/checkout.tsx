@@ -12,6 +12,7 @@ import { Accordion, AccordionItem } from '@heroui/react'
 import { useState } from 'react'
 import { FaRegCheckCircle } from 'react-icons/fa'
 import GeneratorPdf from '@/components/ui/modals/GeneratorPdf'
+import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 
 const formatCurrency = new Intl.NumberFormat('es-AR', {
   minimumFractionDigits: 2,
@@ -25,20 +26,25 @@ const formatCurrencywithDecimals = new Intl.NumberFormat('es-AR', {
 export default function Card() {
   const IVA = 0.105 // 10.5%
   const aberturasStore = useAberturasStore((state) => state.aberturas)
+  const aberturasCompuestasStore = useAberturasCompuestasStore(
+    (state) => state.aberturasComps,
+  )
   const [isOpenModal, setIsOpenModal] = useState(false)
   const handleOpenModal = () => {
     setIsOpenModal(!isOpenModal)
   }
 
-  const totalCompra = aberturasStore.reduce(
-    (acc, abertura) =>
-      acc +
-      (abertura.precio +
-        abertura.accesorios.mosquitero +
-        abertura.accesorios.premarco) *
-        abertura.cantidad,
-    0,
-  )
+  const totalCompra =
+    aberturasStore.reduce(
+      (acc, abertura) =>
+        acc +
+        (abertura.precio +
+          abertura.accesorios.mosquitero +
+          abertura.accesorios.premarco) *
+          abertura.cantidad,
+      0,
+    ) +
+    aberturasCompuestasStore.reduce((acc, abertura) => acc + abertura.precio, 0)
 
   const calcularDescuento = () => {
     return IsCheckedDescuento ? totalCompra * inputDescuento : 0

@@ -1,4 +1,5 @@
 import { IAbertura as Abertura } from '@/interfaces/IAbertura'
+import { IAbertura_Compuesta as Aberturas_Compuestas } from '@/interfaces/IAberturaCompuesta'
 import { colors } from '@/models/IColors'
 import { vidrios } from '@/models/IVidrios'
 import {
@@ -72,6 +73,7 @@ function capitalizar(texto: string) {
 
 interface PDFProps {
   aberturas: Abertura[]
+  aberturasCompuestas: Aberturas_Compuestas[]
   totalCompra: number
   descuentoCalculado: number
   ivaCalculado: number
@@ -82,6 +84,7 @@ interface PDFProps {
 
 function PDF({
   aberturas,
+  aberturasCompuestas,
   totalCompra,
   descuentoCalculado,
   ivaCalculado,
@@ -133,7 +136,7 @@ function PDF({
           <Text style={{ width: '20%', textAlign: 'right' }}>Total</Text>
         </View>
 
-        {/* ITEMS */}
+        {/* --- ITEMS ABERTURAS SIMPLES ---*/}
         <View>
           {aberturas.map((abertura, index) => {
             const AREA_MAX_W = 230
@@ -309,6 +312,195 @@ function PDF({
                           abertura.accesorios.premarco) *
                           abertura.cantidad,
                       )}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )
+          })}
+        </View>
+
+        {/* --- ITEMS ABERTURAS SIMPLES ---*/}
+        <View>
+          {aberturasCompuestas.map((compuesta, index) => {
+            const AREA_MAX_W = 230
+            const AREA_MAX_H = 180
+            const umbral = 500
+            const escalaBase = 0.25
+
+            let widthCalculado: number
+            if (compuesta.medidas.base <= umbral) {
+              widthCalculado = compuesta.medidas.base * escalaBase
+            } else {
+              const excedente = compuesta.medidas.base - umbral
+              widthCalculado = umbral * escalaBase + excedente * 0.03
+            }
+
+            const aspect = compuesta.medidas.altura / compuesta.medidas.base
+            let finalWidth = widthCalculado
+            let finalHeight = widthCalculado * aspect
+
+            if (finalWidth > AREA_MAX_W) {
+              const ratio = AREA_MAX_W / finalWidth
+              finalWidth *= ratio
+              finalHeight *= ratio
+            }
+            if (finalHeight > AREA_MAX_H) {
+              const ratio = AREA_MAX_H / finalHeight
+              finalWidth *= ratio
+              finalHeight *= ratio
+            }
+
+            return (
+              <View
+                key={index}
+                wrap={false}
+                style={{
+                  borderBottomWidth: 1.5,
+                  borderBottomColor: '#eba434',
+                  borderBottomStyle: 'solid',
+                  flexDirection: 'row',
+                  alignItems: 'stretch',
+                  marginTop: 5,
+                  paddingTop: 15, // Mantiene el espacio superior del bloque
+                  paddingBottom: 10,
+                  paddingHorizontal: 8,
+                }}
+              >
+                {/* COLUMNA IZQUIERDA: IMAGEN (MODIFICADA PARA SUBIR) */}
+                <View style={styles.imageContainer}>
+                  <Text
+                    style={{
+                      marginBottom: 2, // Reducido de 5 a 2
+                      fontSize: 10,
+                      color: '#333',
+                      marginTop: -10, // Margen negativo para forzar la subida hacia el borde superior
+                    }}
+                  >
+                    {compuesta.codigo}
+                  </Text>
+                  <View
+                    style={{
+                      width: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Image
+                      src={compuesta.capturedImageBase64}
+                      style={{ width: finalWidth, height: finalHeight }}
+                    />
+                  </View>
+                </View>
+
+                {/* COLUMNA DERECHA: TEXTO */}
+                <View
+                  style={{
+                    width: '55%',
+                    paddingLeft: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                  }}
+                >
+                  {/* LISTADO DE MÓDULOS INTERNOS */}
+                  {compuesta.configuracion.map((modulo, index) => (
+                    <View key={index}>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: '#444',
+                          lineHeight: 1.1,
+                          marginBottom: 2,
+                        }}
+                      >
+                        {`${modulo.abertura.descripcion} ${capitalizar(modulo.abertura.linea)}`}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: '#444',
+                          lineHeight: 1.1,
+                          marginBottom: 2,
+                        }}
+                      >
+                        {`${modulo.abertura.medidas?.altura} x ${modulo.abertura.medidas?.base} mm`}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: '#444',
+                          lineHeight: 1.1,
+                          marginBottom: 6,
+                        }}
+                      >
+                        {`Vidrio: ${capitalizar(modulo.abertura.vidrio)}`}
+                      </Text>
+                      {(modulo.abertura.accesorios?.premarco || 0 > 0) && (
+                        <View
+                          style={{
+                            marginTop: 6,
+                            padding: 4,
+                            backgroundColor: '#fafafa',
+                            borderLeft: '2px solid #eba434',
+                          }}
+                        >
+                          {modulo.abertura.accesorios?.mosquitero ||
+                            (0 > 0 && (
+                              <Text style={{ fontSize: 9 }}>
+                                • Mosquitero: $
+                                {formatCurrency(
+                                  modulo.abertura.accesorios?.mosquitero || 0,
+                                )}
+                              </Text>
+                            ))}
+                        </View>
+                      )}
+                    </View>
+                  ))}
+
+                  <View style={{ gap: 2 }}>
+                    <Text style={{ fontSize: 10 }}>
+                      Medidas:{' '}
+                      <Text style={{ fontWeight: 'bold' }}>
+                        {compuesta.medidas.base} x {compuesta.medidas.altura} mm
+                      </Text>
+                    </Text>
+                    {/* <Text style={{ fontSize: 10 }}>
+                      Color:{' '}
+                      {colors.find((c) => c.key === compuesta.color)?.label ||
+                        compuesta.descripcion_abertura}
+                    </Text> */}
+                    <Text style={{ fontSize: 10 }}>
+                      Cantidad: {compuesta.cantidad}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      marginTop: 'auto',
+                      paddingTop: 10,
+                      alignItems: 'flex-end',
+                    }}
+                  >
+                    <Text style={{ fontSize: 10, color: '#666' }}>
+                      P. Unitario: ${formatCurrency(compuesta.precio)}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        color: '#eba434',
+                      }}
+                    >
+                      Importe: $
+                      {formatCurrency(compuesta.precio * compuesta.cantidad)}
+                      {/* {formatCurrency(
+                        (abertura.precio +
+                          abertura.accesorios.mosquitero +
+                          abertura.accesorios.premarco) *
+                          abertura.cantidad,
+                      )} */}
                     </Text>
                   </View>
                 </View>

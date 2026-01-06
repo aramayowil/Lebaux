@@ -29,7 +29,7 @@ export default function ButtonReset() {
 
   return (
     <>
-      <div className='my-4 mx-auto w-full lg:w-[220px]'>
+      <div className='my-4 mx-auto w-full lg:w-55'>
         {aberturasStore.length > 0 && (
           <Button
             variant='flat'
