@@ -1,4 +1,3 @@
-import { Kbd } from '@heroui/kbd'
 import { Link } from '@heroui/link'
 import { Input } from '@heroui/input'
 import {
@@ -10,131 +9,98 @@ import {
   NavbarMenu,
   NavbarMenuItem,
 } from '@heroui/navbar'
-import { link as linkStyles } from '@heroui/theme'
-import clsx from 'clsx'
-import { siteConfig } from '@/config/site'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Image } from '@heroui/react'
-import { FcSearch } from 'react-icons/fc'
+import { HiSearch } from 'react-icons/hi'
+import { siteConfig } from '@/config/site'
+import clsx from 'clsx'
 
 export const Navbar = () => {
   const searchInput = (
     <Input
-      aria-label='Search'
+      aria-label='Buscar'
       classNames={{
-        inputWrapper: 'bg-default-100',
-        input: 'text-sm',
+        inputWrapper:
+          'bg-zinc-900/40 border border-zinc-800/50 group-data-[focus=true]:border-warning/50 h-8',
+        input: 'text-[12px] font-sans',
       }}
-      endContent={
-        <Kbd className='hidden lg:inline-block' keys={['command']}>
-          K
-        </Kbd>
-      }
-      labelPlacement='outside'
-      placeholder='Search...'
-      startContent={
-        <FcSearch className='text-base text-default-400 pointer-events-none shrink-0' />
-      }
+      placeholder='Buscar...'
+      startContent={<HiSearch className='text-zinc-500' size={14} />}
       type='search'
     />
   )
 
   return (
-    <HeroUINavbar maxWidth='xl' position='sticky' isBordered isBlurred={false}>
-      {/* <NavbarBrand className='gap-3 max-w-fit'> */}
-      <NavbarBrand className='gap-3'>
-        <Image
-          alt='Lebaux Logo'
-          className='h-8 min-w-30 w-auto'
-          src='./images/LEBAUX-LOGO.png'
-        />
-      </NavbarBrand>
-      <NavbarContent className='basis-1/5 sm:basis-full' justify='start'>
-        <div className='hidden lg:flex gap-4 justify-start ml-2'>
-          <NavbarItem isActive>
-            <Link
-              className={clsx(
-                linkStyles({ color: 'warning' }),
-                'data-[active=true]:text-primary data-[active=true]:font-medium font-semibold',
-              )}
-              color='warning'
-              href='/'
-            >
-              Presupuesto
-            </Link>
-          </NavbarItem>
-          <NavbarItem>
-            <Link
-              className={clsx(
-                linkStyles({ color: 'foreground' }),
-                'data-[active=true]:text-primary data-[active=true]:font-medium',
-              )}
-              color='foreground'
-              href='/ventanaModena'
-            >
-              Ventanas
-            </Link>
-          </NavbarItem>
-          <NavbarItem>
-            <Link
-              className={clsx(
-                linkStyles({ color: 'foreground' }),
-                'data-[active=true]:text-primary data-[active=true]:font-medium',
-              )}
-              color='foreground'
-              href='/dvhCalc'
-            >
-              CALC DVH
-            </Link>
-          </NavbarItem>
-          <Link
-            className={clsx(
-              linkStyles({ color: 'foreground' }),
-              'data-[active=true]:text-primary data-[active=true]:font-medium',
-            )}
-            color='foreground'
-            href='/'
-          >
-            Arbol
+    <HeroUINavbar
+      maxWidth='full'
+      position='sticky'
+      className='bg-black/70 backdrop-blur-xl border-b border-zinc-800/40 h-20' // Aumentamos h-16 a h-20 para dar aire al logo más grande
+    >
+      {/* max-w-[112.5rem] para igualar al Layout (1800px) */}
+      <div className='flex w-full max-w-450 mx-auto items-center px-4 md:px-8'>
+        {/* Logo: Aumentado y con colores naturales */}
+        <NavbarBrand className='max-w-fit mr-12'>
+          <Link href='/'>
+            <Image
+              alt='Lebaux Logo'
+              className='h-8 md:h-10 w-auto object-contain' // Aumentado de h-6 a h-10/12
+              src='./images/LEBAUX-LOGO.png'
+              radius='none'
+              // Eliminamos grayscale y brightness para mantener el color original
+            />
           </Link>
-        </div>
-      </NavbarContent>
+        </NavbarBrand>
 
-      <NavbarContent
-        className='hidden sm:flex basis-1/5 sm:basis-full'
-        justify='end'
-      >
-        <NavbarItem className='hidden sm:flex gap-2'>
-          <ThemeSwitch />
-        </NavbarItem>
-      </NavbarContent>
-
-      <NavbarContent className='sm:hidden basis-1 pl-4' justify='end'>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
-
-      <NavbarMenu>
-        {searchInput}
-        <div className='mx-4 mt-2 flex flex-col gap-2'>
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
+        {/* Navegación */}
+        <NavbarContent className='hidden lg:flex gap-4' justify='start'>
+          {[
+            { label: 'Presupuesto', href: '/', active: true },
+            { label: 'Línea Modena', href: '/ventanaModena', active: false },
+            { label: 'Cálculo DVH', href: '/dvhCalc', active: false },
+          ].map((item) => (
+            <NavbarItem key={item.href} isActive={item.active}>
               <Link
-                color={
-                  index === 2
-                    ? 'primary'
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? 'danger'
-                      : 'foreground'
-                }
-                href='#'
-                size='lg'
+                href={item.href}
+                className={clsx(
+                  'text-xs uppercase tracking-[0.17em] font-bold transition-colors font-sans',
+                  item.active
+                    ? 'text-warning'
+                    : 'text-zinc-500 hover:text-zinc-200',
+                )}
               >
                 {item.label}
               </Link>
-            </NavbarMenuItem>
+            </NavbarItem>
           ))}
-        </div>
+        </NavbarContent>
+
+        {/* Lado Derecho */}
+        <NavbarContent className='flex gap-4' justify='end'>
+          <NavbarItem className='hidden md:flex w-48 xl:w-64'>
+            {searchInput}
+          </NavbarItem>
+          <NavbarItem className='flex items-center'>
+            <ThemeSwitch />
+          </NavbarItem>
+          <NavbarMenuToggle className='lg:hidden text-zinc-400' />
+        </NavbarContent>
+      </div>
+
+      <NavbarMenu className='bg-black/95 pt-8 gap-4'>
+        {siteConfig.navMenuItems.map((item, index) => (
+          <NavbarMenuItem key={`${item.label}-${index}`}>
+            <Link
+              className={clsx(
+                'text-lg font-bold uppercase tracking-widest font-sans',
+                index === 0 ? 'text-warning' : 'text-zinc-400',
+              )}
+              href={item.href}
+              size='lg'
+            >
+              {item.label}
+            </Link>
+          </NavbarMenuItem>
+        ))}
       </NavbarMenu>
     </HeroUINavbar>
   )

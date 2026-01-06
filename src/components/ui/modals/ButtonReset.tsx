@@ -1,4 +1,4 @@
-import { FaTrash } from 'react-icons/fa'
+import { FaTrashAlt } from 'react-icons/fa'
 import {
   Modal,
   ModalContent,
@@ -6,103 +6,153 @@ import {
   ModalFooter,
   Button,
   addToast,
+  Divider,
 } from '@heroui/react'
 import { useState } from 'react'
-import useBreakpoint from '@/config/breakpoints'
-import { IoWarningOutline } from 'react-icons/io5'
+import { HiOutlineExclamationTriangle } from 'react-icons/hi2'
 import useAberturasStore from '@/stores/useAberturasStore'
+import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 
 export default function ButtonReset() {
   const aberturasStore = useAberturasStore((state) => state.aberturas)
   const deleteAberturasStore = useAberturasStore(
     (state) => state.limpiarAberturas,
   )
-  const { isSm } = useBreakpoint()
+
+  const aberturasCompStore = useAberturasCompuestasStore(
+    (state) => state.aberturasComps,
+  )
+  const deleteAberturasCompStore = useAberturasCompuestasStore(
+    (state) => state.limpiarAberturasComp,
+  )
+
   const [isOpen, setIsOpen] = useState(false)
-  const onOpenChange = () => {
-    setIsOpen(!isOpen)
-  }
   const [isLoading, setIsLoading] = useState(false)
-  const handleLoading = (loading: boolean) => {
-    setIsLoading(loading)
-  }
+
+  const onOpenChange = () => setIsOpen(!isOpen)
+
+  if (aberturasStore.length === 0 && aberturasCompStore.length === 0)
+    return null
 
   return (
     <>
-      <div className='my-4 mx-auto w-full lg:w-55'>
-        {aberturasStore.length > 0 && (
-          <Button
-            variant='flat'
-            isDisabled={aberturasStore.length === 0}
-            color='warning'
-            size={isSm ? 'lg' : 'md'}
-            fullWidth
-            startContent={<FaTrash />}
-            onPress={onOpenChange}
-          >
-            ¡Eliminar Todo!
-          </Button>
-        )}
+      <div className='w-full'>
+        <Button
+          variant='bordered'
+          color='warning'
+          size='sm'
+          fullWidth
+          startContent={<FaTrashAlt size={14} />}
+          onPress={onOpenChange}
+          className='font-sans font-bold uppercase tracking-widest text-[10px] border-warning/20 hover:border-warning/50 hover:bg-warning/5 rounded-xl h-10 transition-all'
+        >
+          Limpiar Cotización
+        </Button>
       </div>
 
-      {isOpen && (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='center'>
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <ModalBody>
-                  <div className='flex flex-col items-center justify-center gap-2 my-4'>
-                    <IoWarningOutline
-                      size={isSm ? 80 : 70}
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        hideCloseButton
+        backdrop='opaque'
+        size='md' // Tamaño aumentado para mayor presencia
+        classNames={{
+          base: 'bg-zinc-950 border border-zinc-400/60 shadow-2xl',
+          backdrop: 'bg-black/80 backdrop-blur-md',
+          closeButton: 'hover:bg-zinc-800 active:scale-95 transition-all',
+        }}
+        motionProps={{
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              transition: { duration: 0.3, ease: 'easeOut' },
+            },
+            exit: {
+              y: 20,
+              opacity: 0,
+              transition: { duration: 0.2, ease: 'easeIn' },
+            },
+          },
+        }}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalBody className='pt-10 pb-6 px-10'>
+                <div className='flex flex-col sm:flex-row items-center sm:items-start gap-6'>
+                  {/* Icono con badge de advertencia estilizado */}
+                  <div className='shrink-0 w-16 h-16 bg-warning/10 rounded-2xl flex items-center justify-center border border-warning/20'>
+                    <HiOutlineExclamationTriangle
+                      size={32}
                       className='text-warning'
                     />
-                    <p className='font-sans text-lg lg:text-2xl font-semibold text-neutral-200 text-center'>
-                      ¿Estás seguro de eliminar todo?
+                  </div>
+
+                  <div className='flex flex-col gap-2 text-center sm:text-left'>
+                    <h3 className='font-sans text-xl font-black text-white uppercase tracking-tight'>
+                      Confirmar Reinicio
+                    </h3>
+                    <p className='text-sm text-zinc-400 font-sans leading-relaxed'>
+                      Estás a punto de borrar{' '}
+                      <span className='text-warning font-bold'>
+                        {aberturasStore.length} items
+                      </span>{' '}
+                      de tu presupuesto actual. Esta acción limpiará la mesa de
+                      trabajo por completo.
                     </p>
-                  </div>
-                </ModalBody>
-                <ModalFooter>
-                  <div className='flex justify-evenly w-full'>
-                    <Button
-                      color='default'
-                      variant='light'
-                      onPress={onClose}
-                      className='max-w-[40%] w-full'
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      color='warning'
-                      variant='solid'
-                      isLoading={isLoading}
-                      className='max-w-[40%] w-full'
-                      onPress={() => {
-                        handleLoading(true)
-                        deleteAberturasStore()
 
-                        // Simulate a network request
-                        setTimeout(() => {
-                          handleLoading(false)
-                          onClose()
-
-                          addToast({
-                            title: 'Todo eliminado',
-                            description:
-                              'Todas las aberturas han sido eliminadas.',
-                            color: 'success',
-                          })
-                        }, 1000)
-                      }}
-                    >
-                      Confirmar
-                    </Button>
+                    <div className='mt-4 p-3 bg-zinc-900/50 rounded-lg border border-zinc-800/50'>
+                      <p className='text-[10px] text-zinc-500 uppercase font-bold tracking-widest'>
+                        Aviso de seguridad
+                      </p>
+                      <p className='text-[11px] text-zinc-600 font-sans italic'>
+                        Los datos no guardados se perderán permanentemente.
+                      </p>
+                    </div>
                   </div>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
-      )}
+                </div>
+              </ModalBody>
+
+              <Divider className='bg-zinc-800/50 mx-10 w-auto' />
+
+              <ModalFooter className='px-10 py-6'>
+                <div className='flex flex-col sm:flex-row gap-3 w-full justify-end'>
+                  <Button
+                    variant='light'
+                    onPress={onClose}
+                    className='font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-300 px-8'
+                  >
+                    Mantener items
+                  </Button>
+                  <Button
+                    color='warning'
+                    variant='shadow'
+                    isLoading={isLoading}
+                    className='font-black text-xs uppercase tracking-widest px-10 h-11 shadow-warning/5'
+                    onPress={() => {
+                      setIsLoading(true)
+                      deleteAberturasStore()
+                      deleteAberturasCompStore()
+                      setTimeout(() => {
+                        setIsLoading(false)
+                        onClose()
+                        addToast({
+                          title: 'Sistema Reiniciado',
+                          description: 'La lista de aberturas ha sido vaciada.',
+                          color: 'warning',
+                        })
+                      }, 1000)
+                    }}
+                  >
+                    Si, Limpiar Todo
+                  </Button>
+                </div>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   )
 }

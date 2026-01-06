@@ -7,23 +7,19 @@ import {
   Input,
   addToast,
 } from '@heroui/react'
-
 import { useState } from 'react'
-import { BsCheck2Circle } from 'react-icons/bs'
-import { RxDownload } from 'react-icons/rx'
+import {
+  HiOutlineDocumentText,
+  HiOutlineUser,
+  HiOutlineCloudArrowDown,
+} from 'react-icons/hi2'
 import PDF from '@/components/PdfLayout'
 import { pdf } from '@react-pdf/renderer'
 import useAberturasStore from '@/stores/useAberturasStore'
-import useBreakpoint from '@/config/breakpoints'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 
 function obtenerFechaHoy() {
-  const hoy = new Date()
-  const dia = String(hoy.getDate()).padStart(2, '0')
-  const mes = String(hoy.getMonth() + 1).padStart(2, '0') // ¡Recordá que enero es 0!
-  const año = hoy.getFullYear()
-
-  return `${dia}/${mes}/${año}`
+  return new Date().toLocaleDateString('es-AR')
 }
 
 type GeneratorPdfProps = {
@@ -39,120 +35,142 @@ type GeneratorPdfProps = {
 }
 
 function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
-  const { isSm } = useBreakpoint()
   const [nameCliente, setNameCliente] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
   const aberturasStore = useAberturasStore((state) => state.aberturas)
   const aberturasCompuestasStore = useAberturasCompuestasStore(
     (state) => state.aberturasComps,
   )
-  const [isLoading, setIsLoading] = useState(false)
-  const handleLoading = (loading: boolean) => {
-    setIsLoading(loading)
+
+  const generarPDF = async (): Promise<void> => {
+    setIsLoading(true)
+    try {
+      const blob = await pdf(
+        <PDF
+          aberturas={aberturasStore}
+          aberturasCompuestas={aberturasCompuestasStore}
+          {...compra}
+          descuentoCalculado={compra.descuento}
+          ivaCalculado={compra.iva}
+          nameCliente={nameCliente || 'CLIENTE GENERAL'}
+        />,
+      ).toBlob()
+
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank')
+
+      const enlace = document.createElement('a')
+      enlace.href = url
+      enlace.download = `Presupuesto-${nameCliente || 'General'}.pdf`
+      enlace.click()
+
+      setTimeout(() => {
+        URL.revokeObjectURL(url)
+        addToast({
+          title: 'Documento Exportado',
+          description: 'El archivo PDF se generó correctamente.',
+          color: 'default',
+        })
+        setIsLoading(false)
+        onOpenChange(false)
+      }, 1000)
+    } catch (error) {
+      console.error(error)
+      setIsLoading(false)
+    }
   }
 
-  const generarPDF = async (
-    totalCompra: number,
-    descuentoCalculado: number,
-    ivaCalculado: number,
-    saldoPendiente: number,
-    importeFinal: number,
-    nameCliente: string,
-  ): Promise<void> => {
-    const blob: Blob = await pdf(
-      <PDF
-        aberturas={aberturasStore}
-        aberturasCompuestas={aberturasCompuestasStore}
-        totalCompra={totalCompra}
-        descuentoCalculado={descuentoCalculado}
-        ivaCalculado={ivaCalculado}
-        saldoPendiente={saldoPendiente}
-        importeFinal={importeFinal}
-        nameCliente={nameCliente}
-      />,
-    ).toBlob()
-
-    const url: string = URL.createObjectURL(blob)
-
-    // 👉 Abrir en nueva pestaña
-    window.open(url, '_blank')
-
-    // 👉 Descargar automáticamente
-    const enlace: HTMLAnchorElement = document.createElement('a')
-    enlace.href = url
-    enlace.download =
-      nameCliente === ''
-        ? `presupuesto-${obtenerFechaHoy()}.pdf`
-        : `presupuesto-${nameCliente.toUpperCase()}-${obtenerFechaHoy()}.pdf`
-
-    document.body.appendChild(enlace)
-    enlace.click()
-    document.body.removeChild(enlace)
-
-    // 🧹 Limpieza de recursos después de unos segundos
-    setTimeout(() => {
-      URL.revokeObjectURL(url)
-    }, 5000)
-  }
   return (
-    <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement='center'>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalBody>
-                <div className='flex flex-col items-center justify-center gap-2 my-4'>
-                  <BsCheck2Circle
-                    size={isSm ? 110 : 80}
-                    className='text-warning'
-                  />
-                  <p className='font-sans text-2xl lg:text-3xl font-semibold text-neutral-200'>
-                    ¡Casi terminamos!
-                  </p>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      size='md' // Tamaño contenido y profesional
+      backdrop='opaque'
+      classNames={{
+        base: 'bg-zinc-950 border border-zinc-400 shadow-xl',
+        closeButton: 'hover:bg-zinc-800 transition-colors',
+      }}
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalBody className='pt-8 pb-4 px-6'>
+              <div className='flex flex-col gap-6'>
+                {/* Cabecera Discreta */}
+                <div className='flex items-center gap-3'>
+                  <div className='p-2 bg-zinc-900 border border-zinc-800 rounded-lg'>
+                    <HiOutlineDocumentText
+                      className='text-zinc-400'
+                      size={20}
+                    />
+                  </div>
+                  <div>
+                    <h3 className='text-sm font-bold text-zinc-200 uppercase tracking-widest'>
+                      Finalizar Presupuesto
+                    </h3>
+                    <p className='text-[11px] text-zinc-500 font-medium'>
+                      Configure el nombre del titular para el documento.
+                    </p>
+                  </div>
                 </div>
+
+                {/* Input Corregido: Sin Uppercase forzado en el estilo para que al escribir sea natural */}
                 <Input
-                  label='Nombre del cliente'
-                  className='max-w-full'
-                  value={nameCliente.toLocaleUpperCase()}
-                  description='Este nombre se usará en el PDF'
+                  label='NOMBRE DEL CLIENTE'
+                  placeholder='Ingrese nombre del cliente...'
+                  labelPlacement='outside'
+                  variant='bordered'
+                  value={nameCliente}
                   onValueChange={setNameCliente}
+                  startContent={
+                    <HiOutlineUser className='text-zinc-600' size={18} />
+                  }
+                  classNames={{
+                    label:
+                      'text-[10px] font-black tracking-widest text-zinc-500',
+                    inputWrapper:
+                      'border-zinc-800 group-data-[focus=true]:border-zinc-500 h-12 transition-colors bg-zinc-900/20',
+                    input: 'text-zinc-200 text-sm font-medium', // Texto normal al escribir
+                  }}
                 />
-              </ModalBody>
-              <ModalFooter>
+
+                <div className='p-3 bg-zinc-900/40 border border-zinc-800/60 rounded-xl'>
+                  <div className='flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-zinc-500'>
+                    <span>Fecha de emisión</span>
+                    <span className='text-zinc-400'>{obtenerFechaHoy()}</span>
+                  </div>
+                </div>
+              </div>
+            </ModalBody>
+
+            <ModalFooter className='px-6 pb-6 pt-2'>
+              <div className='flex gap-2 w-full'>
+                <Button
+                  variant='light'
+                  onPress={onClose}
+                  className='flex-1 font-bold text-[11px] uppercase text-zinc-500 tracking-widest'
+                >
+                  Cancelar
+                </Button>
                 <Button
                   color='warning'
-                  variant={isLoading ? 'light' : 'solid'}
-                  fullWidth
-                  startContent={<RxDownload size={19} />}
+                  variant='bordered' // Variante discreta
                   isLoading={isLoading}
-                  onPress={() => {
-                    handleLoading(true)
-                    generarPDF(
-                      compra.totalCompra,
-                      compra.descuento,
-                      compra.iva,
-                      compra.saldoPendiente,
-                      compra.importeFinal,
-                      nameCliente,
-                    )
-
-                    setTimeout(() => {
-                      onClose()
-                      addToast({
-                        title: 'PDF generado',
-                        description: 'El PDF se ha generado correctamente.',
-                        color: 'success',
-                      })
-                    }, 2500)
-                  }}
+                  onPress={generarPDF}
+                  className='flex-[1.5] border-zinc-700 hover:border-warning/50 text-zinc-300 hover:text-warning font-bold uppercase tracking-widest text-[11px] transition-all'
+                  startContent={
+                    !isLoading && <HiOutlineCloudArrowDown size={18} />
+                  }
                 >
-                  {isLoading ? 'Generando PDF...' : 'Descargar PDF'}
+                  {isLoading ? 'Generando...' : 'Descargar PDF'}
                 </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+              </div>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   )
 }
 
