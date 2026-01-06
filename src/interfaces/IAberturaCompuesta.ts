@@ -1,19 +1,17 @@
-export interface IAbertura {
+import { IModulo } from './Imodulo'
+
+export interface IAbertura_Compuesta {
   key: string
-  type_aberturaID: string
-  linea: string
   name_abertura: string
   descripcion_abertura: string
   codigo: string
-  variantKey: number
   medidas: { base: number; altura: number }
-  accesorios: { mosquitero: number; premarco: number }
-  color: string
-  vidrio: string
   img: string
   capturedImageBase64: string
+  configuracion: IModulo[]
   cantidad: number
   precio: number
+  color: string
   getKey(): string
   calcularTotal(): number
 }

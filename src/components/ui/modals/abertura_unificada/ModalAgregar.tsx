@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Button,
   Modal,
@@ -11,101 +11,75 @@ import { catalogo } from '@/data'
 
 import PropiedadesAbertura from '../../inputs/PropiedadesAbertura'
 import SelectorCatalogo from '../../inputs/SelectorCatalogo'
-import TabsAbertura from '../../TabsAbertura'
+import TabsAberturaComp from './TabsAberturaComp'
 
-type ModalAgregarProps = {
-  onClose: () => void
-  handleConfirmarModulo: (data: any) => void
-  setLinea: React.Dispatch<React.SetStateAction<string>>
-  setAbertura: React.Dispatch<React.SetStateAction<string>>
-  setDescripcion: React.Dispatch<React.SetStateAction<string>>
-  setAncho: React.Dispatch<React.SetStateAction<number>>
-  setAlto: React.Dispatch<React.SetStateAction<number>>
-  setImgSrc: React.Dispatch<React.SetStateAction<string>>
-  setColor: React.Dispatch<React.SetStateAction<string>>
-  setVidrio: React.Dispatch<React.SetStateAction<string>>
-  setCantidad: React.Dispatch<React.SetStateAction<number>>
-  setPrecio: React.Dispatch<React.SetStateAction<number>>
-  setMosquitero: React.Dispatch<
-    React.SetStateAction<{ checked: boolean; precio: number }>
-  >
-  setPremarco: React.Dispatch<
-    React.SetStateAction<{ checked: boolean; precio: number }>
-  >
+interface abertura {
+  linea: string
+  abertura: string
+  ancho: number
+  altura: number
+  color: string
+  vidrio: string
+  cantidad: number
+  precio: number
+  codigo: string
+  descripcion: string
+  mosquitero: { checked: boolean; precio: number }
+  premarco: { checked: boolean; precio: number }
+  imgSrc: string
+  variantKey: number
 }
 
-const INITIAL_STATE = {
-  linea: 'modena',
-  abertura: '',
-  ancho: 1000,
-  altura: 1000,
-  color: 'blanco',
-  vidrio: 'float4mm',
-  cantidad: 1,
-  precio: 0,
-  codigo: '',
-  descripcion: '',
-  mosquitero: { checked: false, precio: 0 },
-  premarco: { checked: false, precio: 0 },
-  variantKey: 0,
-  imgSrc: '',
+interface ModalAgregarProps {
+  onClose: () => void
+  handleConfirmarModulo: () => void
+  abertura: abertura
+  setAbertura: (val: abertura) => void
 }
 
 function ModalAgregar({
   onClose,
   handleConfirmarModulo,
-  setLinea,
+  abertura,
   setAbertura,
-  setDescripcion,
-  setAlto,
-  setAncho,
-  setImgSrc,
-  setVidrio,
-  setColor,
-  setCantidad,
-  setPrecio,
-  setMosquitero,
-  setPremarco,
 }: ModalAgregarProps) {
-  const [form, setForm] = useState(INITIAL_STATE)
+  // 1. Mantenemos un estado local para el formulario.
+  // IMPORTANTE: Eliminamos el useEffect que sincronizaba automáticamente.
+  const [form, setForm] = useState<abertura>(abertura)
 
   const handleChange = (field: string, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
+    // 2. Actualizamos el estado local inmediatamente para que el UI responda
+    const updatedForm = { ...form, [field]: value }
+    setForm(updatedForm)
+
+    // 3. Sincronizamos con el padre de forma imperativa solo cuando hay un cambio.
+    // Esto evita el bucle infinito porque el cambio nace de una acción del usuario.
+    setAbertura(updatedForm)
+  }
+  // En ModalAgregar.tsx
+  // En ModalAgregar.tsx
+
+  const handleUpdateVariante = (varianteData: {
+    descripcion: string
+    codigo: string
+    imgSrc: string
+    variantKey: number
+  }) => {
+    setForm((prev) => {
+      const nuevoEstado = { ...prev, ...varianteData }
+
+      // Usamos el callback para evitar el error de "renderizado simultáneo"
+      setTimeout(() => setAbertura(nuevoEstado), 0)
+
+      return nuevoEstado
+    })
   }
 
   const onConfirm = () => {
-    handleConfirmarModulo(form)
+    // 4. Al confirmar, el padre ya tiene el último estado gracias a handleChange
+    handleConfirmarModulo()
     onClose()
   }
-
-  useEffect(() => {
-    setLinea(form.linea)
-    setAbertura(form.abertura)
-    setDescripcion(form.descripcion)
-    setAlto(form.altura)
-    setAncho(form.ancho)
-    setImgSrc(form.imgSrc)
-    setVidrio(form.vidrio)
-    setColor(form.color)
-    setCantidad(form.cantidad)
-    setPrecio(form.precio)
-    setMosquitero(form.mosquitero)
-    setPremarco(form.premarco)
-  }, [
-    form.linea,
-    form.abertura,
-    form.descripcion,
-    form.altura,
-    form.ancho,
-    form.imgSrc,
-    form.descripcion,
-    form.vidrio,
-    form.color,
-    form.cantidad,
-    form.precio,
-    form.mosquitero,
-    form.premarco,
-  ])
 
   return (
     <Modal
@@ -120,7 +94,7 @@ function ModalAgregar({
           <>
             <ModalHeader className='flex flex-col gap-1 p-6'>
               <h2 className='text-xl font-bold text-default-900'>
-                Agregar abertura
+                {form.abertura ? 'Editar abertura' : 'Agregar abertura'}
               </h2>
               <p className='text-small text-default-500 font-normal'>
                 Configura las dimensiones y materiales.
@@ -130,21 +104,21 @@ function ModalAgregar({
             <ModalBody className='p-6'>
               <div className='flex flex-col gap-4'>
                 <div className='grid grid-cols-6 gap-2'>
+                  {/* SelectorCatalogo usa nuestro handleChange manual */}
                   <SelectorCatalogo form={form} onChange={handleChange} />
+
                   <div className='col-span-6'>
-                    {form.abertura && (
-                      <TabsAbertura
-                        selectedAbertura={catalogo[form.linea].find(
+                    {form.linea && form.abertura && (
+                      <TabsAberturaComp
+                        selectedAbertura={catalogo[form.linea]?.find(
                           (i) => i.id === form.abertura,
                         )}
-                        getDescripcion={(v) => handleChange('descripcion', v)}
-                        getCodigo={(v) => handleChange('codigo', v)}
-                        getImg={(v) => handleChange('imgSrc', v)}
-                        getVariantKey={(v) => handleChange('variantKey', v)}
+                        onVarianteChange={handleUpdateVariante}
                         setTabSelected={form.variantKey}
                       />
                     )}
                   </div>
+
                   <PropiedadesAbertura
                     form={form}
                     onChange={handleChange}
@@ -163,7 +137,7 @@ function ModalAgregar({
                 className='font-bold shadow-lg shadow-warning/20'
                 onPress={onConfirm}
               >
-                Añadir al diseño
+                Confirmar cambios
               </Button>
             </ModalFooter>
           </>

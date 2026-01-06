@@ -26,7 +26,7 @@ import SelectorCatalogo from '../inputs/SelectorCatalogo'
 type ModalProps = {
   isOpen: boolean
   onClose: () => void
-  aberturaKey: number | null
+  aberturaKey: string
 }
 
 const INITIAL_FORM_STATE = {
@@ -59,7 +59,7 @@ export default function ModalAbertura({
   } = useAberturasStore()
 
   const [form, setForm] = useState(INITIAL_FORM_STATE)
-  const isEditMode = aberturaKey !== null
+  const isEditMode = aberturaKey.trim() !== ''
 
   useEffect(() => {
     if (isOpen) {

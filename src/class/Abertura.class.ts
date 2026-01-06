@@ -1,7 +1,8 @@
 import { IAbertura } from '@/interfaces/IAbertura'
+import { v4 as uuidv4 } from 'uuid'
 
 export default class Abertura implements IAbertura {
-  key: number
+  key: string
   type_aberturaID: string
   linea: string
   name_abertura: string
@@ -50,13 +51,8 @@ export default class Abertura implements IAbertura {
     this.precio = precio
   }
 
-  getKey(): number {
-    // Obtiene el último key de las aberturas almacenadas en localStorage y genera un nuevo key
-    const data = localStorage.getItem('aberturas-store')
-    const aberturas = data ? JSON.parse(data).state.aberturas : []
-    const key =
-      aberturas.length > 0 ? aberturas[aberturas.length - 1].key + 1 : 0
-    return key
+  getKey(): string {
+    return uuidv4()
   }
 
   calcularTotal(): number {
