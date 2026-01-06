@@ -1,5 +1,5 @@
 export interface IAbertura {
-  key: number
+  key: string
   type_aberturaID: string
   linea: string
   name_abertura: string
@@ -14,6 +14,6 @@ export interface IAbertura {
   capturedImageBase64: string
   cantidad: number
   precio: number
-  getKey(): number
+  getKey(): string
   calcularTotal(): number
 }

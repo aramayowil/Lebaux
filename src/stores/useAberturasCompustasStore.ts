@@ -6,10 +6,10 @@ type AberturaCompuestaState = {
   aberturasComps: IAbertura_Compuesta[]
   agregarAberturaComp: (aberturaComp: IAbertura_Compuesta) => void
   actualizarAberturaComp: (
-    key: number,
+    key: string,
     data: Partial<IAbertura_Compuesta>,
   ) => void
-  eliminarAberturaComp: (key: number) => void
+  eliminarAberturaComp: (key: string) => void
   limpiarAberturasComp: () => void
 }
 

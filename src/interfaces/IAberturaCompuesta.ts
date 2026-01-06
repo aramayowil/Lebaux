@@ -1,16 +1,16 @@
-import { IAbertura } from '@/interfaces/IAbertura'
+import { IModulo } from './Imodulo'
 
 export interface IAbertura_Compuesta {
-  key: number
+  key: string
   name_abertura: string
   descripcion_abertura: string
   codigo: string
   medidas: { base: number; altura: number }
   img: string
   capturedImageBase64: string
-  aberturas: { aberturas: IAbertura[]; x: number; y: number }
+  configuracion: IModulo[]
   cantidad: number
   precio: number
-  getKey(): number
+  getKey(): string
   calcularTotal(): number
 }

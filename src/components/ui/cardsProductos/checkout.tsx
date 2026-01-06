@@ -79,7 +79,7 @@ export default function Card() {
   }
 
   return (
-    <CardHeroUI className='max-w-[280px] mx-auto pt-4 pb-2'>
+    <CardHeroUI className='max-w-70 mx-auto pt-4 pb-2'>
       <CardHeader className='pb-0 flex-col items-start'>
         <p className='text-tiny uppercase font-bold'>resumen presupuesto</p>
       </CardHeader>

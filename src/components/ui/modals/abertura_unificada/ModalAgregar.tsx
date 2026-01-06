@@ -11,7 +11,7 @@ import { catalogo } from '@/data'
 
 import PropiedadesAbertura from '../../inputs/PropiedadesAbertura'
 import SelectorCatalogo from '../../inputs/SelectorCatalogo'
-import TabsAbertura from '../../TabsAbertura'
+import TabsAberturaComp from './TabsAberturaComp'
 
 interface abertura {
   linea: string
@@ -56,6 +56,24 @@ function ModalAgregar({
     // Esto evita el bucle infinito porque el cambio nace de una acción del usuario.
     setAbertura(updatedForm)
   }
+  // En ModalAgregar.tsx
+  // En ModalAgregar.tsx
+
+  const handleUpdateVariante = (varianteData: {
+    descripcion: string
+    codigo: string
+    imgSrc: string
+    variantKey: number
+  }) => {
+    setForm((prev) => {
+      const nuevoEstado = { ...prev, ...varianteData }
+
+      // Usamos el callback para evitar el error de "renderizado simultáneo"
+      setTimeout(() => setAbertura(nuevoEstado), 0)
+
+      return nuevoEstado
+    })
+  }
 
   const onConfirm = () => {
     // 4. Al confirmar, el padre ya tiene el último estado gracias a handleChange
@@ -91,15 +109,11 @@ function ModalAgregar({
 
                   <div className='col-span-6'>
                     {form.linea && form.abertura && (
-                      <TabsAbertura
+                      <TabsAberturaComp
                         selectedAbertura={catalogo[form.linea]?.find(
                           (i) => i.id === form.abertura,
                         )}
-                        // Mapeamos los eventos de TabsAbertura a nuestro handleChange
-                        getDescripcion={(v) => handleChange('descripcion', v)}
-                        getCodigo={(v) => handleChange('codigo', v)}
-                        getImg={(v) => handleChange('imgSrc', v)}
-                        getVariantKey={(v) => handleChange('variantKey', v)}
+                        onVarianteChange={handleUpdateVariante}
                         setTabSelected={form.variantKey}
                       />
                     )}

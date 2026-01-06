@@ -26,7 +26,7 @@ import SelectorCatalogo from '../inputs/SelectorCatalogo'
 type ModalProps = {
   isOpen: boolean
   onClose: () => void
-  aberturaKey: number | null
+  aberturaKey: string
 }
 
 const INITIAL_FORM_STATE = {

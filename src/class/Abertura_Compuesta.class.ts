@@ -1,15 +1,16 @@
-import { IAbertura } from '@/interfaces/IAbertura'
 import { IAbertura_Compuesta } from '@/interfaces/IAberturaCompuesta'
+import { IModulo } from '@/interfaces/Imodulo'
+import { v4 as uuidv4 } from 'uuid'
 
 export default class Abertura_Compuesta implements IAbertura_Compuesta {
-  key: number
+  key: string
   name_abertura: string
   descripcion_abertura: string
   codigo: string
   medidas: { base: number; altura: number }
   img: string
   capturedImageBase64: string
-  aberturas: { aberturas: IAbertura[]; x: number; y: number }
+  configuracion: IModulo[]
   cantidad: number
   precio: number
 
@@ -20,48 +21,36 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
     medidas: { base: number; altura: number },
     img: string,
     capturedImageBase64: string,
-    aberturas: { aberturas: IAbertura[]; x: number; y: number },
+    configuracion: IModulo[],
     cantidad: number,
     precio: number,
   ) {
-    this.key = this.getKey()
-
+    // Es vital asignar las propiedades antes de llamar a métodos que las usen
     this.name_abertura = name_abertura
     this.descripcion_abertura = descripcion_abertura
     this.codigo = codigo
     this.medidas = medidas
     this.img = img
     this.capturedImageBase64 = capturedImageBase64
-    this.aberturas = aberturas
+    this.configuracion = configuracion
     this.cantidad = cantidad
     this.precio = precio
+
+    // Generamos la key única llamando al método obligatorio de la interfaz
+    this.key = this.getKey()
   }
 
-  getKey(): number {
-    // Obtiene el último key de las aberturas almacenadas en localStorage y genera un nuevo key
-    const data = localStorage.getItem('aberturas-store-compuestas')
-    const aberturas = data ? JSON.parse(data).state.aberturas : []
-    const key =
-      aberturas.length > 0 ? aberturas[aberturas.length - 1].key + 1 : 0
-    return key
+  getKey(): string {
+    return uuidv4()
   }
 
   calcularTotal(): number {
     return this.cantidad * this.precio
   }
 
+  // Métodos estáticos para manejo de datos
   static obtenerAberturasDeLocalStorage(): Abertura_Compuesta[] {
     const data = localStorage.getItem('aberturas_compuestas')
     return data ? JSON.parse(data) : []
-  }
-
-  guardarEnLocalStorage(): void {
-    const aberturas_compuestas =
-      Abertura_Compuesta.obtenerAberturasDeLocalStorage()
-    aberturas_compuestas.push(this)
-    localStorage.setItem(
-      'aberturas_compuestas',
-      JSON.stringify(aberturas_compuestas),
-    )
   }
 }

@@ -4,7 +4,7 @@ function Header() {
       <span className='flex flex-wrap text-base font-medium basis-4/12 w-full flex-1 '>
         Producto
       </span>
-      <span className='flex flex-wrap text-base font-medium basis-6/12 w-full min-w-[120px] flex-1'>
+      <span className='flex flex-wrap text-base font-medium basis-6/12 w-full min-w-30 flex-1'>
         Detalles
       </span>
       <span className='flex flex-wrap text-base font-medium basis-1/12  flex-1'>
