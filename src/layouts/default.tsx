@@ -7,11 +7,20 @@ export default function DefaultLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className='grid min-h-dvh grid-rows-[auto_1fr_auto]'>
+    // min-h-screen para asegurar que el footer siempre esté al fondo
+    <div className='flex flex-col min-h-screen bg-black'>
       <Navbar />
-      <main className='container mx-auto max-w-7xl grow px-0 pt-0 md:pt-4 md:px-4 lg:pt-6 lg:px-6'>
+      <main
+        className='
+        grow w-full mx-auto
+        max-w-450 
+        px-0 sm:px-4 md:px-6 lg:px-8
+        py-4 md:py-4 lg:py-6
+      '
+      >
         {children}
       </main>
+
       <Footer />
     </div>
   )

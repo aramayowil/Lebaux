@@ -1,7 +1,6 @@
 import {
   addToast,
   Button,
-  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -16,6 +15,7 @@ import { colors } from '@/models/IColors'
 import { vidrios } from '@/models/IVidrios'
 import { GoTrash } from 'react-icons/go'
 import { IoIosInformationCircleOutline, IoMdCreate } from 'react-icons/io'
+import { HiOutlineViewColumns } from 'react-icons/hi2'
 import useAberturasStore from '@/stores/useAberturasStore'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 import ModalAbertura from '../modals/ModalAbertura'
@@ -24,15 +24,10 @@ import TableEmpty from '../TableEmpty'
 import { HiDotsVertical } from 'react-icons/hi'
 
 const formatCurrency = (valor: number) => {
-  return valor.toLocaleString('es-ES', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
-const formatCurrencyWithDecimals = (valor: number) => {
-  return valor.toLocaleString('es-ES', {
+  return valor.toLocaleString('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
   })
 }
 
@@ -41,7 +36,6 @@ export default function Body() {
   const eliminarAberturaStore = useAberturasStore(
     (state) => state.eliminarAbertura,
   )
-
   const aberturasCompuestas = useAberturasCompuestasStore(
     (state) => state.aberturasComps,
   )
@@ -49,12 +43,13 @@ export default function Body() {
     (state) => state.eliminarAberturaComp,
   )
 
-  // controles modal editar (Simples)
   const [keyAbertura, setKeyAbertura] = useState<string>('')
   const [isOpenEditModal, setIsOpenEditModal] = useState(false)
 
-  const handlekeyAbertura = (key: string) => setKeyAbertura(key)
-  const onOpenEditModal = () => setIsOpenEditModal(true)
+  const onOpenEditModal = (key: string) => {
+    setKeyAbertura(key)
+    setIsOpenEditModal(true)
+  }
   const onCloseEditModal = () => {
     setIsOpenEditModal(false)
     setKeyAbertura('')
@@ -63,99 +58,96 @@ export default function Body() {
   const isEmpty = aberturas.length === 0 && aberturasCompuestas.length === 0
 
   return (
-    <section className='flex flex-col gap-2 py-1 md:pt-1 lg:pb-2 bg-opacity-60'>
+    <section className='w-full max-w-5xl mx-auto px-1 py-4'>
       {isEmpty ? (
         <TableEmpty />
       ) : (
-        <ScrollShadow hideScrollBar className='h-[60vh]'>
-          {/* --- RENDER ABERTURAS SIMPLES --- */}
-          {aberturas.map((abertura, index) => (
-            <article
-              key={`simple-${abertura.key || index}`}
-              className='relative lg:flex flex-col w-full p-2 lg:p-0 hover:bg-neutral-900 rounded-lg '
-            >
-              <div className='flex flex-row gap-2 items-center w-full px-3 py-1.5 border-b border-neutral-700'>
-                <div className='flex flex-row gap-2 md:basis-4/12 items-center w-full lg:p-0 '>
+        <ScrollShadow className='h-[65vh] pr-4' size={20}>
+          <div className='flex flex-col gap-3'>
+            {/* --- RENDER ABERTURAS SIMPLES --- */}
+            {aberturas.map((abertura) => (
+              <article
+                key={`simple-${abertura.key}`}
+                className='group relative flex items-center gap-4 p-2 bg-zinc-900/40 border border-zinc-800/60 rounded-2xl hover:bg-zinc-900/80 hover:border-zinc-700 transition-all duration-300'
+              >
+                <div className='relative shrink-0 bg-white/5 rounded-md p-1 border border-zinc-800'>
                   <Image
-                    radius='none'
                     src={abertura.img}
-                    alt='img abertura'
-                    width={70}
-                    height={70}
+                    alt='abertura'
+                    width={64}
                     className='aspect-square object-contain'
                   />
+                </div>
+
+                <div className='grow grid grid-cols-1 md:grid-cols-3 gap-2 items-center'>
                   <div className='flex flex-col'>
-                    <span className='capitalize text-neutral-400 text-sm'>
-                      {abertura.linea}
+                    <span className='text-[10px] font-black uppercase tracking-widest text-zinc-500'>
+                      Línea {abertura.linea}
                     </span>
-                    <span className='capitalize text-base font-semibold'>
+                    <h4 className='text-sm font-bold text-zinc-100 capitalize'>
                       {abertura.name_abertura}
-                    </span>
-                    <span className='text-sm text-neutral-400'>
+                    </h4>
+                    <span className='text-xs text-zinc-500'>
                       Cantidad: {abertura.cantidad}
                     </span>
                   </div>
-                </div>
 
-                <div className='hidden md:flex flex-col md:basis-6/12 '>
-                  <span className='text-base font-medium'>
-                    {abertura.descripcion_abertura}
-                  </span>
-                  <div className='flex flex-wrap flex-col '>
-                    <span className='text-sm text-neutral-400'>
-                      {abertura.medidas.base}x{abertura.medidas.altura}
+                  <div className='hidden md:flex flex-col gap-0.5 border-x border-zinc-800/50 px-4'>
+                    <span className='text-xs font-medium text-zinc-300'>
+                      {abertura.medidas.base} x {abertura.medidas.altura} mm
                     </span>
-                    <span className='capitalize text-sm text-neutral-400'>
+                    <span className='text-[10px] text-zinc-500 uppercase font-semibold'>
                       {vidrios.find((v) => v.key === abertura.vidrio)?.label ||
-                        abertura.vidrio}
-                    </span>
-                    <span className='capitalize text-sm text-neutral-400'>
+                        'DVH'}{' '}
+                      •{' '}
                       {colors.find((c) => c.key === abertura.color)?.label ||
-                        abertura.color}
+                        'Blanco'}
+                    </span>
+                  </div>
+
+                  <div className='flex flex-col md:items-end pr-4'>
+                    <span className='text-xs text-zinc-500 uppercase tracking-tighter'>
+                      Subtotal
+                    </span>
+                    <span className='text-lg font-black text-white tracking-tight'>
+                      {formatCurrency(
+                        (abertura.precio +
+                          abertura.accesorios.mosquitero +
+                          abertura.accesorios.premarco) *
+                          abertura.cantidad,
+                      )}
                     </span>
                   </div>
                 </div>
 
-                <div className='flex md:basis-1/12 gap-1 items-center'>
-                  <span className='text-base font-medium'>
-                    $&nbsp;
-                    {formatCurrencyWithDecimals(
-                      (abertura.precio +
-                        abertura.accesorios.mosquitero +
-                        abertura.accesorios.premarco) *
-                        abertura.cantidad,
-                    )}
-                  </span>
-                  <Popover showArrow offset={10} placement='top-end'>
+                <div className='flex items-center gap-1'>
+                  <Popover placement='top'>
                     <PopoverTrigger>
                       <Button
                         isIconOnly
                         variant='light'
-                        radius='full'
                         size='sm'
-                        className='min-w-2 min-h-2 h-6.5 w-6.5'
+                        className='text-zinc-500 hover:text-zinc-200'
                       >
                         <IoIosInformationCircleOutline size={20} />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent>
-                      <div className='px-1 py-2 w-47.5'>
-                        <div className='text-md font-bold mb-2'>Detalles</div>
-                        <div className='flex flex-col gap-1'>
-                          <div className='flex justify-between text-sm text-neutral-400'>
-                            <span>Precio Unit.:</span>
-                            <span>${formatCurrency(abertura.precio)}</span>
+                    <PopoverContent className='bg-zinc-950 border border-zinc-800'>
+                      <div className='p-2 text-xs'>
+                        <p className='font-bold border-b border-zinc-800 pb-1 mb-1'>
+                          Cargos Unitarios
+                        </p>
+                        <div className='space-y-1 text-zinc-400'>
+                          <div className='flex justify-between gap-4'>
+                            <span>Base:</span>{' '}
+                            <span>{formatCurrency(abertura.precio)}</span>
                           </div>
-                          <Divider className='my-1' />
-                          <div className='flex justify-between text-sm font-bold'>
-                            <span>Total:</span>
+                          <div className='flex justify-between gap-4'>
+                            <span>Adicionales:</span>{' '}
                             <span>
-                              $
                               {formatCurrency(
-                                (abertura.precio +
-                                  abertura.accesorios.mosquitero +
-                                  abertura.accesorios.premarco) *
-                                  abertura.cantidad,
+                                abertura.accesorios.mosquitero +
+                                  abertura.accesorios.premarco,
                               )}
                             </span>
                           </div>
@@ -163,135 +155,217 @@ export default function Body() {
                       </div>
                     </PopoverContent>
                   </Popover>
-                </div>
 
-                <div className='absolute right-0 top-0 md:relative md:flex md:basis-1/12 md:justify-center'>
-                  <Dropdown placement='bottom-end'>
+                  <Dropdown
+                    backdrop='transparent'
+                    classNames={{
+                      content:
+                        'bg-zinc-950 border border-zinc-800 shadow-2xl min-w-45 p-1.5',
+                    }}
+                  >
                     <DropdownTrigger>
-                      <Button isIconOnly size='sm' variant='light'>
-                        <HiDotsVertical size={20} />
+                      <Button
+                        isIconOnly
+                        variant='light'
+                        size='sm'
+                        className='h-8 w-8 rounded-lg hover:bg-zinc-800 transition-all group'
+                      >
+                        <HiDotsVertical
+                          size={18}
+                          className='text-zinc-500 group-hover:text-zinc-200 transition-colors'
+                        />
                       </Button>
                     </DropdownTrigger>
-                    <DropdownMenu>
+
+                    <DropdownMenu
+                      aria-label='Acciones de item'
+                      variant='flat'
+                      itemClasses={{
+                        base: [
+                          'rounded-lg',
+                          'py-2.5',
+                          'transition-all',
+                          'duration-200',
+                        ],
+                      }}
+                    >
+                      {/* ITEM: EDITAR (Gris Titanio / Acero) */}
                       <DropdownItem
                         key='edit'
-                        startContent={<IoMdCreate size={16} />}
-                        onPress={() => {
-                          handlekeyAbertura(abertura.key)
-                          onOpenEditModal()
-                        }}
+                        onPress={() => onOpenEditModal(abertura.key)}
+                        className='group data-[hover=true]:bg-zinc-800/50'
+                        startContent={
+                          <div className='p-1.5 rounded-md bg-zinc-900 border border-zinc-800 group-hover:border-zinc-400 group-hover:text-zinc-100 transition-all shadow-sm'>
+                            <IoMdCreate
+                              size={16}
+                              className='text-zinc-500 group-hover:text-zinc-100'
+                            />
+                          </div>
+                        }
                       >
-                        Editar
+                        <span className='text-[11px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-zinc-100 transition-colors'>
+                          Editar Ficha
+                        </span>
                       </DropdownItem>
+
+                      {/* ITEM: ELIMINAR (Rojo Intenso y Sólido) */}
                       <DropdownItem
                         key='delete'
-                        className='text-danger'
-                        color='danger'
-                        startContent={<GoTrash size={16} />}
                         onPress={() => {
                           eliminarAberturaStore(abertura.key)
                           addToast({
-                            color: 'warning',
-                            title: 'Abertura eliminada',
+                            title: 'REGISTRO ELIMINADO',
+                            description:
+                              'La abertura se ha quitado del presupuesto correctamente.',
+                            variant: 'flat',
+                            color: 'danger',
+                            // Si tu librería de toast lo permite, podrías añadir un ícono aquí
                           })
                         }}
+                        className='group data-[hover=true]:bg-red-500/10'
+                        startContent={
+                          <div className='p-1.5 rounded-md bg-zinc-900 border border-zinc-800 group-hover:border-red-600 group-hover:bg-red-600 transition-all shadow-md'>
+                            <GoTrash
+                              size={16}
+                              className='text-zinc-500 group-hover:text-white'
+                            />
+                          </div>
+                        }
                       >
-                        Eliminar
+                        <span className='text-[11px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-red-500 transition-colors'>
+                          Eliminar Registro
+                        </span>
                       </DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
 
-          {/* --- RENDER ABERTURAS COMPUESTAS --- */}
-          {aberturasCompuestas.map((comp, index) => (
-            <article
-              key={`comp-${comp.key || index}`}
-              /* Cambio: border-blue-500 -> border-warning y bg-blue-500/5 -> bg-warning-50/10 o bg-warning/5 */
-              className='relative lg:flex flex-col w-full p-2 lg:p-0 border-l-4 border-warning bg-warning/5 hover:bg-neutral-900 rounded-lg mt-2 transition-colors'
-            >
-              <div className='flex flex-row gap-2 items-center w-full px-3 py-1.5 border-b border-neutral-700/50'>
-                <div className='flex flex-row gap-2 md:basis-4/12 items-center w-full'>
+            {/* --- RENDER ABERTURAS COMPUESTAS --- */}
+            {aberturasCompuestas.map((comp) => (
+              <article
+                key={`comp-${comp.key}`}
+                className='group relative flex items-center gap-4 p-2 bg-zinc-900/20 border border-zinc-700/30 rounded-2xl hover:bg-zinc-900/60 transition-all duration-300'
+              >
+                {/* Indicador visual de Compuesta (Sutil) */}
+                <div className='absolute left-0 top-1/4 bottom-1/4 w-1 bg-warning/40 rounded-r-full' />
+
+                <div className='relative shrink-0 bg-zinc-800 rounded-xl p-2 border border-zinc-700'>
                   <Image
-                    radius='sm' /* Un radio pequeño suaviza el diseño */
                     src={comp.capturedImageBase64}
-                    alt='img abertura'
-                    width={70}
-                    height={70}
-                    className='aspect-square object-contain bg-white/10'
+                    alt='compuesta'
+                    width={64}
+                    className='aspect-square object-contain grayscale group-hover:grayscale-0 transition-all'
                   />
+                </div>
+
+                <div className='grow grid grid-cols-1 md:grid-cols-3 gap-2 items-center'>
                   <div className='flex flex-col'>
-                    {/* Cambio: text-blue-500 -> text-warning */}
-                    <span className='text-[10px] text-warning font-bold uppercase tracking-wider'>
-                      Abertura Compuesta
-                    </span>
-                    <span className='capitalize text-base font-semibold'>
-                      Medidas
-                    </span>
-                    <span className='text-sm text-neutral-400'>
+                    <div className='flex items-center gap-1.5'>
+                      <HiOutlineViewColumns
+                        className='text-warning/60'
+                        size={12}
+                      />
+                      <span className='text-[10px] font-black uppercase tracking-widest text-warning/60'>
+                        Estructura Compuesta
+                      </span>
+                    </div>
+                    <h4 className='text-sm font-bold text-zinc-100'>
+                      Diseño Personalizado
+                    </h4>
+                    <span className='text-xs text-zinc-500'>
                       Cantidad: {comp.cantidad}
+                    </span>
+                  </div>
+
+                  <div className='hidden md:flex flex-col border-x border-zinc-800/50 px-4'>
+                    <span className='text-xs font-bold text-zinc-400 italic'>
+                      Configuración Especial
+                    </span>
+                    <span className='text-xs text-zinc-200'>
+                      {comp.medidas.base} x {comp.medidas.altura} mm
+                    </span>
+                  </div>
+
+                  <div className='flex flex-col md:items-end pr-4'>
+                    <span className='text-xs text-zinc-500 uppercase tracking-tighter'>
+                      Subtotal
+                    </span>
+                    <span className='text-lg font-black text-warning/90 tracking-tight'>
+                      {formatCurrency(comp.precio * comp.cantidad)}
                     </span>
                   </div>
                 </div>
 
-                <div className='hidden md:flex flex-col md:basis-6/12 '>
-                  <span className='text-sm text-neutral-400 italic'>
-                    Diseño a medida
-                    <br />
-                    <span className='text-neutral-200 not-italic font-medium'>
-                      {comp.medidas.base} x {comp.medidas.altura}
-                    </span>
-                  </span>
-                </div>
-
-                <div className='flex md:basis-1/12 gap-1 items-center'>
-                  {/* Cambio: text-blue-400 -> text-warning-400 o warning */}
-                  <span className='text-base font-bold text-warning'>
-                    $&nbsp;
-                    {formatCurrencyWithDecimals(comp.precio * comp.cantidad)}
-                  </span>
-                </div>
-
-                <div className='absolute right-0 top-0 md:relative md:flex md:basis-1/12 md:justify-center'>
-                  <Dropdown placement='bottom-end'>
+                <div className='flex items-center gap-1'>
+                  <Dropdown
+                    backdrop='transparent'
+                    classNames={{
+                      content:
+                        'bg-zinc-950 border border-zinc-800 shadow-2xl min-w-45 p-1.5',
+                    }}
+                  >
                     <DropdownTrigger>
                       <Button
                         isIconOnly
-                        size='sm'
                         variant='light'
-                        radius='full'
+                        size='sm'
+                        className='h-8 w-8 rounded-lg hover:bg-zinc-800 transition-all group'
                       >
                         <HiDotsVertical
-                          size={20}
-                          className='text-neutral-400'
+                          size={18}
+                          className='text-zinc-500 group-hover:text-zinc-200 transition-colors'
                         />
                       </Button>
                     </DropdownTrigger>
-                    <DropdownMenu aria-label='Acciones de abertura'>
+
+                    <DropdownMenu
+                      aria-label='Acciones de item'
+                      variant='flat'
+                      itemClasses={{
+                        base: [
+                          'rounded-lg',
+                          'py-2.5',
+                          'transition-all',
+                          'duration-200',
+                        ],
+                      }}
+                    >
+                      {/* ITEM: ELIMINAR (Rojo Intenso y Sólido) */}
                       <DropdownItem
                         key='delete'
-                        className='text-danger'
-                        color='danger'
-                        description='Se eliminará permanentemente'
-                        startContent={<GoTrash size={16} />}
                         onPress={() => {
                           eliminarAberturaCompuestaStore(comp.key)
                           addToast({
+                            title: 'REGISTRO ELIMINADO',
+                            description:
+                              'La abertura se ha quitado del presupuesto correctamente.',
+                            variant: 'flat',
                             color: 'danger',
-                            title: 'Compuesta eliminada',
+                            // Si tu librería de toast lo permite, podrías añadir un ícono aquí
                           })
                         }}
+                        className='group data-[hover=true]:bg-red-500/10'
+                        startContent={
+                          <div className='p-1.5 rounded-md bg-zinc-900 border border-zinc-800 group-hover:border-red-600 group-hover:bg-red-600 transition-all shadow-md'>
+                            <GoTrash
+                              size={16}
+                              className='text-zinc-500 group-hover:text-white'
+                            />
+                          </div>
+                        }
                       >
-                        Eliminar
+                        <span className='text-[11px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-red-500 transition-colors'>
+                          Eliminar Registro
+                        </span>
                       </DropdownItem>
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </ScrollShadow>
       )}
 
