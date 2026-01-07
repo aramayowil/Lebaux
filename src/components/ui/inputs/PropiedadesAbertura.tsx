@@ -27,10 +27,15 @@ export default function PropiedadesAbertura({
         isRequired
         minValue={1}
         value={form.ancho}
+        formatOptions={{
+          useGrouping: false, // Esto quita los puntos de miles (1.000 -> 1000)
+          minimumFractionDigits: 0, // Asegura que no haya decimales
+          maximumFractionDigits: 0,
+        }}
         isDisabled={isDisabled}
         onValueChange={(v) => onChange('ancho', v)}
         startContent={<RxWidth size={21} />}
-        endContent={<span className='text-sm text-default-400'>cm</span>}
+        endContent={<span className='text-sm text-default-400'>mm</span>}
       />
 
       {/* ALTURA */}
@@ -41,10 +46,15 @@ export default function PropiedadesAbertura({
         isRequired
         minValue={1}
         value={form.altura}
+        formatOptions={{
+          useGrouping: false, // Esto quita los puntos de miles (1.000 -> 1000)
+          minimumFractionDigits: 0, // Asegura que no haya decimales
+          maximumFractionDigits: 0,
+        }}
         isDisabled={isDisabled}
         onValueChange={(v) => onChange('altura', v)}
         startContent={<RxHeight size={20} />}
-        endContent={<span className='text-sm text-default-400'>cm</span>}
+        endContent={<span className='text-sm text-default-400'>mm</span>}
       />
 
       {/* COLOR */}
