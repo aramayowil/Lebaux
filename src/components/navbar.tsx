@@ -12,10 +12,23 @@ import {
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Image } from '@heroui/react'
 import { HiSearch } from 'react-icons/hi'
-import { siteConfig } from '@/config/site'
 import clsx from 'clsx'
 
+// 1. Importamos hooks y componentes de navegación de Vite
+import { useLocation, Link as RouterLink } from 'react-router-dom'
+
 export const Navbar = () => {
+  // 2. Obtenemos la ruta actual
+  const { pathname } = useLocation()
+
+  // 3. Definimos los items para poder usarlos tanto en desktop como en mobile
+  const navItems = [
+    { label: 'Presupuesto', href: '/' },
+    { label: 'Historial', href: '/Historial' },
+    { label: 'Línea Modena', href: '/ventanaModena' },
+    { label: 'Cálculo DVH', href: '/dvhCalc' },
+  ]
+
   const searchInput = (
     <Input
       aria-label='Buscar'
@@ -34,44 +47,44 @@ export const Navbar = () => {
     <HeroUINavbar
       maxWidth='full'
       position='sticky'
-      className='bg-black/70 backdrop-blur-xl border-b border-zinc-800/40 h-20' // Aumentamos h-16 a h-20 para dar aire al logo más grande
+      className='bg-black/70 backdrop-blur-xl border-b border-zinc-800/40 h-20'
     >
-      {/* max-w-[112.5rem] para igualar al Layout (1800px) */}
       <div className='flex w-full max-w-450 mx-auto items-center px-4 md:px-8'>
-        {/* Logo: Aumentado y con colores naturales */}
+        {/* Logo */}
         <NavbarBrand className='max-w-fit mr-12'>
-          <Link href='/'>
+          <Link as={RouterLink} href='/'>
             <Image
               alt='Lebaux Logo'
-              className='h-8 md:h-10 w-auto object-contain' // Aumentado de h-6 a h-10/12
+              className='h-8 md:h-10 w-auto object-contain'
               src='./images/LEBAUX-LOGO.png'
               radius='none'
-              // Eliminamos grayscale y brightness para mantener el color original
             />
           </Link>
         </NavbarBrand>
 
-        {/* Navegación */}
+        {/* Navegación Desktop */}
         <NavbarContent className='hidden lg:flex gap-4' justify='start'>
-          {[
-            { label: 'Presupuesto', href: '/', active: true },
-            { label: 'Línea Modena', href: '/ventanaModena', active: false },
-            { label: 'Cálculo DVH', href: '/dvhCalc', active: false },
-          ].map((item) => (
-            <NavbarItem key={item.href} isActive={item.active}>
-              <Link
-                href={item.href}
-                className={clsx(
-                  'text-xs uppercase tracking-[0.17em] font-bold transition-colors font-sans',
-                  item.active
-                    ? 'text-warning'
-                    : 'text-zinc-500 hover:text-zinc-200',
-                )}
-              >
-                {item.label}
-              </Link>
-            </NavbarItem>
-          ))}
+          {navItems.map((item) => {
+            // 4. Lógica de resaltado dinámico
+            const isActive = pathname === item.href
+
+            return (
+              <NavbarItem key={item.href} isActive={isActive}>
+                <Link
+                  as={RouterLink} // Importante para que no recargue la página
+                  href={item.href}
+                  className={clsx(
+                    'text-xs uppercase tracking-widest font-bold transition-colors ',
+                    isActive
+                      ? 'text-warning' // Color si estás en la página
+                      : 'text-zinc-250 hover:text-zinc-200', // Color si no estás
+                  )}
+                >
+                  {item.label}
+                </Link>
+              </NavbarItem>
+            )
+          })}
         </NavbarContent>
 
         {/* Lado Derecho */}
@@ -86,21 +99,26 @@ export const Navbar = () => {
         </NavbarContent>
       </div>
 
+      {/* Menú Móvil Resaltado */}
       <NavbarMenu className='bg-black/95 pt-8 gap-4'>
-        {siteConfig.navMenuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item.label}-${index}`}>
-            <Link
-              className={clsx(
-                'text-lg font-bold uppercase tracking-widest font-sans',
-                index === 0 ? 'text-warning' : 'text-zinc-400',
-              )}
-              href={item.href}
-              size='lg'
-            >
-              {item.label}
-            </Link>
-          </NavbarMenuItem>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <NavbarMenuItem key={item.href}>
+              <Link
+                as={RouterLink}
+                href={item.href}
+                className={clsx(
+                  'text-lg font-bold uppercase tracking-widest font-sans',
+                  isActive ? 'text-warning' : 'text-zinc-400',
+                )}
+                size='lg'
+              >
+                {item.label}
+              </Link>
+            </NavbarMenuItem>
+          )
+        })}
       </NavbarMenu>
     </HeroUINavbar>
   )
