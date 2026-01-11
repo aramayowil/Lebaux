@@ -1,10 +1,10 @@
 export interface IAbertura {
   key: string
-  type_aberturaID: string
+  abertura_id: string
   linea: string
-  name_abertura: string
+  nombre_abertura: string
   descripcion_abertura: string
-  codigo: string
+  cod_abertura: string
   variantKey: number
   medidas: { base: number; altura: number }
   accesorios: { mosquitero: number; premarco: number }
@@ -14,6 +14,4 @@ export interface IAbertura {
   capturedImageBase64: string
   cantidad: number
   precio: number
-  getKey(): string
-  calcularTotal(): number
 }

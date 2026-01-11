@@ -1,17 +1,30 @@
-// SelectorCatalogo.tsx
 import { Select, SelectItem } from '@heroui/react'
+import { useMemo } from 'react'
 import { catalogo } from '@/data'
 import { lineas } from '@/models/ILineas'
 
+type FormValue = string | number | boolean | null
+
+interface FormState {
+  linea: string
+  abertura: string
+  [key: string]: FormValue
+}
+
 interface SelectorCatalogoProps {
-  form: any
-  onChange: (field: string, value: any) => void
+  form: FormState
+  onChange: (field: keyof FormState, value: string) => void
 }
 
 export default function SelectorCatalogo({
   form,
   onChange,
 }: SelectorCatalogoProps) {
+  const opcionesAbertura = useMemo(() => {
+    if (!form.linea) return []
+    return catalogo[form.linea] || []
+  }, [form.linea])
+
   return (
     <>
       <Select
@@ -19,15 +32,17 @@ export default function SelectorCatalogo({
         className='col-span-3'
         isRequired
         variant='bordered'
-        selectedKeys={form.linea ? [form.linea] : []}
+        selectedKeys={new Set(form.linea ? [form.linea] : [])}
         onSelectionChange={(keys) => {
-          const value = Array.from(keys)[0]
-          onChange('linea', value?.toString())
-          onChange('abertura', '') // Reset automático
+          const value = Array.from(keys)[0]?.toString() || ''
+          onChange('linea', value)
+          onChange('abertura', '')
         }}
       >
         {lineas.map((i) => (
-          <SelectItem key={i.key}>{i.label}</SelectItem>
+          <SelectItem key={i.key} textValue={i.label}>
+            {i.label}
+          </SelectItem>
         ))}
       </Select>
 
@@ -36,15 +51,18 @@ export default function SelectorCatalogo({
         className='col-span-3'
         isRequired
         variant='bordered'
-        isDisabled={!form.linea}
-        selectedKeys={form.abertura ? [form.abertura] : []}
+        // Deshabilitado si no hay línea o si la línea seleccionada no tiene aberturas
+        isDisabled={!form.linea || opcionesAbertura.length === 0}
+        selectedKeys={new Set(form.abertura ? [form.abertura] : [])}
         onSelectionChange={(keys) => {
-          const value = Array.from(keys)[0]
-          onChange('abertura', value?.toString())
+          const value = Array.from(keys)[0]?.toString() || ''
+          onChange('abertura', value)
         }}
       >
-        {(catalogo[form.linea] || []).map((i) => (
-          <SelectItem key={i.id}>{i.abertura}</SelectItem>
+        {opcionesAbertura.map((i) => (
+          <SelectItem key={i.id} textValue={i.abertura}>
+            {i.abertura}
+          </SelectItem>
         ))}
       </Select>
     </>

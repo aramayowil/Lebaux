@@ -1,5 +1,5 @@
 import { IAbertura } from './IAbertura'
-import { IAbertura_Compuesta } from './IAberturaCompuesta'
+import { IAberturaCompuesta } from './IAberturaCompuesta'
 
 export interface IPresupuesto {
   id: string
@@ -9,5 +9,5 @@ export interface IPresupuesto {
   observaciones?: string 
   descuento?: number 
   estado?: 'pendiente' | 'aceptado' | 'rechazado' 
-  items: (IAbertura | IAbertura_Compuesta)[]
+  items: (IAbertura | IAberturaCompuesta)[]
 }

@@ -193,7 +193,7 @@ function PDF({
                       marginTop: -10, // Margen negativo para forzar la subida hacia el borde superior
                     }}
                   >
-                    {abertura.codigo}
+                    {abertura.cod_abertura}
                   </Text>
                   <View
                     style={{
@@ -329,14 +329,16 @@ function PDF({
             const escalaBase = 0.25
 
             let widthCalculado: number
-            if (compuesta.medidas.base <= umbral) {
-              widthCalculado = compuesta.medidas.base * escalaBase
+            if (compuesta.medidas_compuesta.base <= umbral) {
+              widthCalculado = compuesta.medidas_compuesta.base * escalaBase
             } else {
-              const excedente = compuesta.medidas.base - umbral
+              const excedente = compuesta.medidas_compuesta.base - umbral
               widthCalculado = umbral * escalaBase + excedente * 0.03
             }
 
-            const aspect = compuesta.medidas.altura / compuesta.medidas.base
+            const aspect =
+              compuesta.medidas_compuesta.altura /
+              compuesta.medidas_compuesta.base
             let finalWidth = widthCalculado
             let finalHeight = widthCalculado * aspect
 
@@ -377,7 +379,7 @@ function PDF({
                       marginTop: -10, // Margen negativo para forzar la subida hacia el borde superior
                     }}
                   >
-                    {compuesta.codigo}
+                    {compuesta.cod_compuesta}
                   </Text>
                   <View
                     style={{
@@ -387,7 +389,7 @@ function PDF({
                     }}
                   >
                     <Image
-                      src={compuesta.capturedImageBase64}
+                      src={compuesta.capturedImageBase64_compuesta}
                       style={{ width: finalWidth, height: finalHeight }}
                     />
                   </View>
@@ -414,7 +416,7 @@ function PDF({
                           marginBottom: 2,
                         }}
                       >
-                        {`${modulo.abertura.descripcion} ${capitalizar(modulo.abertura.linea)}`}
+                        {`${modulo.abertura.descripcion_abertura} ${capitalizar(modulo.abertura.linea)}`}
                       </Text>
                       <Text
                         style={{
@@ -424,7 +426,7 @@ function PDF({
                           marginBottom: 2,
                         }}
                       >
-                        {`${modulo.abertura.ancho} x ${modulo.abertura.altura} mm`}
+                        {`${modulo.abertura.medidas.base} x ${modulo.abertura.medidas.altura} mm`}
                       </Text>
                       <Text
                         style={{
@@ -463,16 +465,17 @@ function PDF({
                     <Text style={{ fontSize: 10 }}>
                       Medidas:{' '}
                       <Text style={{ fontWeight: 'bold' }}>
-                        {compuesta.medidas.base} x {compuesta.medidas.altura} mm
+                        {compuesta.medidas_compuesta.base} x{' '}
+                        {compuesta.medidas_compuesta.altura} mm
                       </Text>
                     </Text>
                     <Text style={{ fontSize: 10 }}>
                       Color:{' '}
-                      {colors.find((c) => c.key === compuesta.color)?.label ||
-                        compuesta.descripcion_abertura}
+                      {colors.find((c) => c.key === compuesta.color_compuesta)
+                        ?.label || compuesta.descripcion_compuesta}
                     </Text>
                     <Text style={{ fontSize: 10 }}>
-                      Cantidad: {compuesta.cantidad}
+                      Cantidad: {compuesta.cantidad_compuesta}
                     </Text>
                   </View>
 
@@ -484,7 +487,7 @@ function PDF({
                     }}
                   >
                     <Text style={{ fontSize: 10, color: '#666' }}>
-                      P. Unitario: ${formatCurrency(compuesta.precio)}
+                      P. Unitario: ${formatCurrency(compuesta.precio_compuesta)}
                     </Text>
                     <Text
                       style={{
@@ -494,7 +497,10 @@ function PDF({
                       }}
                     >
                       Importe: $
-                      {formatCurrency(compuesta.precio * compuesta.cantidad)}
+                      {formatCurrency(
+                        compuesta.precio_compuesta *
+                          compuesta.cantidad_compuesta,
+                      )}
                       {/* {formatCurrency(
                         (abertura.precio +
                           abertura.accesorios.mosquitero +

@@ -68,14 +68,14 @@ export default function ModalAbertura({
         if (aberturaToEdit) {
           setForm({
             linea: aberturaToEdit.linea,
-            abertura: aberturaToEdit.type_aberturaID,
+            abertura: aberturaToEdit.abertura_id,
             ancho: aberturaToEdit.medidas.base,
             altura: aberturaToEdit.medidas.altura,
             color: aberturaToEdit.color,
             vidrio: aberturaToEdit.vidrio,
             cantidad: aberturaToEdit.cantidad,
             precio: aberturaToEdit.precio,
-            codigo: aberturaToEdit.codigo,
+            codigo: aberturaToEdit.cod_abertura,
             descripcion: aberturaToEdit.descripcion_abertura,
             mosquitero: {
               checked: (aberturaToEdit.accesorios.mosquitero || 0) > 0,
