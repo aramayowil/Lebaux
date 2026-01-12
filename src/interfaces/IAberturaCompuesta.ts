@@ -2,16 +2,14 @@ import { IModulo } from './Imodulo'
 
 export interface IAbertura_Compuesta {
   key: string
-  name_abertura: string
-  descripcion_abertura: string
-  codigo: string
-  medidas: { base: number; altura: number }
-  img: string
-  capturedImageBase64: string
+  nombre_compuesta: string
+  descripcion_compuesta: string
+  cod_compuesta: string
+  medidas_compuesta: { base: number; altura: number }
+  img_compuesta: string
+  capturedImageBase64_compuesta: string
   configuracion: IModulo[]
-  cantidad: number
-  precio: number
-  color: string
-  getKey(): string
-  calcularTotal(): number
+  cantidad_compuesta: number
+  precio_compuesta: number
+  color_compuesta: string
 }

@@ -8,33 +8,17 @@ import {
   ModalFooter,
 } from '@heroui/react'
 import { catalogo } from '@/data'
+import { IAbertura } from '@/interfaces/IAbertura'
 
 import PropiedadesAbertura from '../../inputs/PropiedadesAbertura'
 import SelectorCatalogo from '../../inputs/SelectorCatalogo'
 import TabsAberturaComp from './TabsAberturaComp'
 
-interface abertura {
-  linea: string
-  abertura: string
-  ancho: number
-  altura: number
-  color: string
-  vidrio: string
-  cantidad: number
-  precio: number
-  codigo: string
-  descripcion: string
-  mosquitero: { checked: boolean; precio: number }
-  premarco: { checked: boolean; precio: number }
-  imgSrc: string
-  variantKey: number
-}
-
 interface ModalAgregarProps {
   onClose: () => void
   handleConfirmarModulo: () => void
-  abertura: abertura
-  setAbertura: (val: abertura) => void
+  abertura: IAbertura
+  setAbertura: (val: IAbertura) => void
 }
 
 function ModalAgregar({
@@ -43,42 +27,65 @@ function ModalAgregar({
   abertura,
   setAbertura,
 }: ModalAgregarProps) {
-  // 1. Mantenemos un estado local para el formulario.
-  // IMPORTANTE: Eliminamos el useEffect que sincronizaba automáticamente.
-  const [form, setForm] = useState<abertura>(abertura)
-
+  const [form, setForm] = useState<IAbertura>({
+    ...abertura,
+    linea: abertura.linea || '',
+    abertura_id: abertura.abertura_id || '',
+    nombre_abertura: abertura.nombre_abertura || '',
+    medidas: abertura.medidas || { base: 0, altura: 0 },
+  })
   const handleChange = (field: string, value: any) => {
-    // 2. Actualizamos el estado local inmediatamente para que el UI responda
-    const updatedForm = { ...form, [field]: value }
-    setForm(updatedForm)
+    let updatedForm = { ...form }
 
-    // 3. Sincronizamos con el padre de forma imperativa solo cuando hay un cambio.
-    // Esto evita el bucle infinito porque el cambio nace de una acción del usuario.
+    if (field === 'ancho') {
+      updatedForm.medidas = { ...updatedForm.medidas, base: value }
+    } else if (field === 'altura') {
+      updatedForm.medidas = { ...updatedForm.medidas, altura: value }
+    } else if (field === 'linea') {
+      updatedForm.linea = value
+      // Resetear dependencias
+      updatedForm.abertura_id = ''
+      updatedForm.nombre_abertura = ''
+    } else if (field === 'abertura_id') {
+      updatedForm.abertura_id = value
+      // Actualizar nombre automáticamente
+      if (updatedForm.linea && value) {
+        const item = catalogo[updatedForm.linea]?.find((i) => i.id === value)
+        if (item) {
+          updatedForm.nombre_abertura = item.abertura
+        }
+      }
+    } else {
+      updatedForm = { ...updatedForm, [field]: value }
+    }
+
+    setForm(updatedForm)
     setAbertura(updatedForm)
   }
-  // En ModalAgregar.tsx
-  // En ModalAgregar.tsx
 
   const handleUpdateVariante = (varianteData: {
-    descripcion: string
-    codigo: string
-    imgSrc: string
+    descripcion_abertura: string
+    cod_abertura: string
+    img: string
     variantKey: number
   }) => {
     setForm((prev) => {
-      const nuevoEstado = { ...prev, ...varianteData }
-
-      // Usamos el callback para evitar el error de "renderizado simultáneo"
+      const { img, ...rest } = varianteData
+      const nuevoEstado = { ...prev, ...rest, img }
       setTimeout(() => setAbertura(nuevoEstado), 0)
-
       return nuevoEstado
     })
   }
 
   const onConfirm = () => {
-    // 4. Al confirmar, el padre ya tiene el último estado gracias a handleChange
     handleConfirmarModulo()
     onClose()
+  }
+
+  const formParaPropiedades = {
+    ...form,
+    ancho: form.medidas.base,
+    altura: form.medidas.altura,
   }
 
   return (
@@ -94,7 +101,7 @@ function ModalAgregar({
           <>
             <ModalHeader className='flex flex-col gap-1 p-6'>
               <h2 className='text-xl font-bold text-default-900'>
-                {form.abertura ? 'Editar abertura' : 'Agregar abertura'}
+                {form.abertura_id ? 'Editar abertura' : 'Agregar abertura'}
               </h2>
               <p className='text-small text-default-500 font-normal'>
                 Configura las dimensiones y materiales.
@@ -104,23 +111,22 @@ function ModalAgregar({
             <ModalBody className='p-6'>
               <div className='flex flex-col gap-4'>
                 <div className='grid grid-cols-6 gap-2'>
-                  {/* SelectorCatalogo usa nuestro handleChange manual */}
                   <SelectorCatalogo form={form} onChange={handleChange} />
 
                   <div className='col-span-6'>
-                    {form.linea && form.abertura && (
+                    {form.linea && form.abertura_id && (
                       <TabsAberturaComp
                         selectedAbertura={catalogo[form.linea]?.find(
-                          (i) => i.id === form.abertura,
+                          (i) => i.id === form.abertura_id,
                         )}
                         onVarianteChange={handleUpdateVariante}
-                        setTabSelected={form.variantKey}
+                        setTabSelected={form.variantKey || 0}
                       />
                     )}
                   </div>
 
                   <PropiedadesAbertura
-                    form={form}
+                    form={formParaPropiedades}
                     onChange={handleChange}
                     isDisabled={false}
                   />

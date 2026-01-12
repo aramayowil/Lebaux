@@ -46,7 +46,10 @@ export default function Card() {
           a.cantidad,
       0,
     ) +
-    aberturaCompuestaStore.reduce((acc, a) => acc + a.precio * a.cantidad, 0)
+    aberturaCompuestaStore.reduce(
+      (acc, a) => acc + a.precio_compuesta * a.cantidad_compuesta,
+      0,
+    )
 
   const calcularDescuento = () =>
     IsCheckedDescuento ? totalCompra * inputDescuento : 0

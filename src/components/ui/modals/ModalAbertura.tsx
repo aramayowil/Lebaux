@@ -31,7 +31,7 @@ type ModalProps = {
 
 const INITIAL_FORM_STATE = {
   linea: 'modena',
-  abertura: '',
+  abertura_id: '',
   ancho: NaN,
   altura: NaN,
   color: 'blanco',
@@ -68,14 +68,14 @@ export default function ModalAbertura({
         if (aberturaToEdit) {
           setForm({
             linea: aberturaToEdit.linea,
-            abertura: aberturaToEdit.type_aberturaID,
+            abertura_id: aberturaToEdit.abertura_id,
             ancho: aberturaToEdit.medidas.base,
             altura: aberturaToEdit.medidas.altura,
             color: aberturaToEdit.color,
             vidrio: aberturaToEdit.vidrio,
             cantidad: aberturaToEdit.cantidad,
             precio: aberturaToEdit.precio,
-            codigo: aberturaToEdit.codigo,
+            codigo: aberturaToEdit.cod_abertura,
             descripcion: aberturaToEdit.descripcion_abertura,
             mosquitero: {
               checked: (aberturaToEdit.accesorios.mosquitero || 0) > 0,
@@ -96,7 +96,17 @@ export default function ModalAbertura({
   }, [isOpen, aberturaKey, aberturas, isEditMode])
 
   const handleChange = (field: string, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
+    setForm((prev) => {
+      const next = { ...prev, [field]: value }
+
+      // Si cambia la línea, reseteamos la abertura seleccionada
+      if (field === 'linea') {
+        next.abertura_id = ''
+        // Opcional: limpiar otros campos si es necesario
+      }
+
+      return next
+    })
   }
 
   const cerrarModalYLimpiar = () => {
@@ -107,7 +117,7 @@ export default function ModalAbertura({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const capturedImage = designRef.current?.save()
-    const data = catalogo[form.linea]?.find((i) => i.id === form.abertura)
+    const data = catalogo[form.linea]?.find((i) => i.id === form.abertura_id)
 
     if (data) {
       const newAbertura = new Abertura(
@@ -141,7 +151,7 @@ export default function ModalAbertura({
     }
   }
 
-  const isDisabled = !form.linea || !form.abertura
+  const isDisabled = !form.linea || !form.abertura_id
 
   return (
     <ModalHeroUI
@@ -177,10 +187,10 @@ export default function ModalAbertura({
                       <SelectorCatalogo form={form} onChange={handleChange} />
 
                       <div className='col-span-6'>
-                        {form.abertura && (
+                        {form.abertura_id && (
                           <TabsAbertura
                             selectedAbertura={catalogo[form.linea].find(
-                              (i) => i.id === form.abertura,
+                              (i) => i.id === form.abertura_id,
                             )}
                             getDescripcion={(v) =>
                               handleChange('descripcion', v)

@@ -60,7 +60,7 @@ export default function FloatButton({
             color='warning'
             radius='full'
             size='lg'
-            className='!opacity-100'
+            className='opacity-100!'
           >
             <VscSettings
               size={22}
@@ -68,7 +68,7 @@ export default function FloatButton({
             />
           </Button>
         </DropdownTrigger>
-        <DropdownMenu className='max-w-[190px] pt-2'>
+        <DropdownMenu className='max-w-47.5 pt-2'>
           <DropdownItem
             key='card'
             textValue='Configuración adicional'

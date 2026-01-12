@@ -4,56 +4,39 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default class Abertura_Compuesta implements IAbertura_Compuesta {
   key: string
-  name_abertura: string
-  descripcion_abertura: string
-  codigo: string
-  medidas: { base: number; altura: number }
-  img: string
-  capturedImageBase64: string
+  nombre_compuesta: string
+  descripcion_compuesta: string
+  cod_compuesta: string
+  medidas_compuesta: { base: number; altura: number }
+  img_compuesta: string
+  capturedImageBase64_compuesta: string
   configuracion: IModulo[]
-  cantidad: number
-  precio: number
-  color: string
+  cantidad_compuesta: number
+  precio_compuesta: number
+  color_compuesta: string
 
   constructor(
-    name_abertura: string,
-    descripcion_abertura: string,
-    codigo: string,
-    medidas: { base: number; altura: number },
-    img: string,
-    capturedImageBase64: string,
+    nombre_compuesta: string,
+    descripcion_compuesta: string,
+    cod_compuesta: string,
+    medidas_compuesta: { base: number; altura: number },
+    img_compuesta: string,
+    capturedImageBase64_compuesta: string,
     configuracion: IModulo[],
-    cantidad: number,
-    precio: number,
-    color: string,
+    cantidad_compuesta: number,
+    precio_compuesta: number,
+    color_compuesta: string,
   ) {
-    // Es vital asignar las propiedades antes de llamar a métodos que las usen
-    this.name_abertura = name_abertura
-    this.descripcion_abertura = descripcion_abertura
-    this.codigo = codigo
-    this.medidas = medidas
-    this.img = img
-    this.capturedImageBase64 = capturedImageBase64
+    this.key = uuidv4()
+    this.nombre_compuesta = nombre_compuesta
+    this.descripcion_compuesta = descripcion_compuesta
+    this.cod_compuesta = cod_compuesta
+    this.medidas_compuesta = medidas_compuesta
+    this.img_compuesta = img_compuesta
+    this.capturedImageBase64_compuesta = capturedImageBase64_compuesta
     this.configuracion = configuracion
-    this.cantidad = cantidad
-    this.precio = precio
-    this.color = color
-
-    // Generamos la key única llamando al método obligatorio de la interfaz
-    this.key = this.getKey()
-  }
-
-  getKey(): string {
-    return uuidv4()
-  }
-
-  calcularTotal(): number {
-    return this.cantidad * this.precio
-  }
-
-  // Métodos estáticos para manejo de datos
-  static obtenerAberturasDeLocalStorage(): Abertura_Compuesta[] {
-    const data = localStorage.getItem('aberturas_compuestas')
-    return data ? JSON.parse(data) : []
+    this.cantidad_compuesta = cantidad_compuesta
+    this.precio_compuesta = precio_compuesta
+    this.color_compuesta = color_compuesta
   }
 }

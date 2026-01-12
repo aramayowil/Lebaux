@@ -1,4 +1,3 @@
-// SelectorCatalogo.tsx
 import { Select, SelectItem } from '@heroui/react'
 import { catalogo } from '@/data'
 import { lineas } from '@/models/ILineas'
@@ -23,11 +22,12 @@ export default function SelectorCatalogo({
         onSelectionChange={(keys) => {
           const value = Array.from(keys)[0]
           onChange('linea', value?.toString())
-          onChange('abertura', '') // Reset automático
         }}
       >
         {lineas.map((i) => (
-          <SelectItem key={i.key}>{i.label}</SelectItem>
+          <SelectItem key={i.key} textValue={i.label}>
+            {i.label}
+          </SelectItem>
         ))}
       </Select>
 
@@ -37,14 +37,16 @@ export default function SelectorCatalogo({
         isRequired
         variant='bordered'
         isDisabled={!form.linea}
-        selectedKeys={form.abertura ? [form.abertura] : []}
+        selectedKeys={form.abertura_id ? [form.abertura_id] : []}
         onSelectionChange={(keys) => {
-          const value = Array.from(keys)[0]
-          onChange('abertura', value?.toString())
+          const value = Array.from(keys)[0]?.toString()
+          onChange('abertura_id', value)
         }}
       >
         {(catalogo[form.linea] || []).map((i) => (
-          <SelectItem key={i.id}>{i.abertura}</SelectItem>
+          <SelectItem key={i.id} textValue={i.abertura}>
+            {i.abertura}
+          </SelectItem>
         ))}
       </Select>
     </>

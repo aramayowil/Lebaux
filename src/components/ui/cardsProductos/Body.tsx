@@ -85,7 +85,7 @@ export default function Body() {
                       Línea {abertura.linea}
                     </span>
                     <h4 className='text-sm font-bold text-zinc-100 capitalize'>
-                      {abertura.name_abertura}
+                      {abertura.nombre_abertura}
                     </h4>
                     <span className='text-xs text-zinc-500'>
                       Cantidad: {abertura.cantidad}
@@ -192,6 +192,7 @@ export default function Body() {
                       {/* ITEM: EDITAR (Gris Titanio / Acero) */}
                       <DropdownItem
                         key='edit'
+                        textValue='Editar'
                         onPress={() => onOpenEditModal(abertura.key)}
                         className='group data-[hover=true]:bg-zinc-800/50'
                         startContent={
@@ -253,7 +254,7 @@ export default function Body() {
 
                 <div className='relative shrink-0 bg-zinc-800 rounded-xl p-2 border border-zinc-700'>
                   <Image
-                    src={comp.capturedImageBase64}
+                    src={comp.capturedImageBase64_compuesta}
                     alt='compuesta'
                     width={64}
                     className='aspect-square object-contain grayscale group-hover:grayscale-0 transition-all'
@@ -275,7 +276,7 @@ export default function Body() {
                       Diseño Personalizado
                     </h4>
                     <span className='text-xs text-zinc-500'>
-                      Cantidad: {comp.cantidad}
+                      Cantidad: {comp.cantidad_compuesta}
                     </span>
                   </div>
 
@@ -284,7 +285,8 @@ export default function Body() {
                       Configuración Especial
                     </span>
                     <span className='text-xs text-zinc-200'>
-                      {comp.medidas.base} x {comp.medidas.altura} mm
+                      {comp.medidas_compuesta.base} x{' '}
+                      {comp.medidas_compuesta.altura} mm
                     </span>
                   </div>
 
@@ -293,7 +295,9 @@ export default function Body() {
                       Subtotal
                     </span>
                     <span className='text-lg font-black text-warning/90 tracking-tight'>
-                      {formatCurrency(comp.precio * comp.cantidad)}
+                      {formatCurrency(
+                        comp.precio_compuesta * comp.cantidad_compuesta,
+                      )}
                     </span>
                   </div>
                 </div>
@@ -335,6 +339,7 @@ export default function Body() {
                       {/* ITEM: ELIMINAR (Rojo Intenso y Sólido) */}
                       <DropdownItem
                         key='delete'
+                        textValue='Eliminar'
                         onPress={() => {
                           eliminarAberturaCompuestaStore(comp.key)
                           addToast({

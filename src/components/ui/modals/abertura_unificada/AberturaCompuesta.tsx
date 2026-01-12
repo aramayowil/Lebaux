@@ -64,27 +64,12 @@ const VIDRIOS_OPTIONS = [
   { key: 'laminado', label: 'Laminado' },
 ]
 
-// --- INTERFACES ---
-interface abertura {
-  linea: string
-  abertura: string
-  ancho: number
-  altura: number
-  color: string
-  vidrio: string
-  cantidad: number
-  precio: number
-  codigo: string
-  descripcion: string
-  mosquitero: { checked: boolean; precio: number }
-  premarco: { checked: boolean; precio: number }
-  imgSrc: string
-  variantKey: number
-}
+import { IAbertura } from '@/interfaces/IAbertura'
+import { IModulo } from '@/interfaces/Imodulo'
 
 interface EstadoAbertura {
   id: string
-  abertura: abertura
+  abertura: IAbertura // Usar la interfaz global IAbertura
   x: number
   y: number
 }
@@ -171,20 +156,21 @@ export default function AberturaCompuesta() {
   const [aberturaActual, setAberturaActual] = useState<EstadoAbertura>({
     id: '',
     abertura: {
+      key: uuidv4(),
+      abertura_id: '',
       linea: 'modena',
-      abertura: '',
-      ancho: 1000,
-      altura: 1000,
+      nombre_abertura: '',
+      descripcion_abertura: '',
+      cod_abertura: '',
+      variantKey: 0,
+      medidas: { base: 1000, altura: 1000 },
+      accesorios: { mosquitero: 0, premarco: 0 },
       color: 'blanco',
       vidrio: 'float4mm',
+      img: '',
+      capturedImageBase64: '',
       cantidad: 1,
       precio: 0,
-      codigo: '',
-      descripcion: '',
-      imgSrc: '',
-      variantKey: 0,
-      mosquitero: { checked: false, precio: 0 },
-      premarco: { checked: false, precio: 0 },
     },
     x: 0,
     y: 0,
@@ -201,19 +187,6 @@ export default function AberturaCompuesta() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  // const generarImagenBase64 = () => {
-  //   if (stageRef.current) {
-  //     // 1. Obtenemos el Data URL
-  //     // pixelRatio: 2 mejora la calidad (es como un screenshot en 2k)
-  //     const dataUrl = stageRef.current.toDataURL({
-  //       pixelRatio: 2,
-  //       mimeType: 'image/png',
-  //     })
-
-  //     return dataUrl // Esto es el string Base64
-  //   }
-  //   return null
-  // }
   const generarImagenBase64 = () => {
     if (stageRef.current) {
       const layer = stageRef.current.findOne('Layer')
@@ -266,26 +239,30 @@ export default function AberturaCompuesta() {
       let realX = 0
       if (m.x > 0) {
         for (let i = 0; i < m.x; i++)
-          realX += modulos.find((mod) => mod.x === i)?.abertura.ancho || 0
+          realX +=
+            modulos.find((mod) => mod.x === i)?.abertura.medidas.base || 0
       } else if (m.x < 0) {
         for (let i = -1; i >= m.x; i--)
-          realX -= modulos.find((mod) => mod.x === i)?.abertura.ancho || 0
+          realX -=
+            modulos.find((mod) => mod.x === i)?.abertura.medidas.base || 0
       }
 
       let realY = 0
       if (m.y > 0) {
         for (let j = 0; j < m.y; j++)
-          realY += modulos.find((mod) => mod.y === j)?.abertura.altura || 0
+          realY +=
+            modulos.find((mod) => mod.y === j)?.abertura.medidas.altura || 0
       } else if (m.y < 0) {
         for (let j = -1; j >= m.y; j--)
-          realY -= modulos.find((mod) => mod.y === j)?.abertura.altura || 0
+          realY -=
+            modulos.find((mod) => mod.y === j)?.abertura.medidas.altura || 0
       }
 
       return {
         left: realX,
-        right: realX + m.abertura.ancho,
+        right: realX + m.abertura.medidas.base,
         top: realY,
-        bottom: realY + m.abertura.altura,
+        bottom: realY + m.abertura.medidas.altura,
       }
     })
 
@@ -328,19 +305,61 @@ export default function AberturaCompuesta() {
   // --- LÓGICA DE NEGOCIO ---
   const actualizarModulo = (id: string, campo: string, valor: any) => {
     setModulos((prev) =>
-      prev.map((m) =>
-        m.id === id ? { ...m, abertura: { ...m.abertura, [campo]: valor } } : m,
-      ),
+      prev.map((m) => {
+        if (m.id === id) {
+          // Manejar propiedades anidadas de 'medidas'
+          if (campo === 'medidas.base') {
+            return {
+              ...m,
+              abertura: {
+                ...m.abertura,
+                medidas: { ...m.abertura.medidas, base: valor },
+              },
+            }
+          }
+          if (campo === 'medidas.altura') {
+            return {
+              ...m,
+              abertura: {
+                ...m.abertura,
+                medidas: { ...m.abertura.medidas, altura: valor },
+              },
+            }
+          }
+          // Manejar propiedades anidadas de 'accesorios'
+          if (campo === 'accesorios.mosquitero') {
+            return {
+              ...m,
+              abertura: {
+                ...m.abertura,
+                accesorios: { ...m.abertura.accesorios, mosquitero: valor },
+              },
+            }
+          }
+          if (campo === 'accesorios.premarco') {
+            return {
+              ...m,
+              abertura: {
+                ...m.abertura,
+                accesorios: { ...m.abertura.accesorios, premarco: valor },
+              },
+            }
+          }
+          // Manejar propiedades directas de IAbertura
+          return { ...m, abertura: { ...m.abertura, [campo]: valor } }
+        }
+        return m
+      }),
     )
   }
 
   const totalGeneral = useMemo(() => {
     return modulos.reduce((acc, m) => {
       let sub = Number(m.abertura.precio || 0)
-      if (m.abertura.mosquitero?.checked)
-        sub += Number(m.abertura.mosquitero.precio || 0)
-      if (m.abertura.premarco?.checked)
-        sub += Number(m.abertura.premarco.precio || 0)
+      if (m.abertura.accesorios.mosquitero > 0)
+        sub += Number(m.abertura.accesorios.mosquitero || 0)
+      if (m.abertura.accesorios.premarco > 0)
+        sub += Number(m.abertura.accesorios.premarco || 0)
       return acc + sub
     }, 0)
   }, [modulos])
@@ -357,14 +376,23 @@ export default function AberturaCompuesta() {
       const { anchoTotal, altoTotal } = calcularDimensionesTotales()
       const imagenLimpia = generarImagenBase64()
 
+      const modulosParaCompuesta: IModulo[] = modulos.map((m) => ({
+        id: m.id,
+        x: m.x,
+        y: m.y,
+        abertura: m.abertura,
+      }))
+
+      if (!imagenLimpia) return
+
       const nuevaInstancia = new Abertura_Compuesta(
         `Composición ${modulos.length} mod.`,
         `Composición ${modulos.length} mod.`,
         'COMP',
         { base: anchoTotal, altura: altoTotal },
         './images/img-prueba3.jpg',
-        imagenLimpia, // Aquí va la imagen sin textos ni botones
-        modulos,
+        imagenLimpia, // Ahora garantizamos que no es null
+        modulosParaCompuesta, // Pasar los módulos mapeados a IModulo[]
         cantidadCompuesta,
         totalGeneral,
         color,
@@ -381,23 +409,23 @@ export default function AberturaCompuesta() {
     if (coordX > 0) {
       for (let i = 0; i < coordX; i++)
         visualX +=
-          (modulos.find((m) => m.x === i)?.abertura.ancho || 1000) *
+          (modulos.find((m) => m.x === i)?.abertura.medidas.base || 1000) *
           INITIAL_ESCALA
     } else if (coordX < 0) {
       for (let i = -1; i >= coordX; i--)
         visualX -=
-          (modulos.find((m) => m.x === i)?.abertura.ancho || 1000) *
+          (modulos.find((m) => m.x === i)?.abertura.medidas.base || 1000) *
           INITIAL_ESCALA
     }
     if (coordY > 0) {
       for (let j = 0; j < coordY; j++)
         visualY +=
-          (modulos.find((m) => m.y === j)?.abertura.altura || 1000) *
+          (modulos.find((m) => m.y === j)?.abertura.medidas.altura || 1000) *
           INITIAL_ESCALA
     } else if (coordY < 0) {
       for (let j = -1; j >= coordY; j--)
         visualY -=
-          (modulos.find((m) => m.y === j)?.abertura.altura || 1000) *
+          (modulos.find((m) => m.y === j)?.abertura.medidas.altura || 1000) *
           INITIAL_ESCALA
     }
     return { x: visualX, y: visualY }
@@ -410,9 +438,9 @@ export default function AberturaCompuesta() {
       const pos = obtenerPosicionVisual(m.x, m.y)
       return {
         l: pos.x,
-        r: pos.x + m.abertura.ancho * INITIAL_ESCALA,
+        r: pos.x + m.abertura.medidas.base * INITIAL_ESCALA,
         t: pos.y,
-        b: pos.y + m.abertura.altura * INITIAL_ESCALA,
+        b: pos.y + m.abertura.medidas.altura * INITIAL_ESCALA,
       }
     })
     const minX = Math.min(...bounds.map((b) => b.l)),
@@ -502,6 +530,7 @@ export default function AberturaCompuesta() {
                       size='sm'
                       variant='bordered'
                       placeholder='Seleccionar'
+                      aria-label='Seleccionar color'
                       className='w-44'
                       disallowEmptySelection
                       defaultSelectedKeys={[color]} // Selección por defecto
@@ -626,14 +655,18 @@ export default function AberturaCompuesta() {
                           >
                             {modulos.map((mod) => (
                               <AccordionItem
+                                key={mod.id}
+                                aria-label={
+                                  mod.abertura.nombre_abertura || 'Sin nombre'
+                                }
                                 title={
                                   <div className='flex flex-col'>
                                     <span
                                       className={`text-sm font-bold ${selectedId === mod.id ? 'text-warning' : 'text-zinc-200'}`}
                                     >
-                                      {mod.abertura.abertura || 'Sin nombre'}
+                                      {mod.abertura.nombre_abertura ||
+                                        'Sin nombre'}
                                     </span>
-                                    {/* ... */}
                                   </div>
                                 }
                                 startContent={
@@ -652,6 +685,7 @@ export default function AberturaCompuesta() {
                                       label='Color'
                                       size='sm'
                                       variant='bordered'
+                                      aria-label='Color abertura'
                                       startContent={
                                         <HiOutlineColorSwatch className='text-blue-500' />
                                       }
@@ -678,6 +712,7 @@ export default function AberturaCompuesta() {
                                       label='Vidrio'
                                       size='sm'
                                       variant='bordered'
+                                      aria-label='Vidrio abertura'
                                       startContent={
                                         <HiOutlineSparkles className='text-cyan-400' />
                                       }
@@ -708,7 +743,9 @@ export default function AberturaCompuesta() {
                                       startContent={
                                         <HiOutlineTag className='text-emerald-500' />
                                       }
-                                      value={mod.abertura.precio.toString()}
+                                      value={
+                                        mod.abertura.precio.toString() || '0'
+                                      }
                                       onValueChange={(val) =>
                                         actualizarModulo(
                                           mod.id,
@@ -724,17 +761,19 @@ export default function AberturaCompuesta() {
                                       size='sm'
                                       variant='dot'
                                       color={
-                                        mod.abertura.mosquitero.checked
+                                        mod.abertura.accesorios.mosquitero > 0
                                           ? 'success'
                                           : 'default'
                                       }
                                       className='cursor-pointer'
                                       onClick={() =>
-                                        actualizarModulo(mod.id, 'mosquitero', {
-                                          ...mod.abertura.mosquitero,
-                                          checked:
-                                            !mod.abertura.mosquitero.checked,
-                                        })
+                                        actualizarModulo(
+                                          mod.id,
+                                          'accesorios.mosquitero',
+                                          mod.abertura.accesorios.mosquitero > 0
+                                            ? 0
+                                            : 200, // Placeholder price for mosquitero
+                                        )
                                       }
                                     >
                                       Mosquitero
@@ -743,17 +782,19 @@ export default function AberturaCompuesta() {
                                       size='sm'
                                       variant='dot'
                                       color={
-                                        mod.abertura.premarco.checked
+                                        mod.abertura.accesorios.premarco > 0
                                           ? 'primary'
                                           : 'default'
                                       }
                                       className='cursor-pointer'
                                       onClick={() =>
-                                        actualizarModulo(mod.id, 'premarco', {
-                                          ...mod.abertura.premarco,
-                                          checked:
-                                            !mod.abertura.premarco.checked,
-                                        })
+                                        actualizarModulo(
+                                          mod.id,
+                                          'accesorios.premarco',
+                                          mod.abertura.accesorios.premarco > 0
+                                            ? 0
+                                            : 300, // Placeholder price for premarco
+                                        )
                                       }
                                     >
                                       Premarco
@@ -815,18 +856,23 @@ export default function AberturaCompuesta() {
                             {modulos.map((m) => {
                               const pos = obtenerPosicionVisual(m.x, m.y)
                               const isSel = selectedId === m.id
-                              const wPx = m.abertura.ancho * INITIAL_ESCALA,
-                                hPx = m.abertura.altura * INITIAL_ESCALA
+                              const wPx =
+                                  m.abertura.medidas.base * INITIAL_ESCALA,
+                                hPx = m.abertura.medidas.altura * INITIAL_ESCALA
                               return (
                                 <Group key={m.id} x={pos.x} y={pos.y}>
                                   <ImageContainer
-                                    src={m.abertura.imgSrc}
+                                    src={m.abertura.img}
                                     width={wPx}
                                     height={hPx}
                                   />
                                   <Rect
-                                    width={wPx}
-                                    height={hPx}
+                                    width={
+                                      m.abertura.medidas.base * INITIAL_ESCALA
+                                    }
+                                    height={
+                                      m.abertura.medidas.altura * INITIAL_ESCALA
+                                    }
                                     fill={
                                       isSel
                                         ? 'rgba(16, 185, 129, 0.05)'
@@ -842,7 +888,7 @@ export default function AberturaCompuesta() {
                                   />
                                   <Text
                                     name='medida-texto'
-                                    text={`${m.abertura.abertura}\n${m.abertura.ancho}x${m.abertura.altura}`}
+                                    text={`${m.abertura.nombre_abertura}\n${m.abertura.medidas.base}x${m.abertura.medidas.altura}`}
                                     width={wPx}
                                     height={hPx}
                                     align='center'
@@ -873,17 +919,25 @@ export default function AberturaCompuesta() {
                                           scaleFactor={transform.scale}
                                           x={
                                             dx === 1
-                                              ? wPx + SPACING / transform.scale
+                                              ? m.abertura.medidas.base *
+                                                  INITIAL_ESCALA +
+                                                SPACING / transform.scale
                                               : dx === -1
                                                 ? -SPACING / transform.scale
-                                                : wPx / 2
+                                                : (m.abertura.medidas.base *
+                                                    INITIAL_ESCALA) /
+                                                  2
                                           }
                                           y={
                                             dy === 1
-                                              ? hPx + SPACING / transform.scale
+                                              ? m.abertura.medidas.altura *
+                                                  INITIAL_ESCALA +
+                                                SPACING / transform.scale
                                               : dy === -1
                                                 ? -SPACING / transform.scale
-                                                : hPx / 2
+                                                : (m.abertura.medidas.altura *
+                                                    INITIAL_ESCALA) /
+                                                  2
                                           }
                                           onClick={() => {
                                             setAberturaActual((prev) => ({

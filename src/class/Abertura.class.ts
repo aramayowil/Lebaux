@@ -3,11 +3,11 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default class Abertura implements IAbertura {
   key: string
-  type_aberturaID: string
+  abertura_id: string
   linea: string
-  name_abertura: string
+  nombre_abertura: string
   descripcion_abertura: string
-  codigo: string
+  cod_abertura: string
   variantKey: number
   medidas: { base: number; altura: number }
   accesorios: { mosquitero: number; premarco: number }
@@ -20,10 +20,10 @@ export default class Abertura implements IAbertura {
 
   constructor(
     linea: string,
-    type_aberturaID: string,
-    name_abertura: string,
+    abertura_id: string,
+    nombre_abertura: string,
     descripcion_abertura: string,
-    codigo: string,
+    cod_abertura: string,
     variantKey: number,
     medidas: { base: number; altura: number },
     accesorios: { mosquitero: number; premarco: number },
@@ -34,12 +34,12 @@ export default class Abertura implements IAbertura {
     cantidad: number,
     precio: number,
   ) {
-    this.key = this.getKey()
+    this.key = uuidv4()
     this.linea = linea
-    this.type_aberturaID = type_aberturaID
-    this.name_abertura = name_abertura
+    this.abertura_id = abertura_id
+    this.nombre_abertura = nombre_abertura
     this.descripcion_abertura = descripcion_abertura
-    this.codigo = codigo
+    this.cod_abertura = cod_abertura
     this.variantKey = variantKey
     this.medidas = medidas
     this.accesorios = accesorios
@@ -51,26 +51,11 @@ export default class Abertura implements IAbertura {
     this.precio = precio
   }
 
-  getKey(): string {
-    return uuidv4()
-  }
-
   calcularTotal(): number {
     const precioUnitario =
       this.precio +
       (this.accesorios.mosquitero || 0) +
       (this.accesorios.premarco || 0)
     return this.cantidad * precioUnitario
-  }
-
-  static obtenerAberturasDeLocalStorage(): Abertura[] {
-    const data = localStorage.getItem('aberturas')
-    return data ? JSON.parse(data) : []
-  }
-
-  guardarEnLocalStorage(): void {
-    const aberturas = Abertura.obtenerAberturasDeLocalStorage()
-    aberturas.push(this)
-    localStorage.setItem('aberturas', JSON.stringify(aberturas))
   }
 }
