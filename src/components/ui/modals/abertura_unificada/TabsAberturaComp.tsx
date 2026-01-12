@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 
 // 1. Definimos y exportamos el tipo exacto de lo que el componente emite
 export interface VarianteUpdate {
-  descripcion: string
-  codigo: string
-  imgSrc: string
+  descripcion_abertura: string
+  cod_abertura: string
+  img: string
   variantKey: number
 }
 
@@ -47,9 +47,9 @@ export default function TabsAberturaComp({
 
       if (tabSelectData) {
         onVarianteChange({
-          descripcion: tabSelectData.descripcion,
-          codigo: selectedAbertura.prefijo,
-          imgSrc: tabSelectData.img,
+          descripcion_abertura: tabSelectData.descripcion,
+          cod_abertura: selectedAbertura.prefijo,
+          img: tabSelectData.img,
           variantKey: tabSelectData.variantKey,
         })
       }

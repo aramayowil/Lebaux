@@ -743,7 +743,9 @@ export default function AberturaCompuesta() {
                                       startContent={
                                         <HiOutlineTag className='text-emerald-500' />
                                       }
-                                      value={mod.abertura.precio.toString()}
+                                      value={
+                                        mod.abertura.precio.toString() || '0'
+                                      }
                                       onValueChange={(val) =>
                                         actualizarModulo(
                                           mod.id,

@@ -96,7 +96,17 @@ export default function ModalAbertura({
   }, [isOpen, aberturaKey, aberturas, isEditMode])
 
   const handleChange = (field: string, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
+    setForm((prev) => {
+      const next = { ...prev, [field]: value }
+
+      // Si cambia la línea, reseteamos la abertura seleccionada
+      if (field === 'linea') {
+        next.abertura_id = ''
+        // Opcional: limpiar otros campos si es necesario
+      }
+
+      return next
+    })
   }
 
   const cerrarModalYLimpiar = () => {

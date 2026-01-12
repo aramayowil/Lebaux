@@ -27,43 +27,52 @@ function ModalAgregar({
   abertura,
   setAbertura,
 }: ModalAgregarProps) {
-  // 1. Mantenemos un estado local para el formulario.
-  // IMPORTANTE: Eliminamos el useEffect que sincronizaba automáticamente.
-  const [form, setForm] = useState<IAbertura>(abertura)
-
+  const [form, setForm] = useState<IAbertura>({
+    ...abertura,
+    linea: abertura.linea || '',
+    abertura_id: abertura.abertura_id || '',
+    nombre_abertura: abertura.nombre_abertura || '',
+    medidas: abertura.medidas || { base: 0, altura: 0 },
+  })
   const handleChange = (field: string, value: any) => {
-    // 2. Actualizamos el estado local inmediatamente.
-    // Manejamos la conversión de campos planos (ancho/altura) a la estructura anidada de IAbertura (medidas).
     let updatedForm = { ...form }
 
     if (field === 'ancho') {
       updatedForm.medidas = { ...updatedForm.medidas, base: value }
     } else if (field === 'altura') {
       updatedForm.medidas = { ...updatedForm.medidas, altura: value }
+    } else if (field === 'linea') {
+      updatedForm.linea = value
+      // Resetear dependencias
+      updatedForm.abertura_id = ''
+      updatedForm.nombre_abertura = ''
+    } else if (field === 'abertura_id') {
+      updatedForm.abertura_id = value
+      // Actualizar nombre automáticamente
+      if (updatedForm.linea && value) {
+        const item = catalogo[updatedForm.linea]?.find((i) => i.id === value)
+        if (item) {
+          updatedForm.nombre_abertura = item.abertura
+        }
+      }
     } else {
       updatedForm = { ...updatedForm, [field]: value }
     }
 
     setForm(updatedForm)
-
-    // 3. Sincronizamos con el padre de forma imperativa.
     setAbertura(updatedForm)
   }
 
   const handleUpdateVariante = (varianteData: {
-    descripcion: string
-    codigo: string
-    imgSrc: string
+    descripcion_abertura: string
+    cod_abertura: string
+    img: string
     variantKey: number
   }) => {
     setForm((prev) => {
-      // Mapeamos imgSrc (de Tabs) a img (de IAbertura)
-      const { imgSrc, ...rest } = varianteData
-      const nuevoEstado = { ...prev, ...rest, img: imgSrc }
-
-      // Usamos el callback para evitar el error de "renderizado simultáneo"
+      const { img, ...rest } = varianteData
+      const nuevoEstado = { ...prev, ...rest, img }
       setTimeout(() => setAbertura(nuevoEstado), 0)
-
       return nuevoEstado
     })
   }
@@ -73,7 +82,6 @@ function ModalAgregar({
     onClose()
   }
 
-  // Preparamos el objeto form para PropiedadesAbertura, que espera 'ancho' y 'altura' planos.
   const formParaPropiedades = {
     ...form,
     ancho: form.medidas.base,
@@ -112,7 +120,7 @@ function ModalAgregar({
                           (i) => i.id === form.abertura_id,
                         )}
                         onVarianteChange={handleUpdateVariante}
-                        setTabSelected={form.variantKey}
+                        setTabSelected={form.variantKey || 0}
                       />
                     )}
                   </div>
