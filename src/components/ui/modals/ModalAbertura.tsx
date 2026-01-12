@@ -31,7 +31,7 @@ type ModalProps = {
 
 const INITIAL_FORM_STATE = {
   linea: 'modena',
-  abertura: '',
+  abertura_id: '',
   ancho: NaN,
   altura: NaN,
   color: 'blanco',
@@ -68,7 +68,7 @@ export default function ModalAbertura({
         if (aberturaToEdit) {
           setForm({
             linea: aberturaToEdit.linea,
-            abertura: aberturaToEdit.abertura_id,
+            abertura_id: aberturaToEdit.abertura_id,
             ancho: aberturaToEdit.medidas.base,
             altura: aberturaToEdit.medidas.altura,
             color: aberturaToEdit.color,
@@ -107,7 +107,7 @@ export default function ModalAbertura({
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const capturedImage = designRef.current?.save()
-    const data = catalogo[form.linea]?.find((i) => i.id === form.abertura)
+    const data = catalogo[form.linea]?.find((i) => i.id === form.abertura_id)
 
     if (data) {
       const newAbertura = new Abertura(
@@ -141,7 +141,7 @@ export default function ModalAbertura({
     }
   }
 
-  const isDisabled = !form.linea || !form.abertura
+  const isDisabled = !form.linea || !form.abertura_id
 
   return (
     <ModalHeroUI
@@ -177,10 +177,10 @@ export default function ModalAbertura({
                       <SelectorCatalogo form={form} onChange={handleChange} />
 
                       <div className='col-span-6'>
-                        {form.abertura && (
+                        {form.abertura_id && (
                           <TabsAbertura
                             selectedAbertura={catalogo[form.linea].find(
-                              (i) => i.id === form.abertura,
+                              (i) => i.id === form.abertura_id,
                             )}
                             getDescripcion={(v) =>
                               handleChange('descripcion', v)

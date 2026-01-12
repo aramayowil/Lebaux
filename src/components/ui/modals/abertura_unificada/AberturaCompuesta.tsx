@@ -187,19 +187,28 @@ export default function AberturaCompuesta() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  // const generarImagenBase64 = () => {
-  //   if (stageRef.current) {
-  //     // 1. Obtenemos el Data URL
-  //     // pixelRatio: 2 mejora la calidad (es como un screenshot en 2k)
-  //     const dataUrl = stageRef.current.toDataURL({
-  //       pixelRatio: 2,
-  //       mimeType: 'image/png',
-  //     })
+  const updateAberturaActual = (nueva: IAbertura) => {
+    setAberturaActual((prev) => ({ ...prev, abertura: nueva }))
 
-  //     return dataUrl // Esto es el string Base64
-  //   }
-  //   return null
-  // }
+    // Si estamos editando un módulo que ya existe en el lienzo, lo actualizamos en tiempo real
+    if (isEditing && selectedId) {
+      setModulos((prevModulos) =>
+        prevModulos.map((m) =>
+          m.id === selectedId ? { ...m, abertura: nueva } : m,
+        ),
+      )
+    }
+  }
+
+  const handleCloseModal = () => {
+    if (!isEditing) {
+      const nuevo: EstadoAbertura = { ...aberturaActual, id: uuidv4() }
+      setModulos((prev) => [...prev, nuevo])
+      setSelectedId(nuevo.id) // Seleccionamos el nuevo para mostrar botones +
+    }
+    setShowModal(false)
+  }
+
   const generarImagenBase64 = () => {
     if (stageRef.current) {
       const layer = stageRef.current.findOne('Layer')
@@ -396,13 +405,15 @@ export default function AberturaCompuesta() {
         abertura: m.abertura,
       }))
 
+      if (!imagenLimpia) return
+
       const nuevaInstancia = new Abertura_Compuesta(
         `Composición ${modulos.length} mod.`,
         `Composición ${modulos.length} mod.`,
         'COMP',
         { base: anchoTotal, altura: altoTotal },
         './images/img-prueba3.jpg',
-        imagenLimpia, // Aquí va la imagen sin textos ni botones
+        imagenLimpia, // Ahora garantizamos que no es null
         modulosParaCompuesta, // Pasar los módulos mapeados a IModulo[]
         cantidadCompuesta,
         totalGeneral,
@@ -1048,7 +1059,7 @@ export default function AberturaCompuesta() {
       </Modal>
 
       {showModal && (
-        <ModalAgregar
+<ModalAgregar
           onClose={() => setShowModal(false)}
           handleConfirmarModulo={handleConfirmarModulo}
           abertura={aberturaActual.abertura}
