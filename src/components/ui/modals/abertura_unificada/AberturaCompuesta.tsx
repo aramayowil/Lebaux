@@ -187,28 +187,6 @@ export default function AberturaCompuesta() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
-  const updateAberturaActual = (nueva: IAbertura) => {
-    setAberturaActual((prev) => ({ ...prev, abertura: nueva }))
-
-    // Si estamos editando un módulo que ya existe en el lienzo, lo actualizamos en tiempo real
-    if (isEditing && selectedId) {
-      setModulos((prevModulos) =>
-        prevModulos.map((m) =>
-          m.id === selectedId ? { ...m, abertura: nueva } : m,
-        ),
-      )
-    }
-  }
-
-  const handleCloseModal = () => {
-    if (!isEditing) {
-      const nuevo: EstadoAbertura = { ...aberturaActual, id: uuidv4() }
-      setModulos((prev) => [...prev, nuevo])
-      setSelectedId(nuevo.id) // Seleccionamos el nuevo para mostrar botones +
-    }
-    setShowModal(false)
-  }
-
   const generarImagenBase64 = () => {
     if (stageRef.current) {
       const layer = stageRef.current.findOne('Layer')
@@ -552,6 +530,7 @@ export default function AberturaCompuesta() {
                       size='sm'
                       variant='bordered'
                       placeholder='Seleccionar'
+                      aria-label='Seleccionar color'
                       className='w-44'
                       disallowEmptySelection
                       defaultSelectedKeys={[color]} // Selección por defecto
@@ -676,6 +655,10 @@ export default function AberturaCompuesta() {
                           >
                             {modulos.map((mod) => (
                               <AccordionItem
+                                key={mod.id}
+                                aria-label={
+                                  mod.abertura.nombre_abertura || 'Sin nombre'
+                                }
                                 title={
                                   <div className='flex flex-col'>
                                     <span
@@ -684,7 +667,6 @@ export default function AberturaCompuesta() {
                                       {mod.abertura.nombre_abertura ||
                                         'Sin nombre'}
                                     </span>
-                                    {/* ... */}
                                   </div>
                                 }
                                 startContent={
@@ -703,6 +685,7 @@ export default function AberturaCompuesta() {
                                       label='Color'
                                       size='sm'
                                       variant='bordered'
+                                      aria-label='Color abertura'
                                       startContent={
                                         <HiOutlineColorSwatch className='text-blue-500' />
                                       }
@@ -729,6 +712,7 @@ export default function AberturaCompuesta() {
                                       label='Vidrio'
                                       size='sm'
                                       variant='bordered'
+                                      aria-label='Vidrio abertura'
                                       startContent={
                                         <HiOutlineSparkles className='text-cyan-400' />
                                       }
@@ -1059,7 +1043,7 @@ export default function AberturaCompuesta() {
       </Modal>
 
       {showModal && (
-<ModalAgregar
+        <ModalAgregar
           onClose={() => setShowModal(false)}
           handleConfirmarModulo={handleConfirmarModulo}
           abertura={aberturaActual.abertura}

@@ -192,6 +192,7 @@ export default function Body() {
                       {/* ITEM: EDITAR (Gris Titanio / Acero) */}
                       <DropdownItem
                         key='edit'
+                        textValue='Editar'
                         onPress={() => onOpenEditModal(abertura.key)}
                         className='group data-[hover=true]:bg-zinc-800/50'
                         startContent={
@@ -338,6 +339,7 @@ export default function Body() {
                       {/* ITEM: ELIMINAR (Rojo Intenso y Sólido) */}
                       <DropdownItem
                         key='delete'
+                        textValue='Eliminar'
                         onPress={() => {
                           eliminarAberturaCompuestaStore(comp.key)
                           addToast({

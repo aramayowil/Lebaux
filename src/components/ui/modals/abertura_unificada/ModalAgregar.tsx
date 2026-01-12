@@ -8,33 +8,17 @@ import {
   ModalFooter,
 } from '@heroui/react'
 import { catalogo } from '@/data'
+import { IAbertura } from '@/interfaces/IAbertura'
 
 import PropiedadesAbertura from '../../inputs/PropiedadesAbertura'
 import SelectorCatalogo from '../../inputs/SelectorCatalogo'
 import TabsAberturaComp from './TabsAberturaComp'
 
-interface abertura {
-  linea: string
-  abertura: string
-  ancho: number
-  altura: number
-  color: string
-  vidrio: string
-  cantidad: number
-  precio: number
-  codigo: string
-  descripcion: string
-  mosquitero: { checked: boolean; precio: number }
-  premarco: { checked: boolean; precio: number }
-  imgSrc: string
-  variantKey: number
-}
-
 interface ModalAgregarProps {
   onClose: () => void
   handleConfirmarModulo: () => void
-  abertura: abertura
-  setAbertura: (val: abertura) => void
+  abertura: IAbertura
+  setAbertura: (val: IAbertura) => void
 }
 
 function ModalAgregar({
@@ -45,19 +29,26 @@ function ModalAgregar({
 }: ModalAgregarProps) {
   // 1. Mantenemos un estado local para el formulario.
   // IMPORTANTE: Eliminamos el useEffect que sincronizaba automáticamente.
-  const [form, setForm] = useState<abertura>(abertura)
+  const [form, setForm] = useState<IAbertura>(abertura)
 
   const handleChange = (field: string, value: any) => {
-    // 2. Actualizamos el estado local inmediatamente para que el UI responda
-    const updatedForm = { ...form, [field]: value }
+    // 2. Actualizamos el estado local inmediatamente.
+    // Manejamos la conversión de campos planos (ancho/altura) a la estructura anidada de IAbertura (medidas).
+    let updatedForm = { ...form }
+
+    if (field === 'ancho') {
+      updatedForm.medidas = { ...updatedForm.medidas, base: value }
+    } else if (field === 'altura') {
+      updatedForm.medidas = { ...updatedForm.medidas, altura: value }
+    } else {
+      updatedForm = { ...updatedForm, [field]: value }
+    }
+
     setForm(updatedForm)
 
-    // 3. Sincronizamos con el padre de forma imperativa solo cuando hay un cambio.
-    // Esto evita el bucle infinito porque el cambio nace de una acción del usuario.
+    // 3. Sincronizamos con el padre de forma imperativa.
     setAbertura(updatedForm)
   }
-  // En ModalAgregar.tsx
-  // En ModalAgregar.tsx
 
   const handleUpdateVariante = (varianteData: {
     descripcion: string
@@ -66,7 +57,9 @@ function ModalAgregar({
     variantKey: number
   }) => {
     setForm((prev) => {
-      const nuevoEstado = { ...prev, ...varianteData }
+      // Mapeamos imgSrc (de Tabs) a img (de IAbertura)
+      const { imgSrc, ...rest } = varianteData
+      const nuevoEstado = { ...prev, ...rest, img: imgSrc }
 
       // Usamos el callback para evitar el error de "renderizado simultáneo"
       setTimeout(() => setAbertura(nuevoEstado), 0)
@@ -76,9 +69,15 @@ function ModalAgregar({
   }
 
   const onConfirm = () => {
-    // 4. Al confirmar, el padre ya tiene el último estado gracias a handleChange
     handleConfirmarModulo()
     onClose()
+  }
+
+  // Preparamos el objeto form para PropiedadesAbertura, que espera 'ancho' y 'altura' planos.
+  const formParaPropiedades = {
+    ...form,
+    ancho: form.medidas.base,
+    altura: form.medidas.altura,
   }
 
   return (
@@ -94,7 +93,7 @@ function ModalAgregar({
           <>
             <ModalHeader className='flex flex-col gap-1 p-6'>
               <h2 className='text-xl font-bold text-default-900'>
-                {form.abertura ? 'Editar abertura' : 'Agregar abertura'}
+                {form.abertura_id ? 'Editar abertura' : 'Agregar abertura'}
               </h2>
               <p className='text-small text-default-500 font-normal'>
                 Configura las dimensiones y materiales.
@@ -104,14 +103,13 @@ function ModalAgregar({
             <ModalBody className='p-6'>
               <div className='flex flex-col gap-4'>
                 <div className='grid grid-cols-6 gap-2'>
-                  {/* SelectorCatalogo usa nuestro handleChange manual */}
                   <SelectorCatalogo form={form} onChange={handleChange} />
 
                   <div className='col-span-6'>
-                    {form.linea && form.abertura && (
+                    {form.linea && form.abertura_id && (
                       <TabsAberturaComp
                         selectedAbertura={catalogo[form.linea]?.find(
-                          (i) => i.id === form.abertura,
+                          (i) => i.id === form.abertura_id,
                         )}
                         onVarianteChange={handleUpdateVariante}
                         setTabSelected={form.variantKey}
@@ -120,7 +118,7 @@ function ModalAgregar({
                   </div>
 
                   <PropiedadesAbertura
-                    form={form}
+                    form={formParaPropiedades}
                     onChange={handleChange}
                     isDisabled={false}
                   />
