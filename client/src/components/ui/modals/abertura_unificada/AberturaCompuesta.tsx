@@ -387,7 +387,7 @@ export default function AberturaCompuesta() {
 
       const nuevaInstancia = new Abertura_Compuesta(
         `Composición ${modulos.length} mod.`,
-        `Composición ${modulos.length} mod.`,
+        'Abertura compuesta',
         'COMP',
         { base: anchoTotal, altura: altoTotal },
         './images/img-prueba3.jpg',

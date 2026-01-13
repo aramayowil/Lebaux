@@ -17,9 +17,21 @@ import PDF from '@/components/PdfLayout'
 import { pdf } from '@react-pdf/renderer'
 import useAberturasStore from '@/stores/useAberturasStore'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
+import Presupuesto from '@/class/Presupuesto.class'
+import usePresupuestoStore from '@/stores/usePresupuestosStore'
+import capitalize from '@/utils/capitalize_text'
 
 function obtenerFechaHoy() {
   return new Date().toLocaleDateString('es-AR')
+}
+
+const generarReferenciaFormateada = (cantidadActual: number): string => {
+  const fecha = new Date()
+  const tipo = 'COT'
+  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0')
+  const anio = fecha.getFullYear().toString().slice(-2)
+  const correlativo = (cantidadActual + 1).toString().padStart(4, '0')
+  return `${tipo}-${mes}${anio}-${correlativo}`
 }
 
 type GeneratorPdfProps = {
@@ -38,13 +50,57 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
   const [nameCliente, setNameCliente] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Stores de Items
   const aberturasStore = useAberturasStore((state) => state.aberturas)
+  const limpiarSimples = useAberturasStore((state) => state.limpiarAberturas)
+
   const aberturasCompuestasStore = useAberturasCompuestasStore(
     (state) => state.aberturasComps,
   )
+  const limpiarCompuestas = useAberturasCompuestasStore(
+    (state) => state.limpiarAberturasComp,
+  )
+
+  // Store de Presupuestos (Historial)
+  const agregarPresupuesto = usePresupuestoStore(
+    (state) => state.agregarPresupuesto,
+  )
+
+  // Obtenemos la cantidad del Store de Presupuestos para el correlativo
+  const numPresupuestos = usePresupuestoStore.getState().presupuestos.length
+
+  // Generamos la referencia con la nueva estructura
+  const referencia = generarReferenciaFormateada(numPresupuestos)
+
+  //funcion para crear presupuesto
+  const crearPresupuesto = () => {
+    const todosLosItems = [
+      ...aberturasStore, // IAbertura[]
+      ...aberturasCompuestasStore, // IAbertura_Compuesta[]
+    ]
+
+    const nuevoPresupuesto = new Presupuesto(
+      referencia,
+      capitalize(nameCliente) || 'Cliente General',
+      obtenerFechaHoy(),
+      compra.importeFinal,
+      todosLosItems,
+      '',
+      compra.descuento,
+      'pendiente',
+    )
+
+    // Guardar en el historial persistente (Zustand -> LocalStorage)
+    agregarPresupuesto(nuevoPresupuesto)
+
+    // Limpiar los campos
+    limpiarSimples()
+    limpiarCompuestas()
+  }
 
   const generarPDF = async (): Promise<void> => {
     setIsLoading(true)
+    crearPresupuesto()
     try {
       const blob = await pdf(
         <PDF
@@ -53,7 +109,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
           {...compra}
           descuentoCalculado={compra.descuento}
           ivaCalculado={compra.iva}
-          nameCliente={nameCliente || 'CLIENTE GENERAL'}
+          nameCliente={nameCliente || ''}
         />,
       ).toBlob()
 
@@ -62,7 +118,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
 
       const enlace = document.createElement('a')
       enlace.href = url
-      enlace.download = `Presupuesto-${nameCliente || 'General'}.pdf`
+      enlace.download = `Presupuesto-${nameCliente || obtenerFechaHoy()}.pdf`
       enlace.click()
 
       setTimeout(() => {
