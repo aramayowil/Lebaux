@@ -47,7 +47,7 @@ export const Navbar = () => {
     <HeroUINavbar
       maxWidth='full'
       position='sticky'
-      className='bg-black/70 backdrop-blur-xl border-b border-zinc-800/40 h-20'
+      className='bg-black/70 backdrop-blur-xl border-b border-zinc-800/40 h-18'
     >
       <div className='flex w-full max-w-450 mx-auto items-center px-4 md:px-8'>
         {/* Logo */}

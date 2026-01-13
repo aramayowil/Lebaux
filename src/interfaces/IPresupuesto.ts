@@ -1,7 +1,7 @@
 import { IAbertura } from './IAbertura'
 import { IAbertura_Compuesta } from './IAberturaCompuesta'
 
-export interface IPresupuesto {
+export default interface IPresupuesto {
   id: string
   cliente: string
   fecha: string

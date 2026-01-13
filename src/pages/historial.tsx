@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import DefaultLayout from '@/layouts/default'
 import {
   Button,
@@ -10,7 +10,13 @@ import {
   DropdownItem,
   addToast,
   Divider,
-  Skeleton, // Importamos Skeleton
+  Skeleton,
+  Modal,
+  useDisclosure,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from '@heroui/react'
 import {
   HiOutlineEye,
@@ -23,47 +29,42 @@ import {
 } from 'react-icons/hi2'
 import { HiOutlineSearch } from 'react-icons/hi'
 import { FaHistory } from 'react-icons/fa'
-
-const historialPresupuestos = [
-  {
-    id: 'COT-2024-001',
-    cliente: 'Juan Pérez',
-    fecha: '20 de Marzo, 2024',
-    total: 450800,
-    items: 5,
-  },
-  {
-    id: 'COT-2024-002',
-    cliente: 'Estudio Arquitectos S.A',
-    fecha: '18 de Marzo, 2024',
-    total: 1200500,
-    items: 12,
-  },
-  {
-    id: 'COT-2024-003',
-    cliente: 'Marta Gomez',
-    fecha: '15 de Marzo, 2024',
-    total: 85400,
-    items: 2,
-  },
-]
+import usePresupuestoStore from '@/stores/usePresupuestosStore'
+import IPresupuesto from '@/interfaces/IPresupuesto'
+import capitalize from '@/utils/capitalize_text'
 
 export default function Historial() {
-  //const [filter, setFilter] = useState('')
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
+  const [presupuestoSeleccionado, setPresupuestoSeleccionado] =
+    useState<IPresupuesto | null>(null)
+  const [filter, setFilter] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
-  // Simulación de Fetch
+  // 1. Obtenemos los presupuestos del store
+  const presupuestosStore = usePresupuestoStore((state) => state.presupuestos)
+
+  // 2. Lógica de Filtrado y Ordenamiento (Memoizada para rendimiento)
+  const presupuestosFiltrados = useMemo(() => {
+    const query = filter.toLowerCase().trim()
+    const filtrados = presupuestosStore.filter(
+      (p) =>
+        p.cliente.toLowerCase().includes(query) ||
+        p.id.toLowerCase().includes(query),
+    )
+    // Invertimos para que el más nuevo (ID más alto) aparezca primero
+    return [...filtrados].reverse()
+  }, [presupuestosStore, filter])
+
+  // Simulación de carga inicial
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
+    const timer = setTimeout(() => setIsLoading(false), 800)
     return () => clearTimeout(timer)
   }, [])
 
   // Componente de Skeleton para reutilizar
   const SkeletonCard = () => (
     <div className='flex flex-col md:flex-row items-center gap-6 p-3 pr-6 bg-zinc-900/40 border border-white/5 rounded-3xl w-full'>
-      <Skeleton className='rounded-2xl w-50 h-18 bg-zinc-800' />
+      <Skeleton className='rounded-2xl w-52 h-18 bg-zinc-800' />
       <div className='grow grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
         <Skeleton className='rounded-xl h-12 bg-zinc-800' />
         <Skeleton className='rounded-xl h-12 bg-zinc-800' />
@@ -76,35 +77,42 @@ export default function Historial() {
     </div>
   )
 
+  // Función para abrir el detalle
+  const verDetalle = (presupuesto: IPresupuesto) => {
+    setPresupuestoSeleccionado(presupuesto)
+    onOpen()
+  }
+
   return (
     <DefaultLayout>
+      {/* BACKGROUND DECORATION */}
       <div className='fixed inset-0 overflow-hidden pointer-events-none bg-linear-to-b from-zinc-900 via-[#0a0a0f] to-black' />
 
       <section className='relative max-w-6xl mx-auto px-6 py-4 flex flex-col gap-8 font-sans antialiased'>
         {/* HEADER */}
         <header className='flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-zinc-900/60 p-8 rounded-4xl border border-white/5 backdrop-blur-xl'>
           <div className='flex items-center gap-6'>
-            <Skeleton isLoaded={!isLoading} className='rounded-2xl'>
-              <div className='p-4 bg-linear-to-br from-amber-400 to-amber-600 rounded-2xl text-zinc-950'>
-                <FaHistory size={28} />
-              </div>
-            </Skeleton>
+            <div className='p-4 bg-linear-to-br from-amber-400 to-amber-600 rounded-2xl text-zinc-950 shadow-[0_0_20px_rgba(245,158,11,0.2)]'>
+              <FaHistory size={28} />
+            </div>
             <div className='flex flex-col gap-1'>
               <h1 className='text-3xl font-extrabold tracking-tight text-white'>
                 LEBAUX{' '}
                 <span className='text-amber-500 font-light'>| HISTORIAL</span>
               </h1>
               <p className='text-zinc-500 text-sm font-medium'>
-                Gestión de historial de cotizaciones
+                {presupuestosStore.length} registros encontrados
               </p>
             </div>
           </div>
 
-          <div className='flex items-center gap-3 w-full lg:w-auto'>
+          <div className='flex items-center gap-3 w-full lg:w-96'>
             <Input
               isClearable
               variant='flat'
-              placeholder='Buscar cotización...'
+              placeholder='Buscar cliente o referencia...'
+              value={filter}
+              onValueChange={setFilter}
               startContent={
                 <HiOutlineSearch className='text-amber-500/70' size={20} />
               }
@@ -116,25 +124,23 @@ export default function Historial() {
           </div>
         </header>
 
-        {/* LISTADO CON LOGICA DE CARGA */}
-        <ScrollShadow className='h-[65vh] pr-4' hideScrollBar>
+        {/* LISTADO PRINCIPAL */}
+        <ScrollShadow className='h-[65vh] pr-2' hideScrollBar>
           <div className='flex flex-col gap-4'>
             {isLoading ? (
-              // Mostramos 3 esqueletos mientras carga
               <>
                 <SkeletonCard />
                 <SkeletonCard />
                 <SkeletonCard />
               </>
-            ) : (
-              // Mapeo real de datos
-              historialPresupuestos.map((item) => (
+            ) : presupuestosFiltrados.length > 0 ? (
+              presupuestosFiltrados.map((item) => (
                 <article
                   key={item.id}
-                  className='group relative flex flex-col md:flex-row items-center gap-6 p-3 pr-6 bg-zinc-900/40 border border-white/5 hover:bg-white/0.03 hover:border-amber-500/40 transition-all duration-500 rounded-3xl backdrop-blur-sm'
+                  className='group relative flex flex-col md:flex-row items-center gap-6 p-3 pr-6 bg-zinc-900/40 border border-white/5 hover:bg-white/5 hover:border-amber-500/40 transition-all duration-500 rounded-3xl backdrop-blur-sm'
                 >
-                  {/* ID SECTION */}
-                  <div className='flex items-center gap-4 bg-black/40 p-4 rounded-2xl min-w-50 border border-white/5 group-hover:border-amber-500/30 transition-all'>
+                  {/* REFERENCIA SECTION */}
+                  <div className='flex items-center gap-4 bg-black/40 p-4 rounded-2xl min-w-52 border border-white/5 group-hover:border-amber-500/30 transition-all'>
                     <div className='p-3 bg-amber-500/10 rounded-xl text-amber-500 group-hover:bg-amber-500 group-hover:text-black transition-all duration-300'>
                       <HiOutlineCalendarDays size={22} />
                     </div>
@@ -142,7 +148,7 @@ export default function Historial() {
                       <span className='text-[10px] font-black text-zinc-500 uppercase tracking-widest'>
                         Referencia
                       </span>
-                      <span className='text-sm font-bold text-zinc-200'>
+                      <span className='text-sm font-bold text-zinc-200 tracking-tight'>
                         {item.id}
                       </span>
                     </div>
@@ -150,6 +156,7 @@ export default function Historial() {
 
                   {/* INFO GRID */}
                   <div className='grow grid grid-cols-1 md:grid-cols-3 gap-6'>
+                    {/* CLIENTE */}
                     <div className='flex items-center gap-3'>
                       <div className='p-2.5 rounded-xl bg-white/5 text-zinc-400 group-hover:text-amber-500 transition-colors'>
                         <HiOutlineUser size={18} />
@@ -158,26 +165,29 @@ export default function Historial() {
                         <span className='text-[10px] font-bold text-zinc-500 uppercase tracking-widest'>
                           Cliente
                         </span>
-                        <span className='text-sm font-semibold text-zinc-100'>
+                        <span className='text-sm font-semibold text-zinc-100 truncate max-w-[160px]'>
                           {item.cliente}
                         </span>
                       </div>
                     </div>
 
+                    {/* ITEMS */}
                     <div className='flex items-center gap-3'>
                       <div className='p-2.5 rounded-xl bg-white/5 text-zinc-400'>
                         <HiOutlineCube size={18} />
                       </div>
                       <div className='flex flex-col'>
                         <span className='text-[10px] font-bold text-zinc-500 uppercase tracking-widest'>
-                          Volumen
+                          Contenido
                         </span>
                         <span className='text-sm font-semibold text-zinc-300'>
-                          {item.items} Aberturas
+                          {item.items.length}{' '}
+                          {item.items.length === 1 ? 'Abertura' : 'Aberturas'}
                         </span>
                       </div>
                     </div>
 
+                    {/* TOTAL */}
                     <div className='flex items-center gap-3 md:justify-end'>
                       <div className='flex flex-col md:items-end'>
                         <span className='text-[10px] font-bold text-amber-500/80 uppercase tracking-widest'>
@@ -190,9 +200,8 @@ export default function Historial() {
                     </div>
                   </div>
 
-                  {/* ACCIONES CON DIVIDER REPARADO */}
+                  {/* ACCIONES */}
                   <div className='flex items-center gap-4'>
-                    {/* DIVIDER: Agregada altura y color explícito */}
                     <Divider
                       orientation='vertical'
                       className='h-10 bg-white/10'
@@ -201,7 +210,8 @@ export default function Historial() {
                     <Button
                       size='sm'
                       isIconOnly
-                      className='hidden sm:flex bg-amber-500 text-zinc-950 font-black rounded-xl hover:scale-105 hover:shadow-[0_0_15px_rgba(245,158,11,0.5)] transition-all'
+                      onPress={() => verDetalle(item)}
+                      className='hidden sm:flex bg-amber-500 text-zinc-950 font-black rounded-xl hover:scale-105 hover:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all'
                     >
                       <HiOutlineEye size={20} />
                     </Button>
@@ -223,6 +233,12 @@ export default function Historial() {
                       </DropdownTrigger>
                       <DropdownMenu aria-label='Opciones' variant='flat'>
                         <DropdownItem
+                          key='view'
+                          startContent={<HiOutlineEye size={18} />}
+                        >
+                          Ver Resumen
+                        </DropdownItem>
+                        <DropdownItem
                           key='edit'
                           startContent={<HiOutlinePencilSquare size={18} />}
                         >
@@ -236,7 +252,7 @@ export default function Historial() {
                           }
                           onPress={() =>
                             addToast({
-                              title: 'Generando PDF',
+                              title: 'Generando PDF...',
                               color: 'warning',
                             })
                           }
@@ -248,9 +264,208 @@ export default function Historial() {
                   </div>
                 </article>
               ))
+            ) : (
+              /* EMPTY STATE */
+              <div className='flex flex-col items-center justify-center py-24 bg-zinc-900/20 border border-dashed border-white/10 rounded-4xl backdrop-blur-sm'>
+                <div className='p-6 bg-zinc-800/50 rounded-full mb-4 text-zinc-600'>
+                  <HiOutlineSearch size={40} />
+                </div>
+                <h3 className='text-white font-bold text-lg'>
+                  No se encontraron resultados
+                </h3>
+                <p className='text-zinc-500 text-sm mt-1'>
+                  Intenta con otro nombre o número de referencia.
+                </p>
+                {filter && (
+                  <Button
+                    size='sm'
+                    variant='light'
+                    color='warning'
+                    onPress={() => setFilter('')}
+                    className='mt-4'
+                  >
+                    Limpiar filtros
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </ScrollShadow>
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          size='4xl'
+          scrollBehavior='inside'
+          backdrop='blur'
+          classNames={{
+            base: 'bg-zinc-900 border border-white/10 shadow-2xl rounded-[1.5rem]',
+            header: 'border-b border-white/5 bg-zinc-900/50 p-6',
+            footer: 'bg-zinc-900/50 p-4 border-t border-white/5',
+            closeButton:
+              'hover:bg-white/10 active:scale-95 transition-transform',
+          }}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className='flex justify-between items-center'>
+                  <div className='flex flex-col gap-1'>
+                    <h2 className='text-xl font-bold tracking-tight text-white uppercase italic'>
+                      Detalle Técnico{' '}
+                      <span className='text-amber-500 font-light'>
+                        | Cotización
+                      </span>
+                    </h2>
+                    <div className='flex gap-3 items-center'>
+                      <span className='text-xs font-mono text-zinc-500'>
+                        REF:
+                      </span>
+                      <span className='text-sm font-bold text-amber-500/90'>
+                        {presupuestoSeleccionado?.id}
+                      </span>
+                      <Divider
+                        orientation='vertical'
+                        className='h-4 bg-white/10'
+                      />
+                      <span className='text-sm text-zinc-400 font-medium italic'>
+                        {presupuestoSeleccionado?.cliente}
+                      </span>
+                    </div>
+                  </div>
+                </ModalHeader>
+
+                <ModalBody className='py-6 px-8'>
+                  <div className='flex flex-col gap-6'>
+                    {/* Cabecera de Tabla Manual para Mejor Control */}
+                    <div className='grid grid-cols-12 gap-4 pb-2 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-500'>
+                      <div className='col-span-7'>Descripción del Producto</div>
+                      <div className='col-span-1 text-center'>Cant.</div>
+                      <div className='col-span-2 text-right'>Unitario</div>
+                      <div className='col-span-2 text-right'>Subtotal</div>
+                    </div>
+
+                    {/* Listado de Items */}
+                    <div className='flex flex-col divide-y divide-white/5'>
+                      {presupuestoSeleccionado?.items.map(
+                        (prod: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className='grid grid-cols-12 gap-4 py-6 group hover:bg-white/1 transition-colors rounded-xl px-2'
+                          >
+                            {/* Detalles del Producto */}
+                            <div className='col-span-7 flex flex-col gap-2'>
+                              <span className='font-bold text-zinc-100 text-sm uppercase tracking-tight'>
+                                {prod.nombre_abertura || prod.nombre}
+                              </span>
+
+                              {/* Tags Técnicos con tamaños estándar */}
+                              <div className='flex flex-wrap gap-2'>
+                                <span className='px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20'>
+                                  {prod.medidas.ancho} x {prod.medidas.alto} mm
+                                </span>
+                                <span className='px-2 py-1 rounded bg-zinc-800 text-zinc-400 text-xs border border-white/5'>
+                                  Línea: {capitalize(prod.linea) || 'Módena'}
+                                </span>
+                                <span className='px-2 py-1 rounded bg-zinc-800 text-zinc-400 text-xs border border-white/5'>
+                                  Color:{' '}
+                                  {capitalize(prod.color) || 'Negro Aluar'}
+                                </span>
+                                <span className='px-2 py-1 rounded bg-indigo-500/10 text-indigo-300 text-xs border border-indigo-500/20'>
+                                  Vidrio:{' '}
+                                  {capitalize(prod.vidrio) || 'Float 4mm'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Cantidad */}
+                            <div className='col-span-1 flex items-start justify-center pt-1'>
+                              <span className='text-sm font-bold text-zinc-300'>
+                                {prod.cantidad || 1}
+                              </span>
+                            </div>
+
+                            {/* Precio Unitario */}
+                            <div className='col-span-2 flex items-start justify-end pt-1'>
+                              <span className='text-sm font-medium text-zinc-500 font-mono'>
+                                $
+                                {(
+                                  prod.precioFinal || prod.precio
+                                ).toLocaleString('es-AR')}
+                              </span>
+                            </div>
+
+                            {/* Subtotal Item */}
+                            <div className='col-span-2 flex items-start justify-end pt-1'>
+                              <span className='text-sm font-bold text-white font-mono'>
+                                $
+                                {(
+                                  (prod.precioFinal || prod.precio) *
+                                  (prod.cantidad || 1)
+                                ).toLocaleString('es-AR')}
+                              </span>
+                            </div>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Panel de Resumen Final */}
+                  <div className='mt-8 flex flex-col md:flex-row gap-6 items-stretch'>
+                    <div className='flex-1 p-4 rounded-xl bg-zinc-950/50 border border-white/5'>
+                      <span className='text-[10px] font-black uppercase text-zinc-600 tracking-tighter'>
+                        Observaciones
+                      </span>
+                      <p className='text-sm text-zinc-400 mt-2 leading-relaxed italic'>
+                        {presupuestoSeleccionado?.observaciones ||
+                          'Sin especificaciones adicionales.'}
+                      </p>
+                    </div>
+
+                    <div className='w-full md:w-80 p-5 rounded-xl bg-linear-to-br from-zinc-800 to-zinc-900 border border-white/10 shadow-xl flex flex-col gap-3'>
+                      <div className='flex justify-between items-center text-xs font-medium'>
+                        <span className='text-zinc-400 uppercase'>
+                          Bonificación
+                        </span>
+                        <span className='text-emerald-400 font-bold'>
+                          -{presupuestoSeleccionado?.descuento}% OFF
+                        </span>
+                      </div>
+                      <Divider className='bg-white/5' />
+                      <div className='flex flex-col items-end gap-1 mt-2'>
+                        <span className='text-[10px] font-black text-amber-500 uppercase tracking-widest'>
+                          Total Presupuestado
+                        </span>
+                        <span className='text-3xl font-black text-white tracking-tighter'>
+                          $
+                          {presupuestoSeleccionado?.total.toLocaleString(
+                            'es-AR',
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </ModalBody>
+
+                <ModalFooter className='gap-4'>
+                  <Button
+                    variant='flat'
+                    className='rounded-xl font-bold text-zinc-400 px-6'
+                    onPress={onClose}
+                  >
+                    Cerrar Detalle
+                  </Button>
+                  <Button
+                    className='bg-amber-500 text-zinc-950 font-black rounded-xl px-8 hover:scale-105 transition-transform'
+                    startContent={<HiOutlineDocumentArrowDown size={20} />}
+                  >
+                    DESCARGAR PDF
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </section>
     </DefaultLayout>
   )
