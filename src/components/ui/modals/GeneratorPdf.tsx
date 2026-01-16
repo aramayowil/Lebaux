@@ -100,7 +100,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
 
   const generarPDF = async (): Promise<void> => {
     setIsLoading(true)
-    crearPresupuesto()
+    // crearPresupuesto()
     try {
       const blob = await pdf(
         <PDF
