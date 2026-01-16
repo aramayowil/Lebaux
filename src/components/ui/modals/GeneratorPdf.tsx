@@ -17,22 +17,22 @@ import PDF from '@/components/PdfLayout'
 import { pdf } from '@react-pdf/renderer'
 import useAberturasStore from '@/stores/useAberturasStore'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
-import Presupuesto from '@/class/Presupuesto.class'
-import usePresupuestoStore from '@/stores/usePresupuestosStore'
-import capitalize from '@/utils/capitalize_text'
+// import Presupuesto from '@/class/Presupuesto.class'
+// import usePresupuestoStore from '@/stores/usePresupuestosStore'
+// import capitalize from '@/utils/capitalize_text'
 
 function obtenerFechaHoy() {
   return new Date().toLocaleDateString('es-AR')
 }
 
-const generarReferenciaFormateada = (cantidadActual: number): string => {
-  const fecha = new Date()
-  const tipo = 'COT'
-  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0')
-  const anio = fecha.getFullYear().toString().slice(-2)
-  const correlativo = (cantidadActual + 1).toString().padStart(4, '0')
-  return `${tipo}-${mes}${anio}-${correlativo}`
-}
+// const generarReferenciaFormateada = (cantidadActual: number): string => {
+//   const fecha = new Date()
+//   const tipo = 'COT'
+//   const mes = (fecha.getMonth() + 1).toString().padStart(2, '0')
+//   const anio = fecha.getFullYear().toString().slice(-2)
+//   const correlativo = (cantidadActual + 1).toString().padStart(4, '0')
+//   return `${tipo}-${mes}${anio}-${correlativo}`
+// }
 
 type GeneratorPdfProps = {
   isOpen: boolean
@@ -52,51 +52,51 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
 
   // Stores de Items
   const aberturasStore = useAberturasStore((state) => state.aberturas)
-  const limpiarSimples = useAberturasStore((state) => state.limpiarAberturas)
+  // const limpiarSimples = useAberturasStore((state) => state.limpiarAberturas)
 
   const aberturasCompuestasStore = useAberturasCompuestasStore(
     (state) => state.aberturasComps,
   )
-  const limpiarCompuestas = useAberturasCompuestasStore(
-    (state) => state.limpiarAberturasComp,
-  )
+  // const limpiarCompuestas = useAberturasCompuestasStore(
+  //   (state) => state.limpiarAberturasComp,
+  // )
 
   // Store de Presupuestos (Historial)
-  const agregarPresupuesto = usePresupuestoStore(
-    (state) => state.agregarPresupuesto,
-  )
+  // const agregarPresupuesto = usePresupuestoStore(
+  //   (state) => state.agregarPresupuesto,
+  // )
 
   // Obtenemos la cantidad del Store de Presupuestos para el correlativo
-  const numPresupuestos = usePresupuestoStore.getState().presupuestos.length
+  // const numPresupuestos = usePresupuestoStore.getState().presupuestos.length
 
   // Generamos la referencia con la nueva estructura
-  const referencia = generarReferenciaFormateada(numPresupuestos)
+  // const referencia = generarReferenciaFormateada(numPresupuestos)
 
   //funcion para crear presupuesto
-  const crearPresupuesto = () => {
-    const todosLosItems = [
-      ...aberturasStore, // IAbertura[]
-      ...aberturasCompuestasStore, // IAbertura_Compuesta[]
-    ]
+  // const crearPresupuesto = () => {
+  //   const todosLosItems = [
+  //     ...aberturasStore, // IAbertura[]
+  //     ...aberturasCompuestasStore, // IAbertura_Compuesta[]
+  //   ]
 
-    const nuevoPresupuesto = new Presupuesto(
-      referencia,
-      capitalize(nameCliente) || 'Cliente General',
-      obtenerFechaHoy(),
-      compra.importeFinal,
-      todosLosItems,
-      '',
-      compra.descuento,
-      'pendiente',
-    )
+  //   const nuevoPresupuesto = new Presupuesto(
+  //     referencia,
+  //     capitalize(nameCliente) || 'Cliente General',
+  //     obtenerFechaHoy(),
+  //     compra.importeFinal,
+  //     todosLosItems,
+  //     '',
+  //     compra.descuento,
+  //     'pendiente',
+  //   )
 
-    // Guardar en el historial persistente (Zustand -> LocalStorage)
-    agregarPresupuesto(nuevoPresupuesto)
+  //   // Guardar en el historial persistente (Zustand -> LocalStorage)
+  //   agregarPresupuesto(nuevoPresupuesto)
 
-    // Limpiar los campos
-    limpiarSimples()
-    limpiarCompuestas()
-  }
+  //   // Limpiar los campos
+  //   limpiarSimples()
+  //   limpiarCompuestas()
+  // }
 
   const generarPDF = async (): Promise<void> => {
     setIsLoading(true)
