@@ -438,7 +438,7 @@ function PDF({
                       >
                         {`Vidrio: ${capitalizar(modulo.abertura.vidrio)}`}
                       </Text>
-                      {(modulo.abertura.accesorios?.premarco || 0 > 0) && (
+                      {/* {(modulo.abertura.accesorios?.premarco || 0 > 0) && (
                         <View
                           style={{
                             marginTop: 6,
@@ -457,7 +457,7 @@ function PDF({
                               </Text>
                             ))}
                         </View>
-                      )}
+                      )} */}
                     </View>
                   ))}
 
