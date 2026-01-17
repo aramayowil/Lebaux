@@ -187,7 +187,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
                       'text-[10px] font-black tracking-widest text-zinc-500',
                     inputWrapper:
                       'border-zinc-800 group-data-[focus=true]:border-zinc-500 h-12 transition-colors bg-zinc-900/20',
-                    input: 'text-zinc-200 text-sm font-medium', // Texto normal al escribir
+                    input: 'text-zinc-200 text-sm font-medium',
                   }}
                 />
 
@@ -211,7 +211,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
                 </Button>
                 <Button
                   color='warning'
-                  variant='bordered' // Variante discreta
+                  variant='bordered'
                   isLoading={isLoading}
                   onPress={generarPDF}
                   className='flex-[1.5] border-zinc-700 hover:border-warning/50 text-zinc-300 hover:text-warning font-bold uppercase tracking-widest text-[11px] transition-all'
