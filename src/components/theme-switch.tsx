@@ -18,17 +18,6 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
 
   const { theme, setTheme } = useTheme()
 
-  // const {
-  //   Component,
-  //   slots,
-  //   isSelected,
-  //   getBaseProps,
-  //   getInputProps,
-  //   getWrapperProps,
-  // } = useSwitch({
-  //   isSelected: theme === 'light',
-  //   onChange: () => setTheme(theme === 'light' ? 'dark' : 'light'),
-  // })
   const {
     Component,
     slots,
@@ -38,14 +27,13 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     getWrapperProps,
   } = useSwitch({
     isSelected: theme === 'dark',
-    onChange: () => setTheme(theme === 'dark' ? 'dark' : 'dark'),
+    onChange: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
   })
 
   useEffect(() => {
     setIsMounted(true)
   }, [isMounted])
 
-  // Prevent Hydration Mismatch
   if (!isMounted) return <div className='w-6 h-6' />
 
   return (

@@ -11,7 +11,7 @@ import {
 } from '@heroui/navbar'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Image } from '@heroui/react'
-import { HiSearch } from 'react-icons/hi'
+import { HiOutlineUserCircle, HiSearch } from 'react-icons/hi'
 import clsx from 'clsx'
 
 // 1. Importamos hooks y componentes de navegación de Vite
@@ -94,6 +94,16 @@ export const Navbar = () => {
           </NavbarItem>
           <NavbarItem className='flex items-center'>
             <ThemeSwitch />
+          </NavbarItem>
+          {/* ICONO DE LOGIN */}
+          <NavbarItem className='flex items-center'>
+            <Link
+              as={RouterLink}
+              href="/login" // Asegúrate de tener esta ruta creada
+              className="text-zinc-400 hover:text-warning transition-colors p-1"
+            >
+              <HiOutlineUserCircle size={28} />
+            </Link>
           </NavbarItem>
           <NavbarMenuToggle className='lg:hidden text-zinc-400' />
         </NavbarContent>
