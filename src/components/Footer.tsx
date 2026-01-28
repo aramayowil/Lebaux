@@ -7,6 +7,7 @@ import {
   FaEnvelope,
   FaMapMarkerAlt,
 } from 'react-icons/fa'
+import logo from '../../public/images/logos/LEBAUX-LOGO.png'
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -29,16 +30,17 @@ export const Footer = () => {
     'https://www.google.com/maps/search/?api=1&query=Lebaux+Aberturas+Tucuman&query_place_id=ChIJxXmwryJbIpQRIP7Y7bMX4aw'
 
   return (
-    <footer className='w-full bg-black border-t border-zinc-900 mt-auto py-16 px-6'>
+    <footer className='w-full bg-black border-t border-zinc-900 mt-auto py-12 px-6'>
       <div className='max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-start gap-12 w-full'>
         <div className='flex flex-col gap-1 shrink-0'>
           <img
-            src='./images/LEBAUX-LOGO.png'
+            src={logo}
             alt='Logo Lebaux'
             className='h-10 md:h-12 w-auto object-contain self-start'
           />
-          <p className='text-zinc-600 text-xs uppercase ml-1'>
-            aberturas lebaux © {currentYear}
+          <p className='text-xs font-medium text-zinc-400 tracking-widest uppercase'>
+            © {currentYear}{' '}
+            <span className='text-zinc-400'>Aberturas Lebaux</span>
           </p>
         </div>
 

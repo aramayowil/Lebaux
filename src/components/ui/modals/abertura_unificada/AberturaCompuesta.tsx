@@ -491,7 +491,7 @@ export default function AberturaCompuesta() {
         startContent={
           <HiOutlineViewGrid size={20} className='text-warning-500' />
         }
-        className='font-bold border-1 border-warning/20 bg-warning/10 hover:bg-warning/20 transition-all'
+        className='w-full px-4 rounded-xl transition-all flex justify-center gap-2 items-center font-bold text-warning-500 bg-warning/10 hover:bg-warning/20 border border-warning/20 hover:border-warning/40'
       >
         Diseñar Abertura
       </Button>

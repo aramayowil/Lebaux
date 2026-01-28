@@ -17,26 +17,23 @@ function Tittle() {
     (state) => state.aberturasComps,
   )
 
-  // Cálculo de totales
-  const cantSimples = aberturasStore.reduce(
-    (acc, abertura) => acc + abertura.cantidad,
-    0,
-  )
-  const cantCompuestas = aberturasComps.length
-  const totalItems = cantSimples + cantCompuestas
+  const totalItems =
+    aberturasStore.reduce((acc, ab) => acc + ab.cantidad, 0) +
+    aberturasComps.length
 
   return (
-    <div className='w-full mb-8'>
+    <div className='w-full mb-8 px-2'>
       {/* Botón de Reset para móviles */}
-      <div className='flex items-center justify-center w-full mb-4 lg:hidden'>
+      <div className='flex items-center justify-center w-full mb-6 lg:hidden'>
         <ButtonReset />
       </div>
 
-      <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
-        {/* Título y Estadísticas */}
-        <div className='flex flex-col gap-1'>
-          <div className='flex items-center gap-3'>
-            <h1 className='text-3xl md:text-4xl font-black tracking-tight text-white'>
+      {/* CONTENEDOR PRINCIPAL: Flex Wrap para evitar desbordes */}
+      <div className='w-full flex flex-wrap items-center justify-between gap-y-6 gap-x-2'>
+        {/* LADO IZQUIERDO: Branding y Contador */}
+        <div className='flex flex-col min-w-[250px] flex-1'>
+          <div className='flex items-center gap-3 flex-wrap'>
+            <h1 className='text-3xl md:text-4xl font-black tracking-tight text-white whitespace-nowrap'>
               Mis Aberturas
             </h1>
             <Chip
@@ -48,34 +45,41 @@ function Tittle() {
               {totalItems} Total
             </Chip>
           </div>
-          <p className='text-zinc-500 text-sm font-medium'>
+
+          <p className='text-zinc-500 text-sm mt-1 font-medium italic'>
             Gestiona los módulos de tu presupuesto.
           </p>
         </div>
 
-        {/* Acciones */}
-        <div className='flex items-center gap-3 bg-zinc-900/40 p-2 rounded-2xl border border-zinc-800/50 backdrop-blur-md'>
-          {/* Componente de Abertura Compuesta (asumiendo que tiene su propio botón dentro) */}
-          <AberturaCompuesta />
+        {/* LADO DERECHO: Barra de Acciones */}
+        <div className='flex flex-wrap items-center gap-2 bg-zinc-900/40 p-2 rounded-2xl border border-zinc-800/50 backdrop-blur-md w-full md:w-auto'>
+          {/* Botón Diseñar (Componente Externo) */}
+          <div className='flex-1 sm:flex-initial'>
+            <AberturaCompuesta />
+          </div>
 
-          <Divider orientation='vertical' className='h-8 bg-zinc-800' />
+          {/* Separador vertical: Solo en escritorio */}
+          <div className='hidden sm:block h-8 w-1px bg-zinc-800/60 mx-1' />
 
+          {/* Botón Cargar */}
           <Button
             variant='flat'
             onPress={onOpenModal}
-            className='bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold px-6 h-10 rounded-xl border border-zinc-700/50 transition-all'
-            startContent={
-              <HiOutlineViewGridAdd size={18} className='text-zinc-400' />
-            }
+            className='flex-1 sm:flex-initial min-w-[160px] bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-bold px-6 h-11 rounded-xl border border-zinc-700/50 transition-all flex justify-center gap-2 group'
           >
-            Cargar Abertura
+            <HiOutlineViewGridAdd
+              size={20}
+              className='text-zinc-500 group-hover:text-zinc-300 transition-colors'
+            />
+            <span className='whitespace-nowrap'>Cargar Abertura</span>
           </Button>
         </div>
       </div>
 
-      <Divider className='mt-6 bg-zinc-800/50' />
+      {/* Divisor inferior de sección */}
+      <Divider className='mt-8 bg-zinc-800/50' />
 
-      {/* Modal de Carga Simple */}
+      {/* Modal Lógica */}
       {isOpenModal && (
         <Modal isOpen={isOpenModal} onClose={onCloseModal} aberturaKey={''} />
       )}

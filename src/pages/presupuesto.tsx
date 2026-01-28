@@ -5,7 +5,7 @@ import DefaultLayout from '@/layouts/default'
 import ButtonReset from '@/components/ui/modals/ButtonReset'
 import useBreakpoint from '@/config/breakpoints'
 
-export default function IndexPage() {
+export default function Presupuesto() {
   const { isLg } = useBreakpoint()
 
   return (
