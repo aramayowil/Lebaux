@@ -8,7 +8,17 @@ export interface AuthResponse {
     email: string
     nombre: string
     role: string
+    photo_profile?: string
   }
+}
+
+export interface UserResponse {
+  usuario_id: number
+  email: string
+  nombre: string
+  apellido: string
+  role: string
+  photo_profile?: string
 }
 
 export interface ApiError {

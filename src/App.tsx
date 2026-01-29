@@ -7,13 +7,14 @@ import Historial from '@/pages/historial'
 import Login from '@/pages/login_and_registro/login'
 import Register from './pages/login_and_registro/register'
 import EmailVerification from './pages/login_and_registro/emailVerification'
-import Profile from './pages/login_and_registro/profile'
+import Profile from './pages/profile/profile'
 import VerifyAccount from './pages/login_and_registro/verifyAccont'
 import ProtectedRoute from './pages/protectedRoute'
 import Lading from './pages/lading'
 import Presupuesto from './pages/presupuesto'
 import ForgotPassword from './pages/reset_password/forgotPassword'
 import ResetPassword from './pages/reset_password/resetPassword'
+import SettingAvatar from './pages/profile/avatar'
 
 function App() {
   return (
@@ -34,13 +35,16 @@ function App() {
 
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<Profile />} path='/profile' />
         <Route element={<Presupuesto />} path='/home' />
         <Route element={<Historial />} path='/historial' />
         <Route element={<CalculadorVidrioDVH />} path='/dvhCalc' />
         <Route element={<CotizarVentana />} path='/ventanaModena' />
         <Route element={<BlogPage />} path='/blog' />
         <Route element={<AboutPage />} path='/about' />
+
+        {/* Settings perfiles*/}
+        <Route element={<Profile />} path='/profile' />
+        <Route element={<SettingAvatar />} path='/profile/settings-avatar' />
       </Route>
     </Routes>
   )

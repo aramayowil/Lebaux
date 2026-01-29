@@ -4,6 +4,7 @@ export interface IUser {
   nombre: string
   apellido: string
   role?: 'admin' | 'user' // Opcional para facilitar el registro
+  photo_profile?: string
   token_expires_at?: string | null
   welcome_shown?: boolean
   last_version_seen?: string
