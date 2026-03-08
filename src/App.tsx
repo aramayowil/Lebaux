@@ -66,8 +66,10 @@ function App() {
   return (
     <Routes>
       {/* Rutas protegidas */}
-
+      <Route element={<Presupuesto />} path='/' />
       <Route element={<Presupuesto />} path='/home' />
+      <Route path='*' element={<Presupuesto />} />
+
       <Route element={<Historial />} path='/historial' />
       <Route element={<CalculadorVidrioDVH />} path='/dvhCalc' />
       <Route element={<CotizarVentana />} path='/ventanaModena' />
