@@ -61,6 +61,7 @@ import Historial from '@/pages/historial'
 import Profile from './pages/profile/profile'
 import Presupuesto from './pages/presupuesto'
 import SettingAvatar from './pages/profile/avatar'
+import RestablecerLocalStorage from './pages/RestablecerLocalStorage'
 
 function App() {
   return (
@@ -79,6 +80,9 @@ function App() {
       {/* Settings perfiles*/}
       <Route element={<Profile />} path='/profile' />
       <Route element={<SettingAvatar />} path='/profile/settings-avatar' />
+
+      {/* Restablecer Local Storage*/}
+      <Route element={<RestablecerLocalStorage />} path='/reset' />
     </Routes>
   )
 }
