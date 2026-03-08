@@ -7,7 +7,7 @@ import {
   FaEnvelope,
   FaMapMarkerAlt,
 } from 'react-icons/fa'
-import logo from '../../public/images/logos/LEBAUX-LOGO.png'
+import logo from '@/assets/images/logos/LEBAUX-LOGO.png'
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear()

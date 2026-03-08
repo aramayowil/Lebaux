@@ -8,7 +8,7 @@ import {
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Image } from '@heroui/react'
 import { Link as RouterLink } from 'react-router-dom'
-import logo from '../../public/images/logos/LEBAUX-LOGO.png'
+import logo from '@/assets/images/logos/LEBAUX-LOGO.png'
 
 export const NavbarLogin = () => {
   return (

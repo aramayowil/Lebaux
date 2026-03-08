@@ -17,7 +17,7 @@ import {
 import { HiOutlineCog, HiOutlineLogout } from 'react-icons/hi'
 import { IoPersonSharp } from 'react-icons/io5'
 import clsx from 'clsx'
-import logo from '../../public/images/logos/LEBAUX-LOGO.png'
+import logo from '@/assets/images/logos/LEBAUX-LOGO.png'
 import { useLocation, Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useTheme } from '@heroui/use-theme'
 import { FiMoon, FiSun } from 'react-icons/fi'

@@ -5,7 +5,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import { client } from '@/api/client'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ApiError, AuthResponse } from '@/interfaces/IResponse.api'
-import imgInterior from '../../../public/images/photos/img_interior_login.avif'
+import imgInterior from '@/assets/images/photos/img_interior_login.avif'
 
 const Login = () => {
   const navigate = useNavigate()

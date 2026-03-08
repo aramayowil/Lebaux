@@ -19,10 +19,10 @@ import {
 } from 'react-icons/pi'
 import { Link as RouterLink } from 'react-router-dom'
 import { ThemeSwitch } from '@/components/theme-switch' // Asegúrate de tener esta importación
-import img_house_front from '../../public/images/photos/photo-house.jpg'
-import img_house_interior from '../../public/images/photos/photo-interior.jpg'
-import img_banner from '../../public/images/photos/home_modern-styled-entryway.webp'
-import logo from '../../public/images/logos/LEBAUX-LOGO.png'
+import img_house_front from '@/assets/images/photos/photo-house.jpg'
+import img_house_interior from '@/assets/images/photos/photo-interior.jpg'
+import img_banner from '@/assets/images/photos/home_modern-styled-entryway.webp'
+import logo from '@/assets/images/logos/LEBAUX-LOGO.png'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 

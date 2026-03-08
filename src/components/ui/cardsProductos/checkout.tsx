@@ -42,12 +42,18 @@ export default function Card() {
     aberturasStore.reduce(
       (acc, a) =>
         acc +
-        (a.precio + a.accesorios.mosquitero + a.accesorios.premarco) *
+        (a.precio +
+          a.accesorios.mosquitero +
+          a.accesorios.premarco +
+          a.precioColocacion) *
           a.cantidad,
       0,
     ) +
     aberturaCompuestaStore.reduce(
-      (acc, a) => acc + a.precio_compuesta * a.cantidad_compuesta,
+      (acc, a) =>
+        acc +
+        (a.precio_compuesta + a.precioColocacion_compuesta) *
+          a.cantidad_compuesta,
       0,
     )
 

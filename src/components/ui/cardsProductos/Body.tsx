@@ -113,7 +113,8 @@ export default function Body() {
                       {formatCurrency(
                         (abertura.precio +
                           abertura.accesorios.mosquitero +
-                          abertura.accesorios.premarco) *
+                          abertura.accesorios.premarco +
+                          abertura.precioColocacion) *
                           abertura.cantidad,
                       )}
                     </span>
@@ -139,11 +140,18 @@ export default function Body() {
                         </p>
                         <div className='space-y-1 text-zinc-400'>
                           <div className='flex justify-between gap-4'>
-                            <span>Base:</span>{' '}
+                            <span>Abertura:</span>{' '}
                             <span>{formatCurrency(abertura.precio)}</span>
                           </div>
+
                           <div className='flex justify-between gap-4'>
-                            <span>Adicionales:</span>{' '}
+                            <span>Colocación:</span>{' '}
+                            <span>
+                              {formatCurrency(abertura.precioColocacion)}
+                            </span>
+                          </div>
+                          <div className='flex justify-between gap-4'>
+                            <span>Accesorios:</span>{' '}
                             <span>
                               {formatCurrency(
                                 abertura.accesorios.mosquitero +
@@ -296,7 +304,9 @@ export default function Body() {
                     </span>
                     <span className='text-lg font-black text-warning/90 tracking-tight'>
                       {formatCurrency(
-                        comp.precio_compuesta * comp.cantidad_compuesta,
+                        (comp.precio_compuesta +
+                          comp.precioColocacion_compuesta) *
+                          comp.cantidad_compuesta,
                       )}
                     </span>
                   </div>

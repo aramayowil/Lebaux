@@ -9,6 +9,7 @@ export interface IAbertura_Compuesta {
   img_compuesta: string
   capturedImageBase64_compuesta: string
   configuracion: IModulo[]
+  precioColocacion_compuesta: number
   cantidad_compuesta: number
   precio_compuesta: number
   color_compuesta: string

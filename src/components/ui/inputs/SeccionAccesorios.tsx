@@ -1,6 +1,7 @@
-import { Checkbox, NumberInput, Accordion, AccordionItem } from '@heroui/react'
+import { useEffect } from 'react'
+import { Checkbox, Accordion, AccordionItem, Input } from '@heroui/react'
 import { MdAttachMoney } from 'react-icons/md'
-import InputAccesorioRef from '../inputs/InputAccesorioRef'
+import { obtenerDatosAccesorio } from '@/utils/referencia_precios_accesorios'
 
 interface SeccionAccesoriosProps {
   form: any
@@ -13,19 +14,44 @@ export default function SeccionAccesorios({
   onChange,
   isDisabled,
 }: SeccionAccesoriosProps) {
-  // Handler específico para actualizar sub-objetos (mosquitero y premarco)
+  // Obtenemos los datos de referencia en tiempo real para la descripción (UI)
+  const infoMosquitero = obtenerDatosAccesorio(
+    'MOSQUITERO',
+    form.ancho,
+    form.altura,
+  )
+  const infoPremarco = obtenerDatosAccesorio(
+    'PREMARCO',
+    form.ancho,
+    form.altura,
+  )
+
+  /**
+   * REGLA DE SINCRONIZACIÓN:
+   * Solo actualizamos el precio automáticamente cuando el usuario cambia el ANCHO o el ALTO.
+   * Esto permite que si el usuario edita el precio manualmente, no se borre hasta que
+   * se modifiquen las medidas de la ventana.
+   */
+  useEffect(() => {
+    if (form.mosquitero.checked) {
+      handleUpdate('mosquitero', infoMosquitero.precio)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.ancho, form.altura, form.mosquitero.checked])
+
+  useEffect(() => {
+    if (form.premarco.checked) {
+      handleUpdate('premarco', infoPremarco.precio)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.ancho, form.altura, form.premarco.checked])
+
   const handleToggle = (field: 'mosquitero' | 'premarco') => {
-    onChange(field, {
-      ...form[field],
-      checked: !form[field].checked,
-    })
+    onChange(field, { ...form[field], checked: !form[field].checked })
   }
 
-  const handlePrice = (field: 'mosquitero' | 'premarco', price: number) => {
-    onChange(field, {
-      ...form[field],
-      precio: price,
-    })
+  const handleUpdate = (field: 'mosquitero' | 'premarco', price: number) => {
+    onChange(field, { ...form[field], precio: price })
   }
 
   return (
@@ -41,9 +67,9 @@ export default function SeccionAccesorios({
       }}
     >
       <AccordionItem key='1' aria-label='Accesorios' title='Accesorios'>
-        <div className='grid grid-cols-6 gap-4'>
+        <div className='flex flex-col gap-6'>
           {/* SECCIÓN MOSQUITERO */}
-          <div className='col-span-6 border-b pb-2 border-default-100'>
+          <div className='flex flex-col border-b pb-4 border-default-100'>
             <Checkbox
               color='warning'
               isSelected={form.mosquitero.checked}
@@ -53,29 +79,25 @@ export default function SeccionAccesorios({
               Mosquitero
             </Checkbox>
             {form.mosquitero.checked && (
-              <div className='grid grid-cols-6 gap-2 mt-2'>
-                <NumberInput
-                  label='Precio Mosquitero'
-                  className='col-span-3'
+              <div className='mt-2'>
+                <Input
+                  type='number' // Cambiado a number para facilitar edición
                   variant='bordered'
-                  isRequired
-                  value={form.mosquitero.precio}
-                  onValueChange={(v) => handlePrice('mosquitero', v)}
+                  label='Precio Mosquitero'
+                  value={form.mosquitero.precio.toString()}
+                  onValueChange={(val) =>
+                    handleUpdate('mosquitero', Number(val))
+                  }
+                  description={`Referencia de medidas: ${infoMosquitero.medidasRef}`}
                   startContent={<MdAttachMoney size={20} />}
+                  isDisabled={isDisabled}
                 />
-                <div className='col-span-3'>
-                  <InputAccesorioRef
-                    accesorio='MOSQUITERO'
-                    base={form.ancho}
-                    altura={form.altura}
-                  />
-                </div>
               </div>
             )}
           </div>
 
           {/* SECCIÓN PREMARCO */}
-          <div className='col-span-6'>
+          <div className='flex flex-col'>
             <Checkbox
               color='warning'
               isSelected={form.premarco.checked}
@@ -85,23 +107,17 @@ export default function SeccionAccesorios({
               Premarco y Tapajunta
             </Checkbox>
             {form.premarco.checked && (
-              <div className='grid grid-cols-6 gap-2 mt-2'>
-                <NumberInput
-                  label='Precio Premarco'
-                  className='col-span-3'
+              <div className='mt-2'>
+                <Input
+                  type='number'
                   variant='bordered'
-                  isRequired
-                  value={form.premarco.precio}
-                  onValueChange={(v) => handlePrice('premarco', v)}
+                  label='Precio Premarco'
+                  value={form.premarco.precio.toString()}
+                  onValueChange={(val) => handleUpdate('premarco', Number(val))}
+                  description={`Referencia de medidas: ${infoPremarco.medidasRef}`}
                   startContent={<MdAttachMoney size={20} />}
+                  isDisabled={isDisabled}
                 />
-                <div className='col-span-3'>
-                  <InputAccesorioRef
-                    accesorio='PREMARCO'
-                    base={form.ancho}
-                    altura={form.altura}
-                  />
-                </div>
               </div>
             )}
           </div>
