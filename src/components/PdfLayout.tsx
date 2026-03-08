@@ -50,6 +50,27 @@ const styles = StyleSheet.create({
     lineHeight: 1.5,
     paddingHorizontal: 30,
   },
+  observacionesFinales: {
+    marginTop: 15,
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#eba434',
+    borderTopStyle: 'dashed',
+    marginHorizontal: 30, // Alineado con el padding de condiciones
+  },
+  observacionesTitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#eba434',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  observacionesText: {
+    fontSize: 10,
+    color: '#444',
+    lineHeight: 1.3,
+    fontStyle: 'italic',
+  },
 })
 
 const formatCurrency = (valor: number) => {
@@ -80,6 +101,7 @@ interface PDFProps {
   saldoPendiente: number
   importeFinal: number
   nameCliente: string
+  observaciones: string
 }
 
 function PDF({
@@ -90,6 +112,7 @@ function PDF({
   ivaCalculado,
   importeFinal,
   nameCliente = '',
+  observaciones,
 }: PDFProps) {
   const IvaPorcentaje = 10.5
 
@@ -99,7 +122,7 @@ function PDF({
         {/* LOGO Y TITULO */}
         <View style={styles.section}>
           <Image
-            src='./images/LEBAUX-LOGO.png'
+            src='src/assets/images/logos/LEBAUX-LOGO.png'
             style={{ width: 180, height: 45 }}
           />
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#eba434' }}>
@@ -274,15 +297,33 @@ function PDF({
                       }}
                     >
                       {abertura.accesorios.mosquitero > 0 && (
-                        <Text style={{ fontSize: 9 }}>
+                        <Text style={{ fontSize: 10 }}>
                           • Mosquitero: $
                           {formatCurrency(abertura.accesorios.mosquitero)}
                         </Text>
                       )}
                       {abertura.accesorios.premarco > 0 && (
-                        <Text style={{ fontSize: 9 }}>
+                        <Text style={{ fontSize: 10 }}>
                           • Premarco: $
                           {formatCurrency(abertura.accesorios.premarco)}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+
+                  {abertura.precioColocacion > 0 && (
+                    <View
+                      style={{
+                        marginTop: 6,
+                        padding: 4,
+                        backgroundColor: '#fafafa',
+                        borderLeft: '2px solid #eba434',
+                      }}
+                    >
+                      {abertura.precioColocacion > 0 && (
+                        <Text style={{ fontSize: 10 }}>
+                          • Colocación: $
+                          {formatCurrency(abertura.precioColocacion)}
                         </Text>
                       )}
                     </View>
@@ -309,7 +350,8 @@ function PDF({
                       {formatCurrency(
                         (abertura.precio +
                           abertura.accesorios.mosquitero +
-                          abertura.accesorios.premarco) *
+                          abertura.accesorios.premarco +
+                          abertura.precioColocacion) *
                           abertura.cantidad,
                       )}
                     </Text>
@@ -479,6 +521,24 @@ function PDF({
                     </Text>
                   </View>
 
+                  {compuesta.precioColocacion_compuesta > 0 && (
+                    <View
+                      style={{
+                        marginTop: 6,
+                        padding: 4,
+                        backgroundColor: '#fafafa',
+                        borderLeft: '2px solid #eba434',
+                      }}
+                    >
+                      {compuesta.precioColocacion_compuesta > 0 && (
+                        <Text style={{ fontSize: 10 }}>
+                          • Colocación: $
+                          {formatCurrency(compuesta.precioColocacion_compuesta)}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+
                   <View
                     style={{
                       marginTop: 'auto',
@@ -498,7 +558,8 @@ function PDF({
                     >
                       Importe: $
                       {formatCurrency(
-                        compuesta.precio_compuesta *
+                        (compuesta.precio_compuesta +
+                          compuesta.precioColocacion_compuesta) *
                           compuesta.cantidad_compuesta,
                       )}
                       {/* {formatCurrency(
@@ -587,6 +648,14 @@ function PDF({
             )}
           </View>
         </View>
+
+        {/* --- OBSERVACIONES AL FINAL --- */}
+        {observaciones && observaciones.trim().length > 0 && (
+          <View style={styles.observacionesFinales}>
+            <Text style={styles.observacionesTitle}>Notas adicionales:</Text>
+            <Text style={styles.observacionesText}>{observaciones}</Text>
+          </View>
+        )}
 
         {/* TEXTO LEGAL Y CONDICIONES */}
         <View wrap={false} style={styles.condicionesContainer}>

@@ -11,6 +11,7 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
   img_compuesta: string
   capturedImageBase64_compuesta: string
   configuracion: IModulo[]
+  precioColocacion_compuesta: number
   cantidad_compuesta: number
   precio_compuesta: number
   color_compuesta: string
@@ -23,6 +24,7 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
     img_compuesta: string,
     capturedImageBase64_compuesta: string,
     configuracion: IModulo[],
+    precioColocacion_compuesta: number,
     cantidad_compuesta: number,
     precio_compuesta: number,
     color_compuesta: string,
@@ -35,6 +37,7 @@ export default class Abertura_Compuesta implements IAbertura_Compuesta {
     this.img_compuesta = img_compuesta
     this.capturedImageBase64_compuesta = capturedImageBase64_compuesta
     this.configuracion = configuracion
+    this.precioColocacion_compuesta = precioColocacion_compuesta
     this.cantidad_compuesta = cantidad_compuesta
     this.precio_compuesta = precio_compuesta
     this.color_compuesta = color_compuesta

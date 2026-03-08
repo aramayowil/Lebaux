@@ -1,4 +1,4 @@
-import Footer from '@/components/Footer'
+import { Footer } from '@/components/Footer'
 import { Navbar } from '@/components/navbar'
 
 export default function DefaultLayout({
@@ -20,7 +20,6 @@ export default function DefaultLayout({
       >
         {children}
       </main>
-
       <Footer />
     </div>
   )

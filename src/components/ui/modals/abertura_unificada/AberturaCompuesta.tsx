@@ -69,7 +69,8 @@ import { IModulo } from '@/interfaces/Imodulo'
 
 interface EstadoAbertura {
   id: string
-  abertura: IAbertura // Usar la interfaz global IAbertura
+  abertura: IAbertura
+  importeColocacion: number
   x: number
   y: number
 }
@@ -169,14 +170,17 @@ export default function AberturaCompuesta() {
       vidrio: 'float4mm',
       img: '',
       capturedImageBase64: '',
+      precioColocacion: 0,
       cantidad: 1,
       precio: 0,
     },
+    importeColocacion: 0,
     x: 0,
     y: 0,
   })
 
   const [cantidadCompuesta, setCantidadCompuesta] = useState(1)
+  const [importeColocacion, setImporteColocacion] = useState(0)
   const [color, setColor] = useState('blanco')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -393,6 +397,7 @@ export default function AberturaCompuesta() {
         './images/img-prueba3.jpg',
         imagenLimpia, // Ahora garantizamos que no es null
         modulosParaCompuesta, // Pasar los módulos mapeados a IModulo[]
+        importeColocacion,
         cantidadCompuesta,
         totalGeneral,
         color,
@@ -491,7 +496,7 @@ export default function AberturaCompuesta() {
         startContent={
           <HiOutlineViewGrid size={20} className='text-warning-500' />
         }
-        className='font-bold border-1 border-warning/20 bg-warning/10 hover:bg-warning/20 transition-all'
+        className='w-full px-4 rounded-xl transition-all flex justify-center gap-2 items-center font-bold text-warning-500 bg-warning/10 hover:bg-warning/20 border border-warning/20 hover:border-warning/40'
       >
         Diseñar Abertura
       </Button>
@@ -963,8 +968,9 @@ export default function AberturaCompuesta() {
               </ModalBody>
 
               {/* --- FOOTER --- */}
-              <ModalFooter className='h-18 border-t border-zinc-800/50 bg-black/60 px-10 flex justify-between items-center'>
-                <div className='flex gap-12 items-center'>
+              <ModalFooter className='h-20 border-t border-zinc-800/50 bg-black/60 px-10 flex justify-between items-center'>
+                <div className='flex gap-10 items-center'>
+                  {/* --- MÓDULOS --- */}
                   <div className='flex flex-col'>
                     <span className='text-[10px] text-zinc-600 font-bold uppercase tracking-widest'>
                       Módulos
@@ -974,7 +980,7 @@ export default function AberturaCompuesta() {
                     </div>
                   </div>
 
-                  {/* --- NUEVO SELECTOR DE CANTIDAD --- */}
+                  {/* --- SELECTOR DE CANTIDAD --- */}
                   <div className='flex flex-col gap-1'>
                     <span className='text-[10px] text-zinc-500 font-bold uppercase tracking-widest'>
                       Cantidad Total
@@ -1000,7 +1006,7 @@ export default function AberturaCompuesta() {
                         isIconOnly
                         size='sm'
                         variant='light'
-                        className='text-zinc-400  font-bold text-lg'
+                        className='text-zinc-400 font-bold text-lg'
                         onPress={() =>
                           setCantidadCompuesta(cantidadCompuesta + 1)
                         }
@@ -1010,19 +1016,41 @@ export default function AberturaCompuesta() {
                     </div>
                   </div>
 
+                  {/* --- NUEVO: INPUT PRECIO COLOCACIÓN --- */}
+                  <div className='flex flex-col gap-1'>
+                    <span className='text-[10px] text-zinc-500 font-bold uppercase tracking-widest'>
+                      Colocación ($)
+                    </span>
+                    <input
+                      type='number'
+                      value={importeColocacion}
+                      onChange={(e) =>
+                        setImporteColocacion(Number(e.target.value))
+                      }
+                      placeholder='0.00'
+                      className='w-28 h-9 bg-zinc-900 border border-zinc-800 rounded-xl px-3 text-sm font-mono font-bold text-zinc-200 focus:outline-none focus:border-warning/50 transition-colors'
+                    />
+                  </div>
+
+                  {/* --- TOTAL ESTIMADO --- */}
                   <div className='flex flex-col'>
                     <span className='text-[10px] text-zinc-500 uppercase font-bold tracking-widest'>
                       Total Estimado
                     </span>
                     <div className='flex items-center gap-2'>
                       <span className='text-3xl font-black text-warning'>
-                        {/* Multiplicamos el total por la cantidad seleccionada para mostrar el precio real */}
-                        $ {(totalGeneral * cantidadCompuesta).toLocaleString()}
+                        {/* Sumamos colocación al total general antes de multiplicar por la cantidad total */}
+                        ${' '}
+                        {(
+                          (totalGeneral + importeColocacion) *
+                          cantidadCompuesta
+                        ).toLocaleString()}
                       </span>
                     </div>
                   </div>
                 </div>
 
+                {/* --- ACCIONES --- */}
                 <div className='flex gap-3'>
                   <Button
                     variant='light'
