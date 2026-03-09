@@ -122,7 +122,7 @@ function PDF({
         {/* LOGO Y TITULO */}
         <View style={styles.section}>
           <Image
-            src='src/assets/images/logos/LEBAUX-LOGO.png'
+            src='./images/logos/LEBAUX-LOGO.png'
             style={{ width: 180, height: 45 }}
           />
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#eba434' }}>
