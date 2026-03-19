@@ -45,6 +45,7 @@ export default function Card() {
         (a.precio +
           a.accesorios.mosquitero +
           a.accesorios.premarco +
+          a.accesorios.persiana +
           a.precioColocacion) *
           a.cantidad,
       0,

@@ -287,7 +287,8 @@ function PDF({
                   </View>
 
                   {(abertura.accesorios.premarco > 0 ||
-                    abertura.accesorios.mosquitero > 0) && (
+                    abertura.accesorios.mosquitero > 0 ||
+                    abertura.accesorios.persiana > 0) && (
                     <View
                       style={{
                         marginTop: 6,
@@ -306,6 +307,12 @@ function PDF({
                         <Text style={{ fontSize: 10 }}>
                           • Premarco: $
                           {formatCurrency(abertura.accesorios.premarco)}
+                        </Text>
+                      )}
+                      {abertura.accesorios.persiana > 0 && (
+                        <Text style={{ fontSize: 10 }}>
+                          • Persiana Enrrollable: $
+                          {formatCurrency(abertura.accesorios.persiana)}
                         </Text>
                       )}
                     </View>
