@@ -358,6 +358,7 @@ function PDF({
                         (abertura.precio +
                           abertura.accesorios.mosquitero +
                           abertura.accesorios.premarco +
+                          abertura.accesorios.persiana +
                           abertura.precioColocacion) *
                           abertura.cantidad,
                       )}
