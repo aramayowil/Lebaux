@@ -165,7 +165,7 @@ export default function AberturaCompuesta() {
       cod_abertura: '',
       variantKey: 0,
       medidas: { base: 1000, altura: 1000 },
-      accesorios: { mosquitero: 0, premarco: 0 },
+      accesorios: { mosquitero: 0, premarco: 0, persiana: 0 },
       color: 'blanco',
       vidrio: 'float4mm',
       img: '',

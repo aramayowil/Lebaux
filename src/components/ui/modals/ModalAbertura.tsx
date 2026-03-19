@@ -60,6 +60,7 @@ const INITIAL_FORM_STATE = {
   descripcion: '',
   mosquitero: { checked: false, precio: NaN },
   premarco: { checked: false, precio: NaN },
+  persiana: { checked: false, precio: NaN },
   imgSrc: '',
   variantKey: 0,
 }
@@ -101,6 +102,10 @@ export default function ModalAbertura({
               checked: (editItem.accesorios.premarco || 0) > 0,
               precio: editItem.accesorios.premarco || NaN,
             },
+            persiana: {
+              checked: (editItem.accesorios.persiana || 0) > 0,
+              precio: editItem.accesorios.persiana || NaN,
+            },
             imgSrc: editItem.img,
             variantKey: editItem.variantKey,
           })
@@ -141,6 +146,7 @@ export default function ModalAbertura({
         {
           mosquitero: form.mosquitero.checked ? form.mosquitero.precio : 0,
           premarco: form.premarco.checked ? form.premarco.precio : 0,
+          persiana: form.persiana.checked ? form.persiana.precio : 0,
         },
         form.color,
         form.vidrio,
@@ -175,6 +181,7 @@ export default function ModalAbertura({
     (form.precio || 0) +
     (form.colocacion || 0) +
     (form.mosquitero.checked ? form.mosquitero.precio : 0) +
+    (form.persiana.checked ? form.persiana.precio : 0) +
     (form.premarco.checked ? form.premarco.precio : 0)
   const totalFinal = totalUnitario * (form.cantidad || 1)
 

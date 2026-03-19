@@ -7,7 +7,7 @@ export interface IAbertura {
   cod_abertura: string
   variantKey: number
   medidas: { base: number; altura: number }
-  accesorios: { mosquitero: number; premarco: number }
+  accesorios: { mosquitero: number; premarco: number; persiana: number }
   color: string
   vidrio: string
   img: string

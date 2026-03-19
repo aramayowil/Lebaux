@@ -46,11 +46,14 @@ export default function SeccionAccesorios({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.ancho, form.altura, form.premarco.checked])
 
-  const handleToggle = (field: 'mosquitero' | 'premarco') => {
+  const handleToggle = (field: 'mosquitero' | 'premarco' | 'persiana') => {
     onChange(field, { ...form[field], checked: !form[field].checked })
   }
 
-  const handleUpdate = (field: 'mosquitero' | 'premarco', price: number) => {
+  const handleUpdate = (
+    field: 'mosquitero' | 'premarco' | 'persiana',
+    price: number,
+  ) => {
     onChange(field, { ...form[field], precio: price })
   }
 
@@ -97,7 +100,7 @@ export default function SeccionAccesorios({
           </div>
 
           {/* SECCIÓN PREMARCO */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col border-b pb-4 border-default-100'>
             <Checkbox
               color='warning'
               isSelected={form.premarco.checked}
@@ -115,6 +118,31 @@ export default function SeccionAccesorios({
                   value={form.premarco.precio.toString()}
                   onValueChange={(val) => handleUpdate('premarco', Number(val))}
                   description={`Referencia de medidas: ${infoPremarco.medidasRef}`}
+                  startContent={<MdAttachMoney size={20} />}
+                  isDisabled={isDisabled}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* SECCIÓN PERSIANA */}
+          <div className='flex flex-col'>
+            <Checkbox
+              color='warning'
+              isSelected={form.persiana.checked}
+              onValueChange={() => handleToggle('persiana')}
+              isDisabled={isDisabled}
+            >
+              Persiana
+            </Checkbox>
+            {form.persiana.checked && (
+              <div className='mt-2'>
+                <Input
+                  type='number'
+                  variant='bordered'
+                  label='Precio Persiana'
+                  value={form.persiana.precio.toString()}
+                  onValueChange={(val) => handleUpdate('persiana', Number(val))}
                   startContent={<MdAttachMoney size={20} />}
                   isDisabled={isDisabled}
                 />
