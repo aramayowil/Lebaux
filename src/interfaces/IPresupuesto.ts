@@ -5,9 +5,14 @@ export default interface IPresupuesto {
   id: string
   cliente: string
   fecha: string
-  total: number
-  observaciones?: string
-  descuento?: number
-  estado?: 'pendiente' | 'aceptado' | 'rechazado'
+  observaciones: string
+  detalleCompra: {
+    total: number
+    descuento: number
+    saldoPendiente: number
+    iva: number
+    importeFinal: number
+  }
+  estado: 'pendiente' | 'aprobado' | 'rechazado'
   items: (IAbertura | IAbertura_Compuesta)[]
 }

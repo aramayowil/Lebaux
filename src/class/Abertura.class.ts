@@ -18,6 +18,7 @@ export default class Abertura implements IAbertura {
   precioColocacion: number
   cantidad: number
   precio: number
+  precioFinal: number
 
   constructor(
     linea: string,
@@ -35,6 +36,7 @@ export default class Abertura implements IAbertura {
     precioColocacion: number,
     cantidad: number,
     precio: number,
+    precioFinal: number,
   ) {
     this.key = uuidv4()
     this.linea = linea
@@ -52,13 +54,15 @@ export default class Abertura implements IAbertura {
     this.precioColocacion = precioColocacion
     this.cantidad = cantidad
     this.precio = precio
+    this.precioFinal = precioFinal
   }
 
   calcularTotal(): number {
     const precioUnitario =
       this.precio +
       (this.accesorios.mosquitero || 0) +
-      (this.accesorios.premarco || 0)
+      (this.accesorios.premarco || 0) +
+      (this.accesorios.persiana || 0)
     return this.cantidad * precioUnitario
   }
 }

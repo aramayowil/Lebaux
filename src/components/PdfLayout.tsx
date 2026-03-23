@@ -93,24 +93,25 @@ function capitalizar(texto: string) {
 }
 
 interface PDFProps {
+  idPresupuesto: string
   aberturas: Abertura[]
   aberturasCompuestas: Aberturas_Compuestas[]
-  totalCompra: number
-  descuentoCalculado: number
-  ivaCalculado: number
-  saldoPendiente: number
-  importeFinal: number
+  detalleCompra: {
+    total: number
+    descuento: number
+    saldoPendiente: number
+    iva: number
+    importeFinal: number
+  }
   nameCliente: string
   observaciones: string
 }
 
 function PDF({
+  idPresupuesto,
   aberturas,
   aberturasCompuestas,
-  totalCompra,
-  descuentoCalculado,
-  ivaCalculado,
-  importeFinal,
+  detalleCompra,
   nameCliente = '',
   observaciones,
 }: PDFProps) {
@@ -122,7 +123,7 @@ function PDF({
         {/* LOGO Y TITULO */}
         <View style={styles.section}>
           <Image
-            src='./images/logos/LEBAUX-LOGO.png'
+            src='/images/logos/LEBAUX-LOGO.png'
             style={{ width: 180, height: 45 }}
           />
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#eba434' }}>
@@ -141,6 +142,7 @@ function PDF({
             <Text>LEBAUX SRL</Text>
             <Text>Av. Alem 1930 - San Miguel de Tucumán</Text>
             <Text>Fecha: {obtenerFechaHoy()}</Text>
+            <Text>{idPresupuesto}</Text>
           </View>
         </View>
 
@@ -353,15 +355,7 @@ function PDF({
                         color: '#eba434',
                       }}
                     >
-                      Importe: $
-                      {formatCurrency(
-                        (abertura.precio +
-                          abertura.accesorios.mosquitero +
-                          abertura.accesorios.premarco +
-                          abertura.accesorios.persiana +
-                          abertura.precioColocacion) *
-                          abertura.cantidad,
-                      )}
+                      Importe: ${formatCurrency(abertura.precioFinal)}
                     </Text>
                   </View>
                 </View>
@@ -613,7 +607,7 @@ function PDF({
               <Text
                 style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}
               >
-                ${formatCurrency(importeFinal)}
+                ${formatCurrency(detalleCompra.importeFinal)}
               </Text>
             </View>
 
@@ -626,9 +620,9 @@ function PDF({
               }}
             >
               <Text>Total neto:</Text>
-              <Text>${formatCurrency(totalCompra)}</Text>
+              <Text>${formatCurrency(detalleCompra.total)}</Text>
             </View>
-            {descuentoCalculado > 0 && (
+            {detalleCompra.descuento > 0 && (
               <View
                 style={{
                   flexDirection: 'row',
@@ -639,10 +633,10 @@ function PDF({
                 }}
               >
                 <Text>Bonificación:</Text>
-                <Text>- ${formatCurrency(descuentoCalculado)}</Text>
+                <Text>- ${formatCurrency(detalleCompra.descuento)}</Text>
               </View>
             )}
-            {ivaCalculado > 0 && (
+            {detalleCompra.iva > 0 && (
               <View
                 style={{
                   flexDirection: 'row',
@@ -651,7 +645,21 @@ function PDF({
                 }}
               >
                 <Text>IVA ({IvaPorcentaje}%):</Text>
-                <Text>${formatCurrency(ivaCalculado)}</Text>
+                <Text>${formatCurrency(detalleCompra.iva)}</Text>
+              </View>
+            )}
+            {detalleCompra.saldoPendiente > 0 && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  fontSize: 10,
+                  color: 'green',
+                  marginBottom: 2,
+                }}
+              >
+                <Text>Saldo pendiente:</Text>
+                <Text>${formatCurrency(detalleCompra.saldoPendiente)}</Text>
               </View>
             )}
           </View>

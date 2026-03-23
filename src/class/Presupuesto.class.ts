@@ -6,28 +6,37 @@ export default class Presupuesto implements IPresuesto {
   id: string
   cliente: string
   fecha: string
-  total: number
-  observaciones?: string
-  descuento?: number
-  estado?: 'pendiente' | 'aceptado' | 'rechazado'
+  observaciones: string
+  detalleCompra: {
+    total: number
+    descuento: number
+    saldoPendiente: number
+    iva: number
+    importeFinal: number
+  }
+  estado: 'pendiente' | 'aprobado' | 'rechazado'
   items: (IAbertura | IAbertura_Compuesta)[]
 
   constructor(
     id: string,
     cliente: string,
     fecha: string,
-    total: number,
+    detalleCompra: {
+      total: number
+      descuento: number
+      saldoPendiente: number
+      iva: number
+      importeFinal: number
+    },
     items: (IAbertura | IAbertura_Compuesta)[],
-    observaciones?: string,
-    descuento?: number,
-    estado?: 'pendiente' | 'aceptado' | 'rechazado',
+    observaciones: string,
+    estado: 'pendiente' | 'aprobado' | 'rechazado',
   ) {
     this.id = id
     this.cliente = cliente
     this.fecha = fecha
-    this.total = total
+    this.detalleCompra = detalleCompra
     this.observaciones = observaciones
-    this.descuento = descuento
     this.estado = estado
     this.items = items
   }

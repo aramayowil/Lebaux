@@ -110,14 +110,7 @@ export default function Body() {
                       Subtotal
                     </span>
                     <span className='text-lg font-black text-white tracking-tight'>
-                      {formatCurrency(
-                        (abertura.precio +
-                          abertura.accesorios.mosquitero +
-                          abertura.accesorios.premarco +
-                          abertura.accesorios.persiana +
-                          abertura.precioColocacion) *
-                          abertura.cantidad,
-                      )}
+                      {formatCurrency(abertura.precioFinal)}
                     </span>
                   </div>
                 </div>

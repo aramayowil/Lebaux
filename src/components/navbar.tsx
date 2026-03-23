@@ -43,10 +43,9 @@ export const Navbar = () => {
   }
 
   const navItems = [
-    { label: 'Presupuesto', href: '/home' },
-    { label: 'Historial', href: '/Historial' },
-    { label: 'Línea Modena', href: '/ventanaModena' },
-    { label: 'Cálculo DVH', href: '/dvhCalc' },
+    { label: 'Inicio', href: '/' },
+    { label: 'Obras', href: '/obras' },
+    { label: 'Opciones', href: '/opciones' },
   ]
 
   return (

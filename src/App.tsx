@@ -57,21 +57,24 @@ import CalculadorVidrioDVH from '@/pages/calculadoraVidrioDVH'
 import CotizarVentana from '@/pages/ventanaModena'
 import BlogPage from '@/pages/arbol'
 import AboutPage from '@/pages/about'
-import Historial from '@/pages/historial'
+import Obras from '@/pages/obras'
 import Profile from './pages/profile/profile'
 import Presupuesto from './pages/presupuesto'
 import SettingAvatar from './pages/profile/avatar'
 import RestablecerLocalStorage from './pages/RestablecerLocalStorage'
+import Home from './pages/home'
+import OpcionesPage from './pages/opcionesPage'
 
 function App() {
   return (
     <Routes>
       {/* Rutas protegidas */}
-      <Route element={<Presupuesto />} path='/' />
-      <Route element={<Presupuesto />} path='/home' />
-      <Route path='*' element={<Presupuesto />} />
+      <Route element={<Home />} path='/' />
+      <Route element={<Presupuesto />} path='/obra/:id' />
+      <Route path='*' element={<Home />} />
 
-      <Route element={<Historial />} path='/historial' />
+      <Route element={<Obras />} path='/obras' />
+      <Route element={<OpcionesPage />} path='/opciones' />
       <Route element={<CalculadorVidrioDVH />} path='/dvhCalc' />
       <Route element={<CotizarVentana />} path='/ventanaModena' />
       <Route element={<BlogPage />} path='/blog' />

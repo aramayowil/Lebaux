@@ -5,20 +5,29 @@ import {
   ModalFooter,
   Button,
   Input,
-  Textarea, // Importamos Textarea para mejor experiencia en notas largas
+  Textarea,
   addToast,
 } from '@heroui/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   HiOutlineDocumentText,
   HiOutlineUser,
   HiOutlineCloudArrowDown,
-  HiOutlineChatBubbleBottomCenterText, // Icono para observaciones
+  HiOutlineChatBubbleBottomCenterText,
 } from 'react-icons/hi2'
 import PDF from '@/components/PdfLayout'
 import { pdf } from '@react-pdf/renderer'
+
+// STORES Y HOOKS
 import useAberturasStore from '@/stores/useAberturasStore'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
+import { usePresupuestosDB } from '@/hooks/usePresupuestosDB'
+// Supongamos que tienes un store para la configuración de la obra actual
+import { useConfigObraStore } from '@/stores/useConfigObraStore'
+
+// INTERFACES
+import IPresupuesto from '@/interfaces/IPresupuesto'
+import { useNavigate } from 'react-router-dom'
 
 function obtenerFechaHoy() {
   return new Date().toLocaleDateString('es-AR')
@@ -28,7 +37,7 @@ type GeneratorPdfProps = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
   compra: {
-    totalCompra: number
+    total: number
     descuento: number
     iva: number
     saldoPendiente: number
@@ -37,53 +46,121 @@ type GeneratorPdfProps = {
 }
 
 function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
+  const navigate = useNavigate()
+
+  // EXTRAEMOS DATOS DE LA OBRA ACTUAL (Si es que venimos de "Editar")
+  const { idObraActual, clienteActual, esEdicion, observacionesActuales } =
+    useConfigObraStore()
+
   const [nameCliente, setNameCliente] = useState('')
-  const [observaciones, setObservaciones] = useState('') // Nuevo estado
+  const [observaciones, setObservaciones] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  // 1. Extraemos funciones del hook (Asegúrate de tener actualizarPresupuesto en tu hook)
+  const { guardarPresupuesto, actualizarPresupuesto, createId } =
+    usePresupuestosDB()
 
   const aberturasStore = useAberturasStore((state) => state.aberturas)
   const aberturasCompuestasStore = useAberturasCompuestasStore(
     (state) => state.aberturasComps,
   )
 
+  // Sincronizar los campos si es una edición
+  useEffect(() => {
+    if (isOpen && esEdicion) {
+      setNameCliente(clienteActual || '')
+      setObservaciones(observacionesActuales || '')
+    }
+  }, [isOpen, esEdicion, clienteActual, observacionesActuales])
+
+  const handleFinalizar = () => {
+    localStorage.clear()
+    navigate('/', { replace: true })
+    window.location.reload()
+  }
+
   const generarPDF = async (): Promise<void> => {
+    if (!nameCliente.trim()) {
+      addToast({
+        title: 'Faltan datos',
+        description: 'Por favor, ingrese el nombre del cliente.',
+        color: 'danger',
+      })
+      return
+    }
+
     setIsLoading(true)
     try {
+      // 2. DETERMINAR EL ID (Usar el existente o crear uno nuevo)
+      let idFinal = idObraActual
+      if (!esEdicion || !idFinal) {
+        idFinal = await createId()
+      }
+
+      // 3. PREPARAR EL OBJETO
+      const presupuestoData: IPresupuesto = {
+        id: idFinal,
+        cliente: nameCliente.trim(),
+        fecha: obtenerFechaHoy(),
+        items: [...aberturasStore, ...aberturasCompuestasStore],
+        detalleCompra: {
+          total: compra.total,
+          descuento: compra.descuento || 0,
+          saldoPendiente: compra.saldoPendiente || 0,
+          iva: compra.iva,
+          importeFinal: compra.importeFinal,
+        },
+        observaciones: observaciones || '',
+        estado: 'pendiente',
+      }
+
+      // 4. GUARDAR O ACTUALIZAR SEGÚN EL MODO
+      if (esEdicion) {
+        await actualizarPresupuesto(idFinal, presupuestoData)
+      } else {
+        await guardarPresupuesto(presupuestoData)
+      }
+
+      // 5. GENERAR EL DOCUMENTO PDF
       const blob = await pdf(
         <PDF
+          idPresupuesto={idFinal}
           aberturas={aberturasStore}
           aberturasCompuestas={aberturasCompuestasStore}
-          {...compra}
-          descuentoCalculado={compra.descuento}
-          ivaCalculado={compra.iva}
-          nameCliente={nameCliente || ''}
-          observaciones={observaciones} // Pasamos las observaciones al PDF
+          detalleCompra={compra}
+          nameCliente={nameCliente.trim()}
+          observaciones={observaciones}
         />,
       ).toBlob()
 
+      // 6. DESCARGA
       const url = URL.createObjectURL(blob)
-      window.open(url, '_blank')
-
       const enlace = document.createElement('a')
       enlace.href = url
-      enlace.download = `Presupuesto-${nameCliente || obtenerFechaHoy()}.pdf`
+      enlace.download = `${idFinal}-${nameCliente.replace(/\s+/g, '_').toUpperCase()}-${obtenerFechaHoy()}.pdf`
       enlace.click()
+
+      // 7. FINALIZACIÓN
+      addToast({
+        title: esEdicion ? 'Actualización exitosa' : '¡Éxito!',
+        description: `Presupuesto ${idFinal} ${esEdicion ? 'actualizado' : 'guardado'}.`,
+        color: 'success',
+      })
 
       setTimeout(() => {
         URL.revokeObjectURL(url)
-        addToast({
-          title: 'Documento Exportado',
-          description: 'El archivo PDF se generó correctamente.',
-          color: 'default',
-        })
         setIsLoading(false)
         onOpenChange(false)
-        // Opcional: limpiar campos al terminar
-        setNameCliente('')
-        setObservaciones('')
-      }, 1000)
+      }, 500)
+
+      handleFinalizar()
     } catch (error) {
-      console.error(error)
+      console.error('Error:', error)
+      addToast({
+        title: 'Error de exportación',
+        description: 'No se pudo procesar el presupuesto.',
+        color: 'danger',
+      })
       setIsLoading(false)
     }
   }
@@ -93,103 +170,108 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size='md'
-      backdrop='opaque'
+      backdrop='blur'
       classNames={{
-        base: 'bg-zinc-950 border border-zinc-400 shadow-xl',
-        closeButton: 'hover:bg-zinc-800 transition-colors',
+        base: 'bg-zinc-950 border border-white/10 shadow-2xl rounded-[2rem]',
+        closeButton: 'hover:bg-white/5 transition-colors',
       }}
     >
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalBody className='pt-8 pb-4 px-6'>
-              <div className='flex flex-col gap-6'>
-                {/* Cabecera */}
-                <div className='flex items-center gap-3'>
-                  <div className='p-2 bg-zinc-900 border border-zinc-800 rounded-lg'>
+            <ModalBody className='pt-10 pb-4 px-8'>
+              <div className='flex flex-col gap-8'>
+                <div className='flex items-center gap-4'>
+                  <div className='p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl'>
                     <HiOutlineDocumentText
-                      className='text-zinc-400'
-                      size={20}
+                      className='text-amber-500'
+                      size={24}
                     />
                   </div>
                   <div>
-                    <h3 className='text-sm font-bold text-zinc-200 uppercase tracking-widest'>
-                      Finalizar Presupuesto
+                    <h3 className='text-lg font-bold text-white uppercase tracking-tight'>
+                      {esEdicion
+                        ? 'Actualizar Cotización'
+                        : 'Confirmar Cotización'}
                     </h3>
-                    <p className='text-[11px] text-zinc-500 font-medium'>
-                      Configure los detalles para el documento final.
+                    <p className='text-xs text-zinc-500 font-medium'>
+                      {esEdicion
+                        ? `Modificando presupuesto: ${idObraActual}`
+                        : 'Se asignará un número correlativo automáticamente.'}
                     </p>
                   </div>
                 </div>
 
-                <div className='flex flex-col gap-4'>
-                  {/* Input Cliente */}
+                <div className='flex flex-col gap-6'>
                   <Input
                     label='NOMBRE DEL CLIENTE'
-                    placeholder='Ingrese nombre del cliente...'
+                    placeholder='Ej: Juan Pérez'
                     labelPlacement='outside'
                     variant='bordered'
+                    isRequired
                     value={nameCliente}
                     onValueChange={setNameCliente}
                     startContent={
-                      <HiOutlineUser className='text-zinc-600' size={18} />
+                      <HiOutlineUser className='text-zinc-500' size={18} />
                     }
                     classNames={{
                       label:
-                        'text-[10px] font-black tracking-widest text-zinc-500',
+                        'text-[10px] font-black tracking-[0.2em] text-zinc-500 ml-1',
                       inputWrapper:
-                        'border-zinc-800 group-data-[focus=true]:border-zinc-500 h-12 bg-zinc-900/20',
-                      input: 'text-zinc-200 text-sm font-medium',
+                        'border-white/10 hover:border-amber-500/50 focus-within:!border-amber-500 h-14 bg-white/5 transition-all rounded-xl',
+                      input: 'text-zinc-100 text-sm font-semibold',
                     }}
                   />
 
-                  {/* Input Observaciones */}
                   <Textarea
-                    label='OBSERVACIONES (OPCIONAL)'
-                    placeholder='Notas sobre entrega, color, obra...'
+                    label='NOTAS ADICIONALES'
+                    placeholder='Detalles de obra, entrega o colores...'
                     labelPlacement='outside'
                     variant='bordered'
-                    minRows={2}
+                    minRows={3}
                     value={observaciones}
                     onValueChange={setObservaciones}
                     startContent={
                       <HiOutlineChatBubbleBottomCenterText
-                        className='text-zinc-600 mt-1'
+                        className='text-zinc-500 mt-1'
                         size={18}
                       />
                     }
                     classNames={{
                       label:
-                        'text-[10px] font-black tracking-widest text-zinc-500',
+                        'text-[10px] font-black tracking-[0.2em] text-zinc-500 ml-1',
                       inputWrapper:
-                        'border-zinc-800 group-data-[focus=true]:border-zinc-500 bg-zinc-900/20',
-                      input: 'text-zinc-200 text-sm font-medium',
+                        'border-white/10 hover:border-amber-500/50 focus-within:!border-amber-500 bg-white/5 transition-all rounded-xl',
+                      input: 'text-zinc-100 text-sm',
                     }}
                   />
                 </div>
               </div>
             </ModalBody>
 
-            <ModalFooter className='px-6 pb-6 pt-2'>
-              <div className='flex gap-2 w-full'>
+            <ModalFooter className='px-8 pb-8 pt-4'>
+              <div className='flex flex-col sm:flex-row gap-3 w-full'>
                 <Button
-                  variant='light'
+                  variant='flat'
                   onPress={onClose}
-                  className='flex-1 font-bold text-[11px] uppercase text-zinc-500 tracking-widest'
+                  className='flex-1 font-bold text-zinc-400 hover:text-white transition-colors bg-white/5 rounded-xl'
                 >
-                  Cancelar
+                  VOLVER
                 </Button>
                 <Button
                   color='warning'
-                  variant='bordered'
                   isLoading={isLoading}
                   onPress={generarPDF}
-                  className='flex-[1.5] border-zinc-700 hover:border-warning/50 text-zinc-300 hover:text-warning font-bold uppercase tracking-widest text-[11px] transition-all'
+                  className='flex-2 bg-amber-500 text-black font-black uppercase tracking-wider rounded-xl shadow-[0_8px_20px_rgba(245,158,11,0.2)]'
                   startContent={
-                    !isLoading && <HiOutlineCloudArrowDown size={18} />
+                    !isLoading && <HiOutlineCloudArrowDown size={20} />
                   }
                 >
-                  {isLoading ? 'Generando...' : 'Descargar PDF'}
+                  {isLoading
+                    ? 'PROCESANDO...'
+                    : esEdicion
+                      ? 'ACTUALIZAR Y DESCARGAR'
+                      : 'FINALIZAR Y DESCARGAR'}
                 </Button>
               </div>
             </ModalFooter>
@@ -209,6 +291,7 @@ export default GeneratorPdf
 //   ModalFooter,
 //   Button,
 //   Input,
+//   Textarea,
 //   addToast,
 // } from '@heroui/react'
 // import { useState } from 'react'
@@ -216,27 +299,23 @@ export default GeneratorPdf
 //   HiOutlineDocumentText,
 //   HiOutlineUser,
 //   HiOutlineCloudArrowDown,
+//   HiOutlineChatBubbleBottomCenterText,
 // } from 'react-icons/hi2'
 // import PDF from '@/components/PdfLayout'
 // import { pdf } from '@react-pdf/renderer'
+
+// // STORES Y HOOKS
 // import useAberturasStore from '@/stores/useAberturasStore'
 // import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
-// // import Presupuesto from '@/class/Presupuesto.class'
-// // import usePresupuestoStore from '@/stores/usePresupuestosStore'
-// // import capitalize from '@/utils/capitalize_text'
+// import { usePresupuestosDB } from '@/hooks/usePresupuestosDB'
+
+// // INTERFACES
+// import IPresupuesto from '@/interfaces/IPresupuesto'
+// import { useNavigate } from 'react-router-dom'
 
 // function obtenerFechaHoy() {
 //   return new Date().toLocaleDateString('es-AR')
 // }
-
-// // const generarReferenciaFormateada = (cantidadActual: number): string => {
-// //   const fecha = new Date()
-// //   const tipo = 'COT'
-// //   const mes = (fecha.getMonth() + 1).toString().padStart(2, '0')
-// //   const anio = fecha.getFullYear().toString().slice(-2)
-// //   const correlativo = (cantidadActual + 1).toString().padStart(4, '0')
-// //   return `${tipo}-${mes}${anio}-${correlativo}`
-// // }
 
 // type GeneratorPdfProps = {
 //   isOpen: boolean
@@ -251,92 +330,100 @@ export default GeneratorPdf
 // }
 
 // function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
+//   const navigate = useNavigate()
 //   const [nameCliente, setNameCliente] = useState('')
+//   const [observaciones, setObservaciones] = useState('')
 //   const [isLoading, setIsLoading] = useState(false)
 
-//   // Stores de Items
-//   const aberturasStore = useAberturasStore((state) => state.aberturas)
-//   // const limpiarSimples = useAberturasStore((state) => state.limpiarAberturas)
+//   // 1. Extraemos obtenerProximoId del hook
+//   const { guardarPresupuesto, createId } = usePresupuestosDB()
 
+//   const aberturasStore = useAberturasStore((state) => state.aberturas)
 //   const aberturasCompuestasStore = useAberturasCompuestasStore(
 //     (state) => state.aberturasComps,
 //   )
-//   // const limpiarCompuestas = useAberturasCompuestasStore(
-//   //   (state) => state.limpiarAberturasComp,
-//   // )
 
-//   // Store de Presupuestos (Historial)
-//   // const agregarPresupuesto = usePresupuestoStore(
-//   //   (state) => state.agregarPresupuesto,
-//   // )
-
-//   // Obtenemos la cantidad del Store de Presupuestos para el correlativo
-//   // const numPresupuestos = usePresupuestoStore.getState().presupuestos.length
-
-//   // Generamos la referencia con la nueva estructura
-//   // const referencia = generarReferenciaFormateada(numPresupuestos)
-
-//   //funcion para crear presupuesto
-//   // const crearPresupuesto = () => {
-//   //   const todosLosItems = [
-//   //     ...aberturasStore, // IAbertura[]
-//   //     ...aberturasCompuestasStore, // IAbertura_Compuesta[]
-//   //   ]
-
-//   //   const nuevoPresupuesto = new Presupuesto(
-//   //     referencia,
-//   //     capitalize(nameCliente) || 'Cliente General',
-//   //     obtenerFechaHoy(),
-//   //     compra.importeFinal,
-//   //     todosLosItems,
-//   //     '',
-//   //     compra.descuento,
-//   //     'pendiente',
-//   //   )
-
-//   //   // Guardar en el historial persistente (Zustand -> LocalStorage)
-//   //   agregarPresupuesto(nuevoPresupuesto)
-
-//   //   // Limpiar los campos
-//   //   limpiarSimples()
-//   //   limpiarCompuestas()
-//   // }
+//   const handleFinalizar = () => {
+//     localStorage.clear()
+//     navigate('/', { replace: true })
+//     window.location.reload()
+//   }
 
 //   const generarPDF = async (): Promise<void> => {
+//     if (!nameCliente.trim()) {
+//       addToast({
+//         title: 'Faltan datos',
+//         description: 'Por favor, ingrese el nombre del cliente.',
+//         color: 'danger',
+//       })
+//       return
+//     }
+
 //     setIsLoading(true)
-//     // crearPresupuesto()
 //     try {
+//       // 2. OBTENER ID ÚNICO DESDE LA DB (Async)
+//       // Usamos el prefijo 'COT' y la lógica de correlativos máximos del hook
+//       const nuevoId = await createId()
+
+//       // 3. PREPARAR EL OBJETO PARA INDEXEDDB
+//       const nuevoPresupuesto: IPresupuesto = {
+//         id: nuevoId,
+//         cliente: nameCliente.trim(),
+//         fecha: obtenerFechaHoy(),
+//         items: [...aberturasStore, ...aberturasCompuestasStore],
+//         total: compra.importeFinal,
+//         descuento: compra.descuento || 0,
+//         observaciones: observaciones || '',
+//         estado: 'pendiente',
+//       }
+
+//       // 4. GUARDAR EN LA BASE DE DATOS LOCAL
+//       await guardarPresupuesto(nuevoPresupuesto)
+
+//       // 5. GENERAR EL DOCUMENTO PDF CON EL NUEVO ID
 //       const blob = await pdf(
 //         <PDF
+//           idPresupuesto={nuevoId} // Asegúrate de pasar el ID a tu Layout de PDF
 //           aberturas={aberturasStore}
 //           aberturasCompuestas={aberturasCompuestasStore}
 //           {...compra}
 //           descuentoCalculado={compra.descuento}
 //           ivaCalculado={compra.iva}
-//           nameCliente={nameCliente || ''}
+//           nameCliente={nameCliente.trim()}
+//           observaciones={observaciones}
 //         />,
 //       ).toBlob()
 
+//       // 6. DESCARGA
 //       const url = URL.createObjectURL(blob)
-//       window.open(url, '_blank')
-
 //       const enlace = document.createElement('a')
 //       enlace.href = url
-//       enlace.download = `Presupuesto-${nameCliente || obtenerFechaHoy()}.pdf`
+//       enlace.download = `${nuevoId}-${nameCliente.replace(/\s+/g, '_').toUpperCase()}-${obtenerFechaHoy()}.pdf`
 //       enlace.click()
 
+//       // 7. FINALIZACIÓN Y LIMPIEZA
+//       addToast({
+//         title: '¡Éxito!',
+//         description: `Presupuesto ${nuevoId} guardado y generado.`,
+//         color: 'success',
+//       })
+
+//       // Pequeño delay para asegurar que el navegador procese la descarga
 //       setTimeout(() => {
 //         URL.revokeObjectURL(url)
-//         addToast({
-//           title: 'Documento Exportado',
-//           description: 'El archivo PDF se generó correctamente.',
-//           color: 'default',
-//         })
 //         setIsLoading(false)
 //         onOpenChange(false)
-//       }, 1000)
+//         setNameCliente('')
+//         setObservaciones('')
+//       }, 500)
+//       handleFinalizar()
 //     } catch (error) {
-//       console.error(error)
+//       console.error('Error:', error)
+//       addToast({
+//         title: 'Error de exportación',
+//         description: 'No se pudo guardar o generar el PDF.',
+//         color: 'danger',
+//       })
 //       setIsLoading(false)
 //     }
 //   }
@@ -345,85 +432,101 @@ export default GeneratorPdf
 //     <Modal
 //       isOpen={isOpen}
 //       onOpenChange={onOpenChange}
-//       size='md' // Tamaño contenido y profesional
-//       backdrop='opaque'
+//       size='md'
+//       backdrop='blur'
 //       classNames={{
-//         base: 'bg-zinc-950 border border-zinc-400 shadow-xl',
-//         closeButton: 'hover:bg-zinc-800 transition-colors',
+//         base: 'bg-zinc-950 border border-white/10 shadow-2xl rounded-[2rem]',
+//         closeButton: 'hover:bg-white/5 transition-colors',
 //       }}
 //     >
 //       <ModalContent>
 //         {(onClose) => (
 //           <>
-//             <ModalBody className='pt-8 pb-4 px-6'>
-//               <div className='flex flex-col gap-6'>
-//                 {/* Cabecera Discreta */}
-//                 <div className='flex items-center gap-3'>
-//                   <div className='p-2 bg-zinc-900 border border-zinc-800 rounded-lg'>
+//             <ModalBody className='pt-10 pb-4 px-8'>
+//               <div className='flex flex-col gap-8'>
+//                 <div className='flex items-center gap-4'>
+//                   <div className='p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl'>
 //                     <HiOutlineDocumentText
-//                       className='text-zinc-400'
-//                       size={20}
+//                       className='text-amber-500'
+//                       size={24}
 //                     />
 //                   </div>
 //                   <div>
-//                     <h3 className='text-sm font-bold text-zinc-200 uppercase tracking-widest'>
-//                       Finalizar Presupuesto
+//                     <h3 className='text-lg font-bold text-white uppercase tracking-tight'>
+//                       Confirmar Cotización
 //                     </h3>
-//                     <p className='text-[11px] text-zinc-500 font-medium'>
-//                       Configure el nombre del titular para el documento.
+//                     <p className='text-xs text-zinc-500 font-medium'>
+//                       Se asignará un número correlativo automáticamente.
 //                     </p>
 //                   </div>
 //                 </div>
 
-//                 {/* Input Corregido: Sin Uppercase forzado en el estilo para que al escribir sea natural */}
-//                 <Input
-//                   label='NOMBRE DEL CLIENTE'
-//                   placeholder='Ingrese nombre del cliente...'
-//                   labelPlacement='outside'
-//                   variant='bordered'
-//                   value={nameCliente}
-//                   onValueChange={setNameCliente}
-//                   startContent={
-//                     <HiOutlineUser className='text-zinc-600' size={18} />
-//                   }
-//                   classNames={{
-//                     label:
-//                       'text-[10px] font-black tracking-widest text-zinc-500',
-//                     inputWrapper:
-//                       'border-zinc-800 group-data-[focus=true]:border-zinc-500 h-12 transition-colors bg-zinc-900/20',
-//                     input: 'text-zinc-200 text-sm font-medium',
-//                   }}
-//                 />
+//                 <div className='flex flex-col gap-6'>
+//                   <Input
+//                     label='NOMBRE DEL CLIENTE'
+//                     placeholder='Ej: Juan Pérez'
+//                     labelPlacement='outside'
+//                     variant='bordered'
+//                     isRequired
+//                     value={nameCliente}
+//                     onValueChange={setNameCliente}
+//                     startContent={
+//                       <HiOutlineUser className='text-zinc-500' size={18} />
+//                     }
+//                     classNames={{
+//                       label:
+//                         'text-[10px] font-black tracking-[0.2em] text-zinc-500 ml-1',
+//                       inputWrapper:
+//                         'border-white/10 hover:border-amber-500/50 focus-within:!border-amber-500 h-14 bg-white/5 transition-all rounded-xl',
+//                       input: 'text-zinc-100 text-sm font-semibold',
+//                     }}
+//                   />
 
-//                 <div className='p-3 bg-zinc-900/40 border border-zinc-800/60 rounded-xl'>
-//                   <div className='flex justify-between items-center text-[11px] font-bold uppercase tracking-wider text-zinc-500'>
-//                     <span>Fecha de emisión</span>
-//                     <span className='text-zinc-400'>{obtenerFechaHoy()}</span>
-//                   </div>
+//                   <Textarea
+//                     label='NOTAS ADICIONALES'
+//                     placeholder='Detalles de obra, entrega o colores...'
+//                     labelPlacement='outside'
+//                     variant='bordered'
+//                     minRows={3}
+//                     value={observaciones}
+//                     onValueChange={setObservaciones}
+//                     startContent={
+//                       <HiOutlineChatBubbleBottomCenterText
+//                         className='text-zinc-500 mt-1'
+//                         size={18}
+//                       />
+//                     }
+//                     classNames={{
+//                       label:
+//                         'text-[10px] font-black tracking-[0.2em] text-zinc-500 ml-1',
+//                       inputWrapper:
+//                         'border-white/10 hover:border-amber-500/50 focus-within:!border-amber-500 bg-white/5 transition-all rounded-xl',
+//                       input: 'text-zinc-100 text-sm',
+//                     }}
+//                   />
 //                 </div>
 //               </div>
 //             </ModalBody>
 
-//             <ModalFooter className='px-6 pb-6 pt-2'>
-//               <div className='flex gap-2 w-full'>
+//             <ModalFooter className='px-8 pb-8 pt-4'>
+//               <div className='flex flex-col sm:flex-row gap-3 w-full'>
 //                 <Button
-//                   variant='light'
+//                   variant='flat'
 //                   onPress={onClose}
-//                   className='flex-1 font-bold text-[11px] uppercase text-zinc-500 tracking-widest'
+//                   className='flex-1 font-bold text-zinc-400 hover:text-white transition-colors bg-white/5 rounded-xl'
 //                 >
-//                   Cancelar
+//                   VOLVER
 //                 </Button>
 //                 <Button
 //                   color='warning'
-//                   variant='bordered'
 //                   isLoading={isLoading}
 //                   onPress={generarPDF}
-//                   className='flex-[1.5] border-zinc-700 hover:border-warning/50 text-zinc-300 hover:text-warning font-bold uppercase tracking-widest text-[11px] transition-all'
+//                   className='flex-2 bg-amber-500 text-black font-black uppercase tracking-wider rounded-xl shadow-[0_8px_20px_rgba(245,158,11,0.2)]'
 //                   startContent={
-//                     !isLoading && <HiOutlineCloudArrowDown size={18} />
+//                     !isLoading && <HiOutlineCloudArrowDown size={20} />
 //                   }
 //                 >
-//                   {isLoading ? 'Generando...' : 'Descargar PDF'}
+//                   {isLoading ? 'GUARDANDO...' : 'FINALIZAR Y DESCARGAR'}
 //                 </Button>
 //               </div>
 //             </ModalFooter>
