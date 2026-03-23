@@ -1,17 +1,20 @@
 import { Button, Chip, Divider } from '@heroui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { HiOutlineCollection, HiOutlineViewGridAdd } from 'react-icons/hi'
 import Modal from '../modals/ModalAbertura'
 import useAberturasStore from '@/stores/useAberturasStore'
 import ButtonReset from '../modals/ButtonReset'
 import AberturaCompuesta from '../modals/abertura_unificada/AberturaCompuesta'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
+import { useConfigObraStore } from '@/stores/useConfigObraStore'
+import useBorradorObraStore from '@/stores/useBorradorObraStore'
 
 function Tittle() {
   const [isOpenModal, setIsOpenModal] = useState(false)
   const onOpenModal = () => setIsOpenModal(true)
   const onCloseModal = () => setIsOpenModal(false)
 
+  const { esEdicion } = useConfigObraStore()
   const aberturasStore = useAberturasStore((state) => state.aberturas)
   const aberturasComps = useAberturasCompuestasStore(
     (state) => state.aberturasComps,
@@ -21,6 +24,12 @@ function Tittle() {
     aberturasStore.reduce((acc, ab) => acc + ab.cantidad, 0) +
     aberturasComps.length
 
+  useEffect(() => {
+    if (!esEdicion) {
+      useBorradorObraStore.getState().setAberturas(aberturasStore)
+      useBorradorObraStore.getState().setAberturasComps(aberturasComps)
+    }
+  }, [aberturasStore, aberturasComps])
   return (
     <div className='w-full mb-8 px-2'>
       {/* Botón de Reset para móviles */}
@@ -34,7 +43,7 @@ function Tittle() {
         <div className='flex flex-col min-w-[250px] flex-1'>
           <div className='flex items-center gap-3 flex-wrap'>
             <h1 className='text-3xl md:text-4xl font-black tracking-tight text-white whitespace-nowrap'>
-              Mis Aberturas
+              {esEdicion ? 'Editar Aberturas' : 'Mis Aberturas'}
             </h1>
             <Chip
               startContent={<HiOutlineCollection size={14} />}
@@ -47,7 +56,9 @@ function Tittle() {
           </div>
 
           <p className='text-zinc-500 text-sm mt-1 font-medium italic'>
-            Gestiona los módulos de tu presupuesto.
+            {esEdicion
+              ? 'Edita los módulos de tu presupuesto.'
+              : 'Gestiona los módulos de tu presupuesto.'}
           </p>
         </div>
 

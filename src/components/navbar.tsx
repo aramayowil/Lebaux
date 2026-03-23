@@ -43,9 +43,9 @@ export const Navbar = () => {
   }
 
   const navItems = [
-    { label: 'Inicio', href: '/' },
-    { label: 'Obras', href: '/obras' },
-    { label: 'Opciones', href: '/opciones' },
+    { label: 'INICIO', href: '/' },
+    { label: 'OBRAS', href: '/obras' },
+    { label: 'OPCIONES', href: '/opciones' },
   ]
 
   return (
@@ -68,22 +68,35 @@ export const Navbar = () => {
         </NavbarBrand>
 
         {/* Navegación Desktop */}
-        <NavbarContent className='hidden lg:flex gap-10' justify='start'>
+        <NavbarContent className='hidden md:flex gap-10' justify='end'>
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
-              <NavbarItem key={item.href}>
+              <NavbarItem
+                key={item.href}
+                className='relative h-full flex items-center'
+              >
                 <Link
                   as={RouterLink}
                   to={item.href}
                   className={clsx(
-                    'text-base font-medium transition-all duration-300',
+                    'relative text-base font-medium transition-all duration-300 py-2',
                     isActive
                       ? 'text-yellow-600 dark:text-warning font-semibold'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-yellow-600 dark:hover:text-warning',
                   )}
                 >
                   {item.label}
+
+                  {/* BARRA DE SUBRAYADO */}
+                  <span
+                    className={clsx(
+                      'absolute -bottom-1 left-0 h-[3px] bg-warning rounded-full transition-all duration-300 ease-in-out',
+                      isActive
+                        ? 'w-full opacity-100'
+                        : 'w-0 opacity-0 group-hover:w-full', // Opcional: animar al hacer hover
+                    )}
+                  />
                 </Link>
               </NavbarItem>
             )

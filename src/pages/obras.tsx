@@ -34,14 +34,13 @@ import { FaHistory } from 'react-icons/fa'
 // HOOKS Y STORES
 import { usePresupuestosDB } from '@/hooks/usePresupuestosDB'
 import { useConfigObraStore } from '@/stores/useConfigObraStore'
-
+import useAberturasStore from '@/stores/useAberturasStore'
 import useAberturasCompuestasStore from '@/stores/useAberturasCompustasStore'
 
 // INTERFACES
 import IPresupuesto from '@/interfaces/IPresupuesto'
 import { IAbertura } from '@/interfaces/IAbertura'
 import { IAbertura_Compuesta } from '@/interfaces/IAberturaCompuesta'
-import useAberturasStore from '@/stores/useAberturasStore'
 import { pdf } from '@react-pdf/renderer'
 import PDF from '@/components/PdfLayout'
 
@@ -111,9 +110,9 @@ export default function Obras() {
       esEdicion: true,
     })
 
-    // 3. Redirigir al cotizador (ajusta la ruta según tu app)
+    // 3. Guardamos en el store de borrador
 
-    navigate(`/obra/${p.id}`)
+    navigate(`/obra/${p.id}`, { replace: true })
     addToast({
       title: 'Presupuesto Cargado',
       description: 'Puedes modificar los ítems ahora',
@@ -181,7 +180,9 @@ export default function Obras() {
               <FaHistory size={28} />
             </div>
             <div>
-              <h1 className='text-3xl font-extrabold text-white'>HISTORIAL</h1>
+              <h1 className='text-3xl font-extrabold text-white'>
+                OBRAS REALIZADAS
+              </h1>
               <p className='text-zinc-500 text-sm'>
                 {presupuestos.length} registros encontrados
               </p>

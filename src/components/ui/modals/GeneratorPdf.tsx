@@ -28,6 +28,7 @@ import { useConfigObraStore } from '@/stores/useConfigObraStore'
 // INTERFACES
 import IPresupuesto from '@/interfaces/IPresupuesto'
 import { useNavigate } from 'react-router-dom'
+import useBorradorObraStore from '@/stores/useBorradorObraStore'
 
 function obtenerFechaHoy() {
   return new Date().toLocaleDateString('es-AR')
@@ -141,6 +142,8 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
       enlace.click()
 
       // 7. FINALIZACIÓN
+      useBorradorObraStore.getState().setAberturas([])
+      useBorradorObraStore.getState().setAberturasComps([])
       addToast({
         title: esEdicion ? 'Actualización exitosa' : '¡Éxito!',
         description: `Presupuesto ${idFinal} ${esEdicion ? 'actualizado' : 'guardado'}.`,
