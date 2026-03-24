@@ -49,7 +49,6 @@ export default function CardResumen() {
     if (esEdicion && idObraActual && presupuestos.length > 0) {
       // Buscamos la obra en la lista que ya cargó el hook usePresupuestosDB
       const obraAEditar = presupuestos.find((p) => p.id === idObraActual)
-      console.log(obraAEditar)
 
       if (obraAEditar) {
         // 1. Restaurar Descuento

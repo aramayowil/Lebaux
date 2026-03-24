@@ -57,6 +57,38 @@ export const catalogo: Record<string, Linea[]> = {
         },
       ],
     },
+    {
+      id: 'corrediza2',
+      abertura: 'Corrediza Repartido',
+      prefijo: 'VCR',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Vidrio Entero 2H',
+          descripcion: 'Ventana corrediza vidrio entero',
+          img: '/images/catalogo_presupuesto/herrero/CorredizaVE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido 2H',
+          descripcion: 'Ventana corrediza vidrio repartido',
+          img: '/images/catalogo_presupuesto/herrero/CorredizaVR.jpg',
+        },
+      ],
+    },
+    {
+      id: 'banderola',
+      abertura: 'Banderola',
+      prefijo: 'BAND',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Banderola',
+          descripcion: 'Banderola',
+          img: '/images/catalogo_presupuesto/modena/Banderola.jpg',
+        },
+      ],
+    },
 
     {
       id: 'oscilobatiente',
@@ -74,6 +106,25 @@ export const catalogo: Record<string, Linea[]> = {
           tab: 'OBAT 2H',
           descripcion: 'Oscilobatiente 2 Hojas',
           img: '/images/catalogo_presupuesto/modena/Oscilobatiente_2H.jpg',
+        },
+      ],
+    },
+    {
+      id: 'raja',
+      abertura: 'Raja',
+      prefijo: 'RAJ',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Raja V-E',
+          descripcion: 'Raja Vidrio Entero',
+          img: '/images/catalogo_presupuesto/herrero/RajaVE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Raja V-R',
+          descripcion: 'Raja Vidrio Repartido',
+          img: '/images/catalogo_presupuesto/herrero/RajaVR.jpg',
         },
       ],
     },
@@ -148,14 +199,65 @@ export const catalogo: Record<string, Linea[]> = {
         },
         {
           variantKey: 2,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta vidrio repartido 1 hojas',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_VR.jpg',
+        },
+        {
+          variantKey: 3,
           tab: 'Ciega',
           descripcion: 'Puerta 1 hoja ciega',
           img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_CIEGA.jpg',
         },
       ],
     },
+
     {
-      id: 'puerta_1H_3/4',
+      id: 'puerta1/2',
+      abertura: 'Puerta 1/2',
+      prefijo: 'PTA',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Vidrio Entero',
+          descripcion: 'Puerta 1/2 vidrio entero',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_1-2_VE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta 1/2 vidrio repartido',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_1-2_VR.jpg',
+        },
+        {
+          variantKey: 2,
+          tab: 'C/Traves Medio',
+          descripcion: 'Puerta 1 hoja C/Travesaño',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_C-TRAVES.jpg',
+        },
+      ],
+    },
+    {
+      id: 'puerta1/4',
+      abertura: 'Puerta 1/4',
+      prefijo: 'PTA',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Vidrio Entero',
+          descripcion: 'Puerta 1/4 vidrio entero',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_1-4_VE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta 1/4 vidrio repartido',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_1-4_VR.jpg',
+        },
+      ],
+    },
+    {
+      id: 'puerta3/4',
       abertura: 'Puerta 3/4',
       prefijo: 'PTA',
       variantes: [
@@ -164,6 +266,12 @@ export const catalogo: Record<string, Linea[]> = {
           tab: 'Vidrio Entero',
           descripcion: 'Puerta 3/4 vidrio entero',
           img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_3-4_VE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta 3/4 vidrio repartido',
+          img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_3-4_VR.jpg',
         },
       ],
     },
@@ -199,15 +307,65 @@ export const catalogo: Record<string, Linea[]> = {
       variantes: [
         {
           variantKey: 0,
-          tab: 'Vidrio Entero',
+          tab: 'V.E.',
           descripcion: 'Puerta 2 hojas',
           img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/PUERTA_2H_VE.jpg',
         },
         {
           variantKey: 1,
+          tab: 'V.R.',
+          descripcion: 'Puerta 2 hojas',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/PUERTA_2H_VR.jpg',
+        },
+        {
+          variantKey: 2,
           tab: 'C/Traves Medio',
           descripcion: 'Puerta 2 hojas C/Travesaño',
           img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/PUERTA_2H_C-TRAVES.jpg',
+        },
+        {
+          variantKey: 3,
+          tab: 'Ciega',
+          descripcion: 'Puerta Ciega 2 hojas',
+          img: '/images/catalogo_presupuesto/herrero/PuertaCiega2H.jpg',
+        },
+      ],
+    },
+    {
+      id: 'puerta_2H_1/4',
+      abertura: 'Puerta 2H 1/4',
+      prefijo: 'PTA',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Vidrio Entero',
+          descripcion: 'Puerta 2 hojas vidrio entero',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_1-4_VE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta 2 hojas vidrio repartido',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_1-4_VR.jpg',
+        },
+      ],
+    },
+    {
+      id: 'puerta_2H_1/2',
+      abertura: 'Puerta 2H 1/2',
+      prefijo: 'PTA',
+      variantes: [
+        {
+          variantKey: 0,
+          tab: 'Vidrio Entero',
+          descripcion: 'Puerta 2 hojas vidrio entero',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_1-2_VE.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta 2 hojas vidrio repartido',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_1-2_VR.jpg',
         },
       ],
     },
@@ -222,40 +380,59 @@ export const catalogo: Record<string, Linea[]> = {
           descripcion: 'Puerta 2 hojas vidrio entero',
           img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_3-4_VE.jpg',
         },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta 2 hojas vidrio repartido',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_3-4_VR.jpg',
+        },
       ],
     },
     {
       id: 'puerta_2H_postigon',
-      abertura: 'Puerta 2H Postigón',
+      abertura: 'Puerta 2H C/Postigón',
       prefijo: 'PTA',
       variantes: [
         {
           variantKey: 0,
           tab: 'C/Travesaño 1/2',
           descripcion: 'Puerta 2 hojas C/Travesaño al medio & postigón',
-          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES.jpg',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES_POSTIGON.jpg',
         },
         {
           variantKey: 1,
           tab: 'C/Revestimiento 1/2',
           descripcion: 'Puerta 2 hojas C/Revestimiento & postigón',
-          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_C-TRAVES_POSTIGON.jpg',
+          img: '/images/catalogo_presupuesto/PUERTAS/2_HOJAS/puerta_2H_1-2_POSTIGON.jpg',
         },
       ],
     },
     {
-      id: 'banderola',
-      abertura: 'Banderola',
-      prefijo: 'BAND',
+      id: 'puertaBalcon',
+      abertura: 'Puerta Balcón',
+      prefijo: 'PTB',
       variantes: [
         {
           variantKey: 0,
-          tab: 'Banderola',
-          descripcion: 'Banderola',
-          img: '/images/catalogo_presupuesto/modena/Banderola.jpg',
+          tab: 'Vidrio Entero',
+          descripcion: 'Puerta balcón vidrio entero',
+          img: '/images/catalogo_presupuesto/herrero/PuertaBalcon.jpg',
+        },
+        {
+          variantKey: 1,
+          tab: 'Vidrio Repartido',
+          descripcion: 'Puerta balcón vidrio repartido',
+          img: '/images/catalogo_presupuesto/herrero/PuertaBalconVR.jpg',
+        },
+        {
+          variantKey: 2,
+          tab: 'V-R-H',
+          descripcion: 'Puerta balcón vidrio repartido horizontal',
+          img: '/images/catalogo_presupuesto/herrero/PuertaBalconTravesano.jpg',
         },
       ],
     },
+
     {
       id: 'desplazable',
       abertura: 'Desplazable',
