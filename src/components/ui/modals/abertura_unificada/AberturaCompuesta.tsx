@@ -173,6 +173,7 @@ export default function AberturaCompuesta() {
       precioColocacion: 0,
       cantidad: 1,
       precio: 0,
+      precioFinal: 0,
     },
     importeColocacion: 0,
     x: 0,
