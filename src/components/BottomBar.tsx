@@ -148,7 +148,7 @@ export function BottomBar() {
               isOpen={isOpenModal}
               onOpenChange={handleOpenModal}
               compra={{
-                totalCompra,
+                total: totalCompra,
                 descuento: calcularDescuento(),
                 iva: calcularIva(),
                 saldoPendiente: isCheckedACuenta ? inputACuenta : 0,

@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 
 type AberturaCompuestaState = {
   aberturasComps: IAbertura_Compuesta[]
+  setAberturasComps: (aberturasComps: IAbertura_Compuesta[]) => void
   agregarAberturaComp: (aberturaComp: IAbertura_Compuesta) => void
   actualizarAberturaComp: (
     key: string,
@@ -17,7 +18,8 @@ const useAberturasCompuestasStore = create<AberturaCompuestaState>()(
   persist(
     (set) => ({
       aberturasComps: [],
-
+      setAberturasComps: (nuevasAberturasComps) =>
+        set({ aberturasComps: nuevasAberturasComps }),
       agregarAberturaComp: (aberturaComp) =>
         set((state) => ({
           aberturasComps: [...state.aberturasComps, aberturaComp],

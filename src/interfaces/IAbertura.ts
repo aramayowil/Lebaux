@@ -15,4 +15,5 @@ export interface IAbertura {
   precioColocacion: number
   cantidad: number
   precio: number
+  precioFinal: number
 }

@@ -10,7 +10,7 @@ type PresupuestoState = {
   eliminarPresupuesto: (id: string) => void
   cambiarEstado: (
     id: string,
-    nuevoEstado: 'pendiente' | 'aceptado' | 'rechazado',
+    nuevoEstado: 'pendiente' | 'aprobado' | 'rechazado',
   ) => void
   limpiarPresupuestos: () => void
 }

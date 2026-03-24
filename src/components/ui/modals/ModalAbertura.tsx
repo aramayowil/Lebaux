@@ -155,6 +155,7 @@ export default function ModalAbertura({
         Number.isNaN(form.colocacion) ? 0 : form.colocacion,
         form.cantidad,
         form.precio,
+        totalFinal,
       )
 
       if (isEditMode) {

@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 
 type AberturaState = {
   aberturas: IAbertura[]
+  setAberturas: (aberturas: IAbertura[]) => void
   agregarAbertura: (abertura: IAbertura) => void
   actualizarAbertura: (id: string, data: Partial<IAbertura>) => void
   eliminarAbertura: (id: string) => void
@@ -14,6 +15,7 @@ const useAberturasStore = create<AberturaState>()(
   persist(
     (set) => ({
       aberturas: [],
+      setAberturas: (nuevasAberturas) => set({ aberturas: nuevasAberturas }),
       agregarAbertura: (abertura) =>
         set((state) => ({ aberturas: [...state.aberturas, abertura] })),
       actualizarAbertura: (key: string, data: Partial<IAbertura>) =>
