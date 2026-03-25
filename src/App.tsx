@@ -64,6 +64,8 @@ import SettingAvatar from './pages/profile/avatar'
 import RestablecerLocalStorage from './pages/RestablecerLocalStorage'
 import Home from './pages/home'
 import OpcionesPage from './pages/opcionesPage'
+import ImportadorCSV from './pages/importData'
+import ListaPrecios from './pages/importView'
 
 function App() {
   return (
@@ -79,6 +81,8 @@ function App() {
       <Route element={<CotizarVentana />} path='/ventanaModena' />
       <Route element={<BlogPage />} path='/blog' />
       <Route element={<AboutPage />} path='/about' />
+      <Route element={<ImportadorCSV />} path='/importData' />
+      <Route element={<ListaPrecios />} path='/listaPrecios' />
 
       {/* Settings perfiles*/}
       <Route element={<Profile />} path='/profile' />

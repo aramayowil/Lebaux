@@ -43,9 +43,11 @@ export const Navbar = () => {
   }
 
   const navItems = [
-    { label: 'INICIO', href: '/' },
-    { label: 'OBRAS', href: '/obras' },
-    { label: 'OPCIONES', href: '/opciones' },
+    { label: 'Inicio', href: '/' },
+    { label: 'Obras', href: '/obras' },
+    { label: 'Opciones', href: '/opciones' },
+    { label: 'Lista de Precios', href: '/listaPrecios' },
+    { label: 'Importar', href: '/importData' },
   ]
 
   return (
@@ -68,7 +70,7 @@ export const Navbar = () => {
         </NavbarBrand>
 
         {/* Navegación Desktop */}
-        <NavbarContent className='hidden md:flex gap-10' justify='end'>
+        <NavbarContent className='hidden md:flex gap-10' justify='start'>
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -80,7 +82,7 @@ export const Navbar = () => {
                   as={RouterLink}
                   to={item.href}
                   className={clsx(
-                    'relative text-base font-medium transition-all duration-300 py-2',
+                    'relative text-base transition-all duration-300 py-2',
                     isActive
                       ? 'text-yellow-600 dark:text-warning font-semibold'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-yellow-600 dark:hover:text-warning',
