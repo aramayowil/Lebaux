@@ -187,19 +187,19 @@ export const catalogo: Record<string, Linea[]> = {
       variantes: [
         {
           variantKey: 0,
-          tab: 'Vidrio Entero',
+          tab: 'V.E',
           descripcion: 'Puerta 1 hoja',
           img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_VE.jpg',
         },
         {
           variantKey: 1,
-          tab: 'C/Traves Medio',
+          tab: 'C/Trav. M',
           descripcion: 'Puerta 1 hoja C/Travesaño',
           img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_C-TRAVES.jpg',
         },
         {
           variantKey: 2,
-          tab: 'Vidrio Repartido',
+          tab: 'V.R',
           descripcion: 'Puerta vidrio repartido 1 hojas',
           img: '/images/catalogo_presupuesto/PUERTAS/1_HOJA/PUERTA_1H_VR.jpg',
         },

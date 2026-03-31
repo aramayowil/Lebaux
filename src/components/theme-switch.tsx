@@ -27,7 +27,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     getWrapperProps,
   } = useSwitch({
     isSelected: theme === 'dark',
-    onChange: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
+    onChange: () => setTheme(theme === 'dark' ? 'dark' : 'dark'),
   })
 
   useEffect(() => {
