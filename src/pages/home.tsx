@@ -23,6 +23,7 @@ export default function Home() {
     const id = await createId()
     // Limpieza total para nueva obra
     localStorage.clear()
+    localStorage.setItem('heroui-theme', 'dark')
     useAberturasStore.getState().setAberturas([])
     useAberturasCompuestasStore.getState().setAberturasComps([])
     useConfigObraStore.getState().setDatosObra({
