@@ -7,6 +7,7 @@ export const vidrios = [
   { label: 'DVH 4/9/4', key: 'dvh4/9/4' },
   { label: 'DVH 3+3/9/4', key: 'dvh3+3/9/4' },
   { label: 'DVH 3+3/9/3+3', key: 'dvh3+3/9/3+3' },
+  { label: 'DVH 3+3/6/3+3', key: 'dvh3+3/6/3+3' },
   { label: 'DVH 5/9/5', key: 'dvh5/9/5' },
   { label: 'DVH 3+3/12/9', key: 'dvh3+3/12/9' },
   { label: 'OPALINO', key: 'opalino' },
