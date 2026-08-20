@@ -39,6 +39,7 @@ type GeneratorPdfProps = {
   onOpenChange: (isOpen: boolean) => void
   compra: {
     total: number
+    precioLista?: number
     descuento: number
     iva: number
     saldoPendiente: number
@@ -107,6 +108,7 @@ function GeneratorPdf({ isOpen, onOpenChange, compra }: GeneratorPdfProps) {
         items: [...aberturasStore, ...aberturasCompuestasStore],
         detalleCompra: {
           total: compra.total,
+          precioLista: compra.precioLista || 0,
           descuento: compra.descuento || 0,
           saldoPendiente: compra.saldoPendiente || 0,
           iva: compra.iva,

@@ -98,6 +98,7 @@ interface PDFProps {
   aberturasCompuestas: Aberturas_Compuestas[]
   detalleCompra: {
     total: number
+    precioLista?: number
     descuento: number
     saldoPendiente: number
     iva: number
@@ -660,6 +661,25 @@ function PDF({
               >
                 <Text>Saldo pendiente:</Text>
                 <Text>${formatCurrency(detalleCompra.saldoPendiente)}</Text>
+              </View>
+            )}
+            {(detalleCompra.precioLista || 0) > 0 && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  padding: 8,
+                  marginTop: 10,
+                  borderWidth: 1,
+                  borderColor: '#e57373',
+                  backgroundColor: '#fdf5f5',
+                  color: '#c62828',
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                }}
+              >
+                <Text>PRECIO DE LISTA:</Text>
+                <Text>${formatCurrency(detalleCompra.precioLista || 0)}</Text>
               </View>
             )}
           </View>
