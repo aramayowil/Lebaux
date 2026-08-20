@@ -8,6 +8,7 @@ export default interface IPresupuesto {
   observaciones: string
   detalleCompra: {
     total: number
+    precioLista?: number
     descuento: number
     saldoPendiente: number
     iva: number

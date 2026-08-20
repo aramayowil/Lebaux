@@ -27,6 +27,7 @@ const formatCurrency = new Intl.NumberFormat('es-AR', {
 
 export default function CardResumen() {
   const IVA_PERCENT = 0.105
+  const INCREMENTO_PRECIO_LISTA_PERCENT = 0.3
 
   // STORES
   const aberturasStore = useAberturasStore((state) => state.aberturas)
@@ -38,11 +39,10 @@ export default function CardResumen() {
 
   // ESTADOS LOCALES
   const [isOpenModal, setIsOpenModal] = useState(false)
-  const [isCheckedDescuento, setIsCheckedDescuento] = useState(false)
-  const [inputDescuento, setInputDescuento] = useState(0.1)
   const [isCheckedACuenta, setIsCheckedACuenta] = useState(false)
   const [inputACuenta, setInputACuenta] = useState(0)
   const [isCheckedIva, setIsCheckedIva] = useState(false)
+  const [isPrecioLista, setIsPrecioLista] = useState(false)
 
   // LÓGICA DE HIDRATACIÓN PARA EDICIÓN
   useEffect(() => {
@@ -51,25 +51,20 @@ export default function CardResumen() {
       const obraAEditar = presupuestos.find((p) => p.id === idObraActual)
 
       if (obraAEditar) {
-        // 1. Restaurar Descuento
-        if (obraAEditar.detalleCompra.descuento > 0) {
-          setIsCheckedDescuento(true)
-          // Calculamos el porcentaje original (regla de 3 simple)
-          const porcentajeOriginal =
-            obraAEditar.detalleCompra.descuento /
-            obraAEditar.detalleCompra.total
-          setInputDescuento(porcentajeOriginal)
-        }
-
-        // 2. Restaurar Saldo / A Cuenta
+        // 1. Restaurar Saldo / A Cuenta
         if (obraAEditar.detalleCompra.saldoPendiente > 0) {
           setIsCheckedACuenta(true)
           setInputACuenta(obraAEditar.detalleCompra.saldoPendiente)
         }
 
-        // 3. Restaurar IVA
+        // 2. Restaurar IVA
         if (obraAEditar.detalleCompra.iva > 0) {
           setIsCheckedIva(true)
+        }
+
+        // 3. Restaurar la visualización del precio de lista
+        if ((obraAEditar.detalleCompra.precioLista || 0) > 0) {
+          setIsPrecioLista(true)
         }
       }
     }
@@ -90,17 +85,18 @@ export default function CardResumen() {
     return simples + compuestas
   }, [aberturasStore, aberturaCompuestaStore])
 
-  const calcularDescuento = () =>
-    isCheckedDescuento ? totalCompra * inputDescuento : 0
-
   const calcularIva = () =>
-    isCheckedIva ? (totalCompra - calcularDescuento()) * IVA_PERCENT : 0
+    isCheckedIva ? totalCompra * IVA_PERCENT : 0
 
   const calcularImporteTotal = () =>
-    totalCompra -
-    calcularDescuento() +
+    totalCompra +
     (isCheckedACuenta ? inputACuenta : 0) +
     calcularIva()
+
+  const calcularPrecioLista = () =>
+    isPrecioLista
+      ? calcularImporteTotal() * (1 + INCREMENTO_PRECIO_LISTA_PERCENT)
+      : 0
 
   return (
     <CardHeroUI
@@ -142,35 +138,17 @@ export default function CardResumen() {
             </div>
           </div>
 
-          {/* Switch Descuento */}
+          {/* Switch Precio de Lista */}
           <div className='space-y-1'>
             <Switch
-              isSelected={isCheckedDescuento}
-              onValueChange={setIsCheckedDescuento}
+              isSelected={isPrecioLista}
+              onValueChange={setIsPrecioLista}
               color='warning'
               size='sm'
               classNames={{ label: 'text-xs font-bold text-zinc-400' }}
             >
-              Aplicar Descuento
+              Precio tarjeta (+{INCREMENTO_PRECIO_LISTA_PERCENT * 100}%)
             </Switch>
-
-            {isCheckedDescuento && (
-              <NumberInput
-                isWheelDisabled
-                className='mt-2'
-                size='sm'
-                minValue={0}
-                maxValue={1}
-                step={0.05}
-                value={inputDescuento}
-                onValueChange={(v) =>
-                  setInputDescuento(Number.isNaN(v) ? 0 : v)
-                }
-                formatOptions={{ style: 'percent' }}
-                variant='flat'
-                classNames={{ inputWrapper: 'bg-zinc-900/50 border-zinc-800' }}
-              />
-            )}
           </div>
 
           <Accordion
@@ -240,16 +218,6 @@ export default function CardResumen() {
                 {formatCurrency.format(totalCompra)}
               </span>
             </div>
-            {isCheckedDescuento && (
-              <div className='flex justify-between text-xs text-warning'>
-                <span className='font-bold uppercase tracking-wider'>
-                  Descuento aplic.
-                </span>
-                <span className='font-bold text-sm'>
-                  - {formatCurrency.format(calcularDescuento())}
-                </span>
-              </div>
-            )}
             {isCheckedIva && (
               <div className='flex justify-between text-[11px] text-zinc-400'>
                 <span className='font-bold uppercase tracking-wider'>
@@ -286,7 +254,8 @@ export default function CardResumen() {
               onOpenChange={handleOpenModal}
               compra={{
                 total: totalCompra,
-                descuento: calcularDescuento(),
+                precioLista: calcularPrecioLista(),
+                descuento: 0,
                 iva: calcularIva(),
                 saldoPendiente: isCheckedACuenta ? inputACuenta : 0,
                 importeFinal: calcularImporteTotal(),
