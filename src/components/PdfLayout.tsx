@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
     width: '45%',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start', // Alinea al inicio (arriba)
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 0, // Eliminado el padding superior para subir la imagen
+    paddingTop: 0,
     paddingBottom: 10,
   },
   condicionesContainer: {
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#eba434',
     borderTopStyle: 'dashed',
-    marginHorizontal: 30, // Alineado con el padding de condiciones
+    marginHorizontal: 30,
   },
   observacionesTitle: {
     fontSize: 9,
@@ -98,7 +98,7 @@ interface PDFProps {
   aberturasCompuestas: Aberturas_Compuestas[]
   detalleCompra: {
     total: number
-    precioLista?: number
+    recargoTarjeta?: number
     descuento: number
     saldoPendiente: number
     iva: number
@@ -204,19 +204,19 @@ function PDF({
                   flexDirection: 'row',
                   alignItems: 'stretch',
                   marginTop: 5,
-                  paddingTop: 15, // Mantiene el espacio superior del bloque
+                  paddingTop: 15,
                   paddingBottom: 10,
                   paddingHorizontal: 8,
                 }}
               >
-                {/* COLUMNA IZQUIERDA: IMAGEN (MODIFICADA PARA SUBIR) */}
+                {/* COLUMNA IZQUIERDA: IMAGEN */}
                 <View style={styles.imageContainer}>
                   <Text
                     style={{
-                      marginBottom: 2, // Reducido de 5 a 2
+                      marginBottom: 2,
                       fontSize: 10,
                       color: '#333',
-                      marginTop: -10, // Margen negativo para forzar la subida hacia el borde superior
+                      marginTop: -10,
                     }}
                   >
                     {abertura.cod_abertura}
@@ -409,19 +409,19 @@ function PDF({
                   flexDirection: 'row',
                   alignItems: 'stretch',
                   marginTop: 5,
-                  paddingTop: 15, // Mantiene el espacio superior del bloque
+                  paddingTop: 15,
                   paddingBottom: 10,
                   paddingHorizontal: 8,
                 }}
               >
-                {/* COLUMNA IZQUIERDA: IMAGEN (MODIFICADA PARA SUBIR) */}
+                {/* COLUMNA IZQUIERDA: IMAGEN */}
                 <View style={styles.imageContainer}>
                   <Text
                     style={{
-                      marginBottom: 2, // Reducido de 5 a 2
+                      marginBottom: 2,
                       fontSize: 10,
                       color: '#333',
-                      marginTop: -10, // Margen negativo para forzar la subida hacia el borde superior
+                      marginTop: -10,
                     }}
                   >
                     {compuesta.cod_compuesta}
@@ -483,26 +483,6 @@ function PDF({
                       >
                         {`Vidrio: ${capitalizar(modulo.abertura.vidrio)}`}
                       </Text>
-                      {/* {(modulo.abertura.accesorios?.premarco || 0 > 0) && (
-                        <View
-                          style={{
-                            marginTop: 6,
-                            padding: 4,
-                            backgroundColor: '#fafafa',
-                            borderLeft: '2px solid #eba434',
-                          }}
-                        >
-                          {modulo.abertura.accesorios?.mosquitero ||
-                            (0 > 0 && (
-                              <Text style={{ fontSize: 9 }}>
-                                • Mosquitero: $
-                                {formatCurrency(
-                                  modulo.abertura.accesorios?.mosquitero || 0,
-                                )}
-                              </Text>
-                            ))}
-                        </View>
-                      )} */}
                     </View>
                   ))}
 
@@ -565,12 +545,6 @@ function PDF({
                           compuesta.precioColocacion_compuesta) *
                           compuesta.cantidad_compuesta,
                       )}
-                      {/* {formatCurrency(
-                        (abertura.precio +
-                          abertura.accesorios.mosquitero +
-                          abertura.accesorios.premarco) *
-                          abertura.cantidad,
-                      )} */}
                     </Text>
                   </View>
                 </View>
@@ -621,8 +595,28 @@ function PDF({
               }}
             >
               <Text>Total neto:</Text>
-              <Text>${formatCurrency(detalleCompra.total)}</Text>
+              <Text>
+                $
+                {formatCurrency(
+                  detalleCompra.total - (detalleCompra.recargoTarjeta || 0),
+                )}
+              </Text>
             </View>
+            {(detalleCompra.recargoTarjeta || 0) > 0 && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  fontSize: 10,
+                  marginBottom: 2,
+                }}
+              >
+                <Text>Recargo tarjeta (30%):</Text>
+                <Text>
+                  + ${formatCurrency(detalleCompra.recargoTarjeta || 0)}
+                </Text>
+              </View>
+            )}
             {detalleCompra.descuento > 0 && (
               <View
                 style={{
@@ -663,25 +657,6 @@ function PDF({
                 <Text>${formatCurrency(detalleCompra.saldoPendiente)}</Text>
               </View>
             )}
-            {(detalleCompra.precioLista || 0) > 0 && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  padding: 8,
-                  marginTop: 10,
-                  borderWidth: 1,
-                  borderColor: '#e57373',
-                  backgroundColor: '#fdf5f5',
-                  color: '#c62828',
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                }}
-              >
-                <Text>PRECIO DE LISTA:</Text>
-                <Text>${formatCurrency(detalleCompra.precioLista || 0)}</Text>
-              </View>
-            )}
           </View>
         </View>
 
@@ -693,28 +668,96 @@ function PDF({
           </View>
         )}
 
-        {/* TEXTO LEGAL Y CONDICIONES */}
+        {/* TEXTO LEGAL Y CONDICIONES ACTUALIZADO */}
         <View wrap={false} style={styles.condicionesContainer}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>
-            Para realizar la cotización y/o el presupuesto, debe tener sus vanos
-            terminados con revoque fino.
-          </Text>
           <Text style={{ marginBottom: 4 }}>
-            NO NOS HACEMOS CARGO DE VANOS EN FALSA ESCUADRA. Se realizan
-            colocaciones en seco, mampostería no realizamos. Se realiza
-            colocación a pedido del cliente, el servicio de colocación incluye:
-            Materiales, Mano de obra, sellado y garantía del mismo (la garantía
-            no contempla rotura del vidrio).
+            <Text style={{ fontWeight: 'bold' }}>IMPORTANTE:</Text> Para
+            presupuestar e instalar, los vanos deben contar con revoque fino
+            terminado.{' '}
+            <Text style={{ fontWeight: 'bold' }}>
+              LA EMPRESA NO SE HACE CARGO DE VANOS EN FALSA ESCUADRA.
+            </Text>
           </Text>
+
           <Text style={{ marginBottom: 4 }}>
-            El costo de la colocación se evalúa al momento de ser visitado en la
-            obra por fábrica.
+            Las especificaciones sobre la instalación y el alcance de las
+            responsabilidades técnicas contratadas se rigen bajo las siguientes
+            cláusulas operativas:
           </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold' }}>Instalación técnica: </Text>Se
+            realizan exclusivamente colocaciones en seco. La colocación se
+            ejecuta bajo expreso pedido y consentimiento del cliente.
+          </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold' }}>Exclusiones de obra: </Text>No
+            se realizan trabajos de mampostería ni albañilería bajo ninguna
+            circunstancia.
+          </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            El presupuesto{' '}
+            <Text style={{ fontWeight: 'bold' }}>
+              NO incluye ANDAMIOS NI EQUIPOS DE ELEVACIÓN
+            </Text>
+            , los cuales deben ser provistos por el cliente en caso de ser
+            necesarios para la ejecución del trabajo.
+          </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold' }}>
+              Alcance de la prestación:{' '}
+            </Text>
+            El servicio integral de instalación incluye la totalidad de los
+            materiales específicos de fijación, la mano de obra especializada,
+            el sellado y la correspondiente garantía del trabajo realizado. El
+            costo final del servicio queda sujeto a la verificación técnica de
+            fábrica en obra.
+          </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold' }}>Sellado perimetral: </Text>El
+            sellado hermético perimetral se realiza estrictamente con silicona
+            neutra y poliuretano expandido hasta un máximo de 1 cm de
+            espesor/luz. Cualquier terminación estética posterior (como
+            mampostería, yeso o pintura) correrá por cuenta exclusiva del
+            cliente mediante servicios externos.
+          </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold' }}>Límite de la garantía: </Text>
+            La cobertura de la garantía técnica del servicio no contempla, bajo
+            ningún concepto, la rotura posterior de los vidrios.
+          </Text>
+
+          <Text style={{ marginBottom: 4 }}>
+            <Text style={{ fontWeight: 'bold' }}>
+              OBSERVACIÓN - INSTALACIÓN DE PAÑOS FIJOS:{' '}
+            </Text>
+            La empresa no se responsabiliza por paños fijos instalados por
+            terceros o personal ajeno a la empresa, quedando excluida la
+            cobertura ante roturas de vidrio, filtraciones o fallas de sellado.
+            La colocación de estas aberturas exige personal calificado.
+          </Text>
+
+          <Text style={{ marginBottom: 8 }}>
+            <Text style={{ fontWeight: 'bold' }}>
+              OBSERVACIÓN - REGULACIÓN POR TERCEROS:{' '}
+            </Text>
+            La empresa NO se responsabiliza por desajustes o la mala regulación
+            posterior de puertas y hojas si la instalación o manipulación es
+            ejecutada por personal ajeno a nuestra firma.
+          </Text>
+
+          {/* Conservamos la forma de pago original */}
           <Text style={{ marginBottom: 8 }}>
             <Text style={{ fontWeight: 'bold' }}>FORMA DE PAGO: </Text>
             El trabajo se realiza con un 80% de seña que debe ser abonado en
             nuestra oficina, y el saldo restante al momento de entregar la obra.
           </Text>
+
           <Text
             style={{
               fontSize: 14,
